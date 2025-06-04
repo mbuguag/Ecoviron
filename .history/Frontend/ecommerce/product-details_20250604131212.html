@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Product Details | GreenEarth Shop</title>
+        <link rel="stylesheet" href="../css/styles.css" />
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main>
+            <section class="section-padding product-detail-section">
+                <div class="container">
+                    <div id="product-detail">
+                        <!-- JS will inject product details here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+
+        <script src="../js/main.js"></script>
+        <script>
+            const productData = {
+                1: {
+                    name: "Reusable Water Bottle",
+                    price: "KES 500",
+                    image: "../assets/images/products/bottle.jpg",
+                    description: "Stay hydrated while reducing single-use plastics. Made from BPA-free materials."
+                },
+                2: {
+                    name: "Eco-friendly Shopping Bag",
+                    price: "KES 350",
+                    image: "../assets/images/products/bag.jpg",
+                    description: "Durable, washable, and designed to help reduce plastic bag usage."
+                },
+                3: {
+                    name: "Biodegradable Plates (Set of 10)",
+                    price: "KES 700",
+                    image: "../assets/images/products/plates.jpg",
+                    description: "Perfect for parties and events. Compostable and planet-friendly."
+                }
+            };
+
+            function getProductIdFromURL() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
+
+            function loadProductDetail() {
+                const productId = getProductIdFromURL();
+                const product = productData[productId];
+
+                if (!product) {
+                    document.getElementById("product-detail").innerHTML = "<p>Product not found.</p>";
+                    return;
+                }
+
+                document.getElementById("product-detail").innerHTML = `
+        <div class="product-detail-card">
+          <img src="${product.image}" alt="${product.name}" class="product-image"/>
+          <div class="product-info">
+            <h2>${product.name}</h2>
+            <p class="product-price">${product.price}</p>
+            <p>${product.description}</p>
+            <button class="btn" onclick="addToCart('${productId}')">Add to Cart</button>
+          </div>
+        </div>
+      `;
+            }
+
+            function addToCart(productId) {
+                alert("Simulated: Product ID " + productId + " added to cart.");
+                // In real app, update cart storage/session
+            }
+
+            window.addEventListener('DOMContentLoaded', loadProductDetail);
+        </script>
+
+        <style>
+            .product-detail-card {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2rem;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                width: 300px;
+                border-radius: 8px;
+            }
+
+            .product-info {
+                max-width: 500px;
+            }
+
+            .product-price {
+                color: #2b7a2b;
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+        </style>
+    </body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Details | Ecoviron Shop</title>
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main>
+            <section class="section-padding product-detail-section">
+                <div class="container">
+                    <a href="/frontend/ecommerce/product-grid.html" class="back-link">← Back to Shop</a>
+                    <div id="product-detail" class="product-detail-wrapper">
+                        <!-- JS will inject product details here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+
+        <script src="./js/main.js"></script>
+        <script>
+            const productData = {
+                // 1: {
+                //     name: "Reusable Water Bottle",
+                //     price: "KES 850",
+                //     image: "../assets/images/products/water-bottle.jpg",
+                //     description: "Stay hydrated while reducing single-use plastics. Made from BPA-free materials."
+                // },
+                2: {
+                    name: "Solar Lantern",
+                    price: "KES 2,500",
+                    image: "../assets/images/products/solar-lantern.jpg",
+                    description: "Eco-friendly lighting solution powered by solar energy."
+                },
+                3: {
+                    name: "Eco Tote Bag",
+                    price: "KES 500",
+                    image: "../assets/images/products/tote-bag.jpg",
+                    description: "Durable, reusable shopping bag to reduce plastic waste."
+                },
+                4: {
+                    name: "Biodegradable Soap",
+                    price: "KES 300",
+                    image: "../assets/images/products/soap.jpg",
+                    description: "Natural soap that's gentle on your skin and the environment."
+                }
+            };
+
+            function getProductIdFromURL() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
+
+            function loadProductDetail() {
+                const productId = getProductIdFromURL();
+                const product = productData[productId];
+
+                if (!product) {
+                    document.getElementById("product-detail").innerHTML = `
+          <div class="not-found">
+            <p>Sorry, the product you're looking for was not found.</p>
+            <a href="/frontend/ecommerce/product-grid.html" class="btn">Return to Shop</a>
+          </div>`;
+                    return;
+                }
+
+                document.getElementById("product-detail").innerHTML = `
+        <div class="product-detail-card">
+          <img src="${product.image}" alt="${product.name}" class="product-image" />
+          <div class="product-info">
+            <h2>${product.name}</h2>
+            <p class="product-price">${product.price}</p>
+            <p>${product.description}</p>
+            <button class="btn" onclick="addToCart('${productId}')">Add to Cart</button>
+          </div>
+        </div>`;
+            }
+
+            function addToCart(productId) {
+                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                cart.push(productId);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                alert("Added to cart!");
+            }
+
+            window.addEventListener('DOMContentLoaded', loadProductDetail);
+        </script>
+    </body>
+
+</html>

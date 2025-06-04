@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Eco-Friendly Products | GreenEarth</title>
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main>
+            <section class="section-padding">
+                <div class="container">
+                    <h1 class="section-title">Eco-Friendly Products</h1>
+                    <div class="grid-four-columns" id="product-grid">
+                        <!-- Product cards injected by JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+
+        <script src="../js/main.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                loadComponent(resolvePath("components/header.html"), "header-container");
+                loadComponent(resolvePath("components/footer.html"), "footer-container");
+
+                initializeProductGrid();
+            });
+
+            function initializeProductGrid() {
+                const productGrid = document.getElementById("product-grid");
+                if (!productGrid) return;
+
+                const products = [
+                    {
+                        name: "Reusable Water Bottle",
+                        price: "KSh 850",
+                        image: "assets/images/products/water-bottle.jpg",
+                        link: "product-details.html?id=1"
+                    },
+                    {
+                        name: "Solar Lantern",
+                        price: "KSh 2,500",
+                        image: "assets/images/products/solar-lantern.jpg",
+                        link: "product-details.html?id=2"
+                    },
+                    {
+                        name: "Eco Tote Bag",
+                        price: "KSh 500",
+                        image: "assets/images/products/tote-bag.jpg",
+                        link: "product-details.html?id=3"
+                    },
+                    {
+                        name: "Biodegradable Soap",
+                        price: "KSh 300",
+                        image: "assets/images/products/soap.jpg",
+                        link: "product-details.html?id=4"
+                    },
+                    {
+                        name: "Bamboo Toothbrush",
+                        price: "KSh 150",
+                        image: "assets/images/products/toothbrush.jpg",
+                        link: "product-details.html?id=5"
+                    },
+                    {
+                        name: "Organic Fertilizer",
+                        price: "KSh 1,200",
+                        image: "assets/images/products/fertilizer.jpg",
+                        link: "product-details.html?id=6"
+                    }
+                ];
+
+                products.forEach(product => {
+                    const card = document.createElement("div");
+                    card.className = "product-card";
+                    card.innerHTML = `
+          <a href="${resolvePath(product.link)}">
+            <img src="${resolvePath(product.image)}" alt="${product.name}" loading="lazy">
+            <h4>${product.name}</h4>
+            <p class="price">${product.price}</p>
+          </a>
+        `;
+                    productGrid.appendChild(card);
+                });
+            }
+        </script>
+    </body>
+
+</html>

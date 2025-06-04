@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Checkout | Ecoviron Shop</title>
+        <link rel="stylesheet" href="../css/styles.css" />
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main>
+            <section class="section-padding checkout-section">
+                <div class="container">
+                    <h2>Checkout</h2>
+
+                    <div id="checkout-cart"></div>
+
+                    <form id="checkout-form" class="checkout-form">
+                        <h3>Billing Details</h3>
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required />
+
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required />
+
+                        <label for="address">Shipping Address</label>
+                        <input type="text" id="address" name="address" required />
+
+                        <label for="payment">Payment Method</label>
+                        <select id="payment" name="payment" required>
+                            <option value="">Select...</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="card">Credit/Debit Card</option>
+                        </select>
+
+                        <button type="submit" class="btn">Place Order</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+
+        <script src="../js/main.js"></script>
+        <script>
+            const productData = {
+                1: {
+                    name: "Reusable Water Bottle",
+                    price: "KES 850",
+                    image: "../assets/images/products/water-bottle.jpg"
+                },
+                2: {
+                    name: "Solar Lantern",
+                    price: "KES 2,500",
+                    image: "../assets/images/products/solar-lantern.jpg"
+                },
+                3: {
+                    name: "Eco Tote Bag",
+                    price: "KES 500",
+                    image: "../assets/images/products/tote-bag.jpg"
+                },
+                4: {
+                    name: "Biodegradable Soap",
+                    price: "KES 300",
+                    image: "../assets/images/products/soap.jpg"
+                }
+            };
+
+            function loadCheckoutCart() {
+                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                let html = '<ul class="checkout-cart-list">';
+                let total = 0;
+
+                if (cart.length === 0) {
+                    document.getElementById("checkout-cart").innerHTML = "<p>Your cart is empty.</p>";
+                    document.getElementById("checkout-form").style.display = "none";
+                    return;
+                }
+
+                cart.forEach(id => {
+                    const product = productData[id];
+                    if (product) {
+                        html += `
+            <li>
+              <img src="${product.image}" alt="${product.name}" />
+              <span>${product.name}</span> - <span>${product.price}</span>
+            </li>
+          `;
+
+                        total += parseInt(product.price.replace(/[^\d]/g, ''));
+                    }
+                });
+
+                html += `</ul><p class="total-amount">Total: KES ${total.toLocaleString()}</p>`;
+                document.getElementById("checkout-cart").innerHTML = html;
+            }
+
+            document.getElementById("checkout-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+                alert("Order placed successfully!");
+                localStorage.removeItem("cart");
+                window.location.href = "/Frontend/index.html";
+            });
+
+            window.addEventListener("DOMContentLoaded", loadCheckoutCart);
+        </script>
+    </body>
+
+</html>
