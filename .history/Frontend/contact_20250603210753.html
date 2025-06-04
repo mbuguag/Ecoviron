@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout(~{::body})">
+
+    <head>
+        <title>Contact Us | EcoGuard Consultancy</title>
+    </head>
+
+    <body>
+        <div class="container py-5">
+            <h1 class="text-center mb-4">Contact Us</h1>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Our Address</h4>
+                    <p><strong>EcoGuard Environmental Consultancy</strong></p>
+                    <p>123 Green Lane,<br>Nairobi, Kenya</p>
+                    <p><strong>Email:</strong> info@ecoguard.co.ke</p>
+                    <p><strong>Phone:</strong> +254 700 000000</p>
+                </div>
+
+                <div class="col-md-6">
+                    <h4>Send Us a Message</h4>
+                    <form action="#" method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Send Message</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <h5>Connect with us on social media</h5>
+                <a href="https://facebook.com/ecoguard" class="mx-2" target="_blank">
+                    <i class="fab fa-facebook fa-2x"></i>
+                </a>
+                <a href="https://twitter.com/ecoguard" class="mx-2" target="_blank">
+                    <i class="fab fa-twitter fa-2x"></i>
+                </a>
+                <a href="https://linkedin.com/company/ecoguard" class="mx-2" target="_blank">
+                    <i class="fab fa-linkedin fa-2x"></i>
+                </a>
+                <a href="https://instagram.com/ecoguard" class="mx-2" target="_blank">
+                    <i class="fab fa-instagram fa-2x"></i>
+                </a>
+            </div>
+        </div>
+    </body>
+
+</html>
