@@ -7,29 +7,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "products")
+@Table(name = "categories")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
-
-    private String description;
-
-    private String imageUrl;
-
-    @Column(nullable = false)
-    private double price;
-
-    private int stock;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
 }
