@@ -8,11 +8,13 @@ import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class OderServiceImpl implements OrderService {
 
     @Autowired
@@ -20,6 +22,10 @@ public class OderServiceImpl implements OrderService {
 
     @Autowired
     private CartService cartService;
+
+    public OderServiceImpl(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     public Order placeOrder(User user){

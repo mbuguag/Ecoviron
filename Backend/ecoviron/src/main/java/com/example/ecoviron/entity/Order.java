@@ -7,8 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
+@Table(name = "`order`")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,5 +27,9 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
+
     private double totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 }
