@@ -26,10 +26,9 @@
 
         <script src="../js/main.js"></script>
         <script>
-           document.getElementById("registerForm").addEventListener("submit", function (e) {
+            document.getElementById("registerForm").addEventListener("submit", function (e) {
                 e.preventDefault();
-                const form = e.target;
-                const button = form.querySelector("button");
+               const button = form.querySelector("button");
                 button.disabled = true;
                 button.textContent = "Registering...";
 
@@ -51,8 +50,8 @@
                         button.disabled = false;
                         button.textContent = "Register";
                     });
-            });
 
+            });
         </script>
     </body>
 

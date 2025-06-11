@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Admin Dashboard</title>
+        
+        <link rel="stylesheet" href="admin-style.css">
+    </head>
+
+    <body>
+        <div class="sidebar">
+            <h2>EcoAdmin</h2>
+            <ul>
+                <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="admin-products.html">Products</a></li>
+                <li><a href="admin-orders.html">Orders</a></li>
+                <li><a href="admin-users.html">Users</a></li>
+                <li><a href="logout.html">Logout</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <h1>Welcome, Admin</h1>
+            </header>
+
+            <section class="stats">
+                <div class="card" id="total-orders">Total Orders: Loading...</div>
+                <div class="card" id="total-users">Total Users: Loading...</div>
+                <div class="card" id="total-products">Total Products: Loading...</div>
+            </section>
+
+            <section class="chart">
+                <canvas id="orderChart" width="400" height="200"></canvas>
+            </section>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="dashboard.js"></script>
+    </body>
+
+</html>

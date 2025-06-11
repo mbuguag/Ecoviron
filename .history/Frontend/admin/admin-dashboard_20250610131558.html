@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Dashboard</title>
+        <link rel="stylesheet" href="admin-style.css" />
+    </head>
+
+    <body>
+        <div class="admin-container">
+            <h1>Admin Dashboard</h1>
+
+            <nav class="admin-nav">
+                <a href="admin-products.html">Product Management</a>
+                <a href="admin-orders.html">View Orders</a>
+                <a href="admin-users.html">User Management</a>
+            </nav>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h2>Total Users</h2>
+                    <p id="total-users">0</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Total Orders</h2>
+                    <p id="total-orders">0</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Total Products</h2>
+                    <p id="total-products">0</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Total Revenue</h2>
+                    <p id="total-revenue">KES 0</p>
+                </div>
+            </div>
+        </div>
+
+        <script src="admin-dashboard.js"></script>
+    </body>
+
+</html>

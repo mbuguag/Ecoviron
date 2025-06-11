@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Logging out...</title>
+    </head>
+
+    <body>
+        <script>
+            localStorage.removeItem("jwt");
+            localStorage.removeItem("username");
+            window.location.href = "admin-login.html";
+        </script>
+    </body>
+
+</html>

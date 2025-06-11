@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Ecoviron</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Ecoviron Admin Panel</h1>
+    <nav>
+      <ul>
+        <li><a href="#" onclick="showSection('products')">Products</a></li>
+        <li><a href="#" onclick="showSection('orders')">Orders</a></li>
+        <li><a href="#" onclick="showSection('users')">Users</a></li>
+        <li><a href="/">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="products" class="admin-section">
+      <h2>Manage Products</h2>
+      <!-- Product Management Table & Controls will go here -->
+    </section>
+
+    <section id="orders" class="admin-section" style="display:none;">
+      <h2>View Orders</h2>
+      <!-- Orders Table Placeholder -->
+    </section>
+
+    <section id="users" class="admin-section" style="display:none;">
+      <h2>Manage Users</h2>
+      <!-- Users Placeholder -->
+    </section>
+  </main>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

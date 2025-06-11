@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Users</title>
+  cript>
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+        window.location.href = "admin-login.html";
+    }
+</script>
+  <link rel="stylesheet" href="admin-style.css" />
+</head>
+<body>
+    <header>
+        <h1>Ecoviron Admin Panel</h1>
+        <nav>
+            <ul>
+                <li><a href="admin-products.html" onclick="showSection('products')">Products</a></li>
+                <li><a href="admin-orders.html" onclick="showSection('orders')">Orders</a></li>
+                <li><a href="admin-users.html" onclick="showSection('users')">Users</a></li>
+                <li><a href="/">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+  <div class="admin-container">
+    <h2>Users</h2>
+    <table id="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch("/api/users", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    })
+      .then((res) => res.json())
+      .then((users) => {
+        const table = document.querySelector("#users-table tbody");
+        users.forEach((user) => {
+          const row = `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.email}</td>
+              <td>${user.role}</td>
+              <td>
+                <button onclick="deleteUser(${user.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+          table.innerHTML += row;
+        });
+      });
+
+    function deleteUser(id) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token")
+        }
+      }).then(() => location.reload());
+    }
+  </script>
+</body>
+</html>

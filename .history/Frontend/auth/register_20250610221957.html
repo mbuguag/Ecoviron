@@ -28,8 +28,8 @@
         <script>
            document.getElementById("registerForm").addEventListener("submit", function (e) {
                 e.preventDefault();
-                const form = e.target;
-                const button = form.querySelector("button");
+                const form = e.target; // Define form first
+                const button = form.querySelector("button"); // Now safe to use
                 button.disabled = true;
                 button.textContent = "Registering...";
 

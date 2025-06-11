@@ -26,18 +26,14 @@
 
         <script src="../js/main.js"></script>
         <script>
-           document.getElementById("registerForm").addEventListener("submit", function (e) {
+            document.getElementById("registerForm").addEventListener("submit", function (e) {
                 e.preventDefault();
                 const form = e.target;
-                const button = form.querySelector("button");
-                button.disabled = true;
-                button.textContent = "Registering...";
-
                 fetch("http://localhost:8080/api/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        fullName: form.name.value,
+                        fullname: form.name.value,
                         email: form.email.value,
                         password: form.password.value
                     })
@@ -46,13 +42,8 @@
                     .then(msg => {
                         alert(msg);
                         window.location.href = "login.html";
-                    })
-                    .finally(() => {
-                        button.disabled = false;
-                        button.textContent = "Register";
                     });
             });
-
         </script>
     </body>
 

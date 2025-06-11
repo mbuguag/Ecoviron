@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Panel - Ecoviron</title>
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+
+    <body>
+        <div class="sidebar">
+            <h2>EcoAdmin</h2>
+            <ul>
+                <li><a href="admin-dashboard.html" onclick="showSection('products')">Dashboard</a></li>
+                <li><a href="admin-products.html">Products</a></li>
+                <li><a href="admin-orders.html">Orders</a></li>
+                <li><a href="admin-users.html">Users</a></li>
+                <li><a href="logout.html">Logout</a></li>
+            </ul>
+        </div>
+
+        <main>
+            <section id="products" class="admin-section">
+                <h2>Manage Products</h2>
+                <form id="productForm">
+                    <h3 id="formTitle">Add Product</h3>
+                    <input type="hidden" id="productId">
+                    <label>Name: <input type="text" id="productName" required></label><br>
+                    <label>Description: <textarea id="productDescription"></textarea></label><br>
+                    <label>Price: <input type="number" id="productPrice" step="0.01" required></label><br>
+                    <label>Image URL: <input type="text" id="productImageUrl"></label><br>
+                    <label>Category: <input type="text" id="productCategory"></label><br>
+                    <button type="submit">Save Product</button>
+                    <button type="button" onclick="resetForm()">Cancel</button>
+                </form>
+                
+                <hr>
+                
+
+                <h3>Product List</h3>
+                <table id="productTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </section>
+
+
+            <section id="orders" class="admin-section" style="display:none;">
+                <h2>View Orders</h2>
+                <!-- Orders Table Placeholder -->
+            </section>
+
+            <section id="users" class="admin-section" style="display:none;">
+                <h2>Manage Users</h2>
+                <!-- Users Placeholder -->
+            </section>
+        </main>
+
+        <script src="js/dashboard.js"></script>
+    </body>
+
+</html>

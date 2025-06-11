@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Dashboard - EcoAdmin</title>
+        <script>
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "admin.html";
+            }
+        </script>
+        <link rel="stylesheet" href="css/styles.css" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+
+    <body>
+
+        <div class="sidebar">
+            <h2>EcoAdmin</h2>
+            <a href="#" onclick="showSection('dashboard'); setActive(this)" class="active">Dashboard</a>
+            <a href="#" onclick="showSection('products'); setActive(this)">Products</a>
+            <a href="#" onclick="showSection('orders'); setActive(this)">Orders</a>
+            <a href="#" onclick="showSection('users'); setActive(this)">Users</a>
+            <a href="logout.html">Logout</a>
+        </div>
+
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section">
+                <h2>Overview</h2>
+                <div id="total-orders">Total Orders: 0</div>
+                <div id="total-users">Total Users: 0</div>
+                <div id="total-products">Total Products: 0</div>
+                <canvas id="orderChart" width="400" height="200"></canvas>
+            </section>
+
+            <!-- Product Management -->
+            <section id="products" class="admin-section" style="display: none;">
+                <h2>Product Management</h2>
+                <form id="productForm">
+                    <h3 id="formTitle">Add Product</h3>
+                    <input type="hidden" id="productId" />
+                    <label>Name: <input type="text" id="productName" required /></label>
+                    <label>Description: <input type="text" id="productDescription" required /></label>
+                    <label>Price: <input type="number" id="productPrice" required /></label>
+                    <label>Image URL: <input type="text" id="productImageUrl" /></label>
+                    <label>Category: <input type="text" id="productCategory" /></label>
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="resetForm()">Cancel</button>
+                </form>
+                <hr />
+                <table id="productTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <!-- Order Management -->
+            <section id="orders" class="admin-section" style="display: none;">
+                <h2>Order Management</h2>
+                <table id="orderTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Orders will be loaded here by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- User Management -->
+            <section id="users" class="admin-section" style="display: none;">
+                <h2>User Management</h2>
+                <table id="userTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Users will be loaded here by JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <script src="js/dashboard.js"></script>
+        <script>
+            function setActive(el) {
+                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                el.classList.add('active');
+            }
+        </script>
+    </body>
+
+</html>
