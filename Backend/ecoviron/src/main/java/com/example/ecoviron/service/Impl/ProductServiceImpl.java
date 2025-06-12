@@ -49,4 +49,10 @@ public class ProductServiceImpl implements ProductService {
         Product existing = getProductById(id);
         productRepository.delete(existing);
     }
+
+    @Override
+    public List<Product> getFeaturedProducts() {
+        return productRepository.findByFeaturedTrue();
+    }
+
 }

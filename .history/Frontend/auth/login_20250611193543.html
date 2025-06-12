@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login | Ecoviron</title>
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main class="section-padding">
+            <div class="container">
+                <h2>Login</h2>
+                <form id="loginForm" class="auth-form">
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+                <p>Don't have an account? <a href="register.html">Register here</a></p>
+            </div>
+        </main>
+
+        <!-- <script src="../js/main.js"></script> -->
+    
+        <script type="module">
+            import {handleLogin} from '../js/auth.js';
+            handleLogin("loginForm", "http://localhost:8080/api/auth/login");
+    </script>
+
+
+    </body>
+
+</html>

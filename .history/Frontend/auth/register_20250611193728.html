@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register | Ecoviron</title>
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main class="section-padding">
+            <div class="container">
+                <h2>Create Account</h2>
+                <form id="registerForm" class="auth-form">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit" class="btn">Register</button>
+                </form>
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+        </main>
+
+        <script src="../js/.js"></script>
+        <script type="module">
+            import { handleRegister } from '../js/auth.js';
+            handleRegister("registerForm", "http://localhost:8080/api/auth/register");
+        </script>
+
+    </body>
+
+</html>
