@@ -4,6 +4,7 @@ import com.example.ecoviron.dto.AdminSummaryDTO;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.repository.ProductRepository;
 import com.example.ecoviron.repository.UserRepository;
+import com.example.ecoviron.entity.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,9 +32,9 @@ public class AdminDashboardController {
         summary.setTotalProducts(productRepository.count());
 
         Map<String, Long> statusMap = new HashMap<>();
-        statusMap.put("pending", orderRepository.countByStatus("PENDING"));
-        statusMap.put("shipped", orderRepository.countByStatus("SHIPPED"));
-        statusMap.put("delivered", orderRepository.countByStatus("DELIVERED"));
+        statusMap.put("pending", orderRepository.countByStatus(OrderStatus.PENDING));
+        statusMap.put("shipped", orderRepository.countByStatus(OrderStatus.SHIPPED));
+        statusMap.put("delivered", orderRepository.countByStatus(OrderStatus.DELIVERED));
         summary.setOrderStatus(statusMap);
 
         return summary;

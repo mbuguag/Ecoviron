@@ -15,20 +15,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OderServiceImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
-    @Autowired
     private final OrderRepository orderRepository;
 
     @Autowired
     private CartService cartService;
 
-    public OderServiceImpl(OrderRepository orderRepository) {
+    @Autowired
+    public OrderServiceImpl(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
     @Override
-    public Order placeOrder(User user){
+    public Order placeOrder(User user) {
         Cart cart = cartService.getCartByUser(user);
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> OrderItem.builder()
@@ -49,13 +49,22 @@ public class OderServiceImpl implements OrderService {
                 .totalAmount(totalAmount)
                 .build();
 
-        // Assign order to each item
         orderItems.forEach(item -> item.setOrder(order));
-
-        // Save order and clear cart
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(user);
 
         return savedOrder;
+    }
+
+    // Get all orders (admin)
+    @Override
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    // Get orders by user
+    @Override
+    public List<Order> getOrdersByUser(User user) {
+        return orderRepository.findByUser(user);
     }
 }
