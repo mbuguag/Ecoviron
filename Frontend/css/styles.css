@@ -1118,6 +1118,10 @@ a:hover {
      font-weight: bold;
      font-size: 1.2rem;
  }
+ .product-filter a.active button {
+     background-color: #007b5e;
+     color: white;
+ }
  .cart-table {
      width: 100%;
      border-collapse: collapse;
@@ -1329,4 +1333,30 @@ a:hover {
      font-size: 0.9rem;
      border-top: 1px solid #ccc;
  }
- 
+ .site-footer {
+     background-color: #f4f4f4;
+     padding: 30px 20px;
+     text-align: center;
+     font-size: 14px;
+     color: #333;
+ }
+
+ .site-footer a {
+     color: #333;
+     text-decoration: none;
+ }
+
+ .site-footer .footer-socials {
+     margin-top: 12px;
+ }
+
+ .site-footer .footer-socials a {
+     margin: 0 10px;
+     color: #0077b5;
+     /* default LinkedIn blue */
+     transition: color 0.3s ease;
+ }
+
+ .site-footer .footer-socials a:hover {
+     color: #0056b3;
+ }

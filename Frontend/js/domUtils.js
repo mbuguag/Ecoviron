@@ -2,8 +2,8 @@ export async function loadLayoutComponents() {
   try {
     // Use Promise.all to load components in parallel
     const [headerHtml, footerHtml] = await Promise.all([
-      loadComponent('components/header.html'),
-      loadComponent('components/footer.html')
+      loadComponent('../components/header.html', `header-container`),
+      loadComponent('../components/footer.html', `footer-container`)
     ]);
 
     // Only update DOM if content was received

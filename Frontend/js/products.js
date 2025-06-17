@@ -1,5 +1,5 @@
 import { loadLayoutComponents } from './domUtils.js';
-import { fetchProducts } from './api.js';
+import { fetchAllProducts } from './api.js';
 import { setupCartInteractions } from './cart.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -8,12 +8,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupFilterButtons();
 });
 
+function getCategoryFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('category') || 'all';
+}
 
 async function loadAndRenderProducts() {
     try {
-        const products = await fetchProducts();
+        const products = await fetchAllProducts();
+
+        const category = getCategoryFromQuery();
         renderProductGrid(products);
-        setupCartInteractions(); // For "Add to Cart" buttons
+        filterProducts(category);
+        setupCartInteractions();
     } catch (error) {
         document.getElementById("product-grid").innerHTML = `
             <div class="error-message">
@@ -27,7 +34,8 @@ async function loadAndRenderProducts() {
 function renderProductGrid(products) {
     const gridContainer = document.getElementById("product-grid");
     gridContainer.innerHTML = products.map(product => `
-        <div class="product-card" data-category="${product.category}">
+        <div class="product-card" dat<div class="product-card" data-category="${product.category.name.toLowerCase()}">
+a-category="${product.category}">
             <a href="product-details.html?id=${product.id}">
                 <img src="${product.imageUrl}" alt="${product.name}" class="product-image" />
             </a>
@@ -38,25 +46,37 @@ function renderProductGrid(products) {
             </div>
         </div>
     `).join("");
+
+    setupCartInteractions();
 }
 
 function setupFilterButtons() {
+     const currentCategory = getCategoryFromQuery();
     const filterButtons = document.querySelectorAll(".product-filter button");
-    filterButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const filter = button.dataset.filter;
-            filterProducts(filter);
-        });
+    const filterLinks = document.querySelectorAll(`.filter-link`);
+    
+    filterLinks.forEach(link => {
+        const button = link.querySelector("button");
+        const btnFilter = button.dataset.filter;
+
+        if (btnFilter === filter) {
+            link.classList.add("active");
+        } else {
+            link.classList.remove("active");
+        }
     });
 }
+
 
 function filterProducts(filter) {
     const allProducts = document.querySelectorAll(".product-card");
     allProducts.forEach(product => {
-        const showProduct = filter === "all" || product.dataset.category === filter;
+        const category = product.dataset.category.toLowerCase();
+        const showProduct = filter === "all" || category === filter.toLowerCase();
         product.style.display = showProduct ? "block" : "none";
     });
 }
+
 
 function formatPrice(price) {
     return `KES ${price.toLocaleString()}`;

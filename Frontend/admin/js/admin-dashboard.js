@@ -56,3 +56,43 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("total-revenue").textContent = "KES 0.00";
     });
 });
+
+async function loadOrderSummary() {
+  try {
+    const response = await fetch('http://localhost:8080/api/orders/summary');
+    if (!response.ok) throw new Error('Failed to fetch order summary');
+    
+    const data = await response.json();
+    renderOrderChart(data);
+  } catch (error) {
+    console.error('Error loading order summary:', error);
+  }
+}
+
+function renderOrderChart(summary) {
+  const ctx = document.getElementById('orderStatusChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Pending', 'Delivered'],
+      datasets: [{
+        label: 'Order Status',
+        data: [summary.pending, summary.delivered],
+        backgroundColor: ['#f39c12', '#2ecc71'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Orders Summary'
+        }
+      }
+    }
+  });
+}
+
+// Load on page ready
+document.addEventListener("DOMContentLoaded", loadOrderSummary);
