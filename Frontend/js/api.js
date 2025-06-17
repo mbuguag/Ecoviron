@@ -1,13 +1,30 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+import { API_BASE_URL } from './apiConfig.js';
 
-export async function fetchProducts() {
-  const response = await fetch(`${API_BASE_URL}/products/all`);
-  if (!response.ok) throw new Error('Failed to fetch products');
-  return await response.json();
+
+// Fetch all products
+export async function fetchAllProducts() {
+  const res = await fetch(`${API_BASE_URL}/products`);
+  if (!res.ok) throw new Error("Failed to fetch products");
+  return res.json();
 }
 
-export async function fetchProductById(productId) {
-  const response = await fetch(`${API_BASE_URL}/products/${productId}`);
-  if (!response.ok) throw new Error('Product not found');
-  return await response.json();
+// Fetch one product by ID
+export async function fetchProductById(id) {
+  const res = await fetch(`${API_BASE_URL}/products/${id}`);
+  if (!res.ok) throw new Error("Product not found");
+  return res.json();
+}
+
+// Submit order to backend
+export async function submitOrder(orderData) {
+  const res = await fetch(`${API_BASE_URL}/orders`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(orderData)
+  });
+
+  if (!res.ok) throw new Error("Failed to submit order");
+  return res.json();
 }

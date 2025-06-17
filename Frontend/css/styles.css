@@ -1259,6 +1259,74 @@ a:hover {
      height: auto;
      border-radius: 4px;
  }
+
+ /* Toast Notifications */
+ .toast-notification {
+     position: fixed;
+     bottom: 20px;
+     left: 50%;
+     transform: translateX(-50%);
+     background: #4CAF50;
+     color: white;
+     padding: 12px 24px;
+     border-radius: 4px;
+     z-index: 1000;
+     animation: fadeInOut 3s ease-in-out;
+ }
+
+ @keyframes fadeInOut {
+
+     0%,
+     100% {
+         opacity: 0;
+     }
+
+     10%,
+     90% {
+         opacity: 1;
+     }
+ }
+
+ /* Error States */
+ .not-found,
+ .error {
+     text-align: center;
+     padding: 2rem;
+ }
+
+ /* Product Detail Card */
+ .product-detail-card {
+     display: flex;
+     gap: 2rem;
+     margin-top: 2rem;
+ }
+
+ .product-image {
+     max-width: 400px;
+     border-radius: 8px;
+ }
  
- 
+ .default-header {
+     background-color: #2a7f62;
+     /* Ecoviron green tone */
+     color: #fff;
+     padding: 1rem 2rem;
+     text-align: center;
+     font-size: 1.5rem;
+     font-weight: bold;
+ }
+
+ .default-header a {
+     color: #fff;
+     text-decoration: none;
+ }
+
+ .default-footer {
+     background-color: #f4f4f4;
+     color: #333;
+     padding: 1rem 2rem;
+     text-align: center;
+     font-size: 0.9rem;
+     border-top: 1px solid #ccc;
+ }
  

@@ -1,96 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | Ecoviron Shop</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/cart.css">
+</head>
+<body>
+    <div id="header-container"></div>
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Your Cart | Ecoviron Shop</title>
-        <link rel="stylesheet" href="../css/styles.css" />
-    </head>
-
-    <body>
-        <div id="header-container"></div>
-
-        <main class="section-padding">
-            <div class="container">
-                <h2>Your Cart</h2>
-                <div id="cart-container"></div>
-                <button class="btn danger" onclick="clearCart()">Clear Cart</button>
+    <main class="section-padding">
+        <div class="container">
+            <h2>Your Cart</h2>
+            <div id="cart-container">
+                <!-- Cart content will be dynamically inserted here -->
             </div>
-        </main>
+        </div>
+    </main>
 
-        <footer id="footer-container"></footer>
+    <footer id="footer-container"></footer>
 
-        <script src="../js/main.js"></script>
-        <script>
-            const productData = {
-                1: { name: "Reusable Water Bottle", price: 850, image: "../assets/images/products/water-bottle.jpg" },
-                2: { name: "Solar Lantern", price: 2500, image: "../assets/images/products/solar-lantern.jpg" },
-                3: { name: "Eco Tote Bag", price: 500, image: "../assets/images/products/tote-bag.jpg" },
-                4: { name: "Biodegradable Soap", price: 300, image: "../assets/images/products/soap.jpg" }
-            };
-
-            function loadCart() {
-                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                const container = document.getElementById("cart-container");
-                if (cart.length === 0) {
-                    container.innerHTML = "<p>Your cart is empty.</p>";
-                    return;
-                }
-
-                let html = '<table class="cart-table"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody>';
-                let total = 0;
-
-                cart.forEach((item, index) => {
-                    const product = productData[item.id];
-                    if (product) {
-                        const itemTotal = product.price * item.quantity;
-                        total += itemTotal;
-
-                        html += `
-            <tr>
-              <td><img src="${product.image}" alt="${product.name}" class="cart-img"/> ${product.name}</td>
-              <td>
-                <input type="number" min="1" value="${item.quantity}" onchange="updateQuantity(${index}, this.value)" />
-              </td>
-              <td>KES ${product.price}</td>
-              <td>KES ${itemTotal}</td>
-              <td><button onclick="removeItem(${index})" class="btn danger small">Remove</button></td>
-            </tr>
-          `;
-                    }
-                });
-
-                html += `</tbody></table><p class="total-amount">Grand Total: KES ${total.toLocaleString()}</p>`;
-                html += `<a href="checkout.html" class="btn primary">Proceed to Checkout</a>`;
-                container.innerHTML = html;
-            }
-
-            function updateQuantity(index, quantity) {
-                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                quantity = parseInt(quantity);
-                if (quantity < 1) return;
-                cart[index].quantity = quantity;
-                localStorage.setItem("cart", JSON.stringify(cart));
-                loadCart();
-            }
-
-            function removeItem(index) {
-                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                cart.splice(index, 1);
-                localStorage.setItem("cart", JSON.stringify(cart));
-                loadCart();
-            }
-
-            function clearCart() {
-                if (confirm("Are you sure you want to clear the cart?")) {
-                    localStorage.removeItem("cart");
-                    loadCart();
-                }
-            }
-
-            window.addEventListener("DOMContentLoaded", loadCart);
-        </script>
-    </body>
-
+    <script type="module" src="../js/main.js"></script>
+    <script type="module" src="../js/cart.js"></script>
+</body>
 </html>
