@@ -1,5 +1,6 @@
 package com.example.ecoviron.controller;
 
+import com.example.ecoviron.dto.AddToCartRequest;
 import com.example.ecoviron.entity.Cart;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.service.CartService;
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin
+@CrossOrigin(origins = "http://127.0.0.1:5500")
+
 public class CartController {
 
     @Autowired
@@ -18,6 +20,7 @@ public class CartController {
 
     @Autowired
     private UserService userService; // Assumes you have a way to get current user
+
 
     // Example: Get user from security context (replace this method with actual logic)
     private User getCurrentUser() {
@@ -33,9 +36,13 @@ public class CartController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<Cart> addToCart(@RequestParam Long productId, @RequestParam int quantity) {
+    public ResponseEntity<Cart> addToCart(@RequestBody AddToCartRequest request) {
+        if (request.productId == null || request.quantity <= 0) {
+            return ResponseEntity.badRequest().build();
+        }
+
         User user = getCurrentUser();
-        Cart updatedCart = cartService.addItemToCart(user, productId, quantity);
+        Cart updatedCart = cartService.addItemToCart(user, request.productId, request.quantity);
         return ResponseEntity.ok(updatedCart);
     }
 
