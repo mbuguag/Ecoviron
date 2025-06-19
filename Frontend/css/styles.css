@@ -65,6 +65,30 @@ body {
     color:#005c30;
 }
 
+.cart-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+.cart-link {
+    color: #2d2d2d;
+    font-size: 1.4rem;
+    text-decoration: none;
+    position: relative;
+}
+
+.cart-count-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #28a745;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
 .dropdown {
     position: relative;
 }
@@ -162,56 +186,51 @@ body {
 .footer-socials a:hover img {
     transform: scale(1.1);
 }
-.carousel-section {
+/* .carousel-section {
     text-align: center;
     padding: 40px 20px;
     background: #fff;
-}
+} */
 
 .carousel-container {
+    display: flex;
+    align-items: center;
     position: relative;
-    width: 90%;
-    max-width: 800px;
-    margin: auto;
     overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .carousel-slide {
     display: flex;
     transition: transform 0.5s ease-in-out;
+    gap: 1rem;
 }
 
 .carousel-item {
-    min-width: 100%;
-    box-sizing: border-box;
+    flex: 0 0 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    min-height: 200px;
+    text-align: center;
 }
 
-.carousel-item img {
-    width: 100%;
-    max-height: 600px;
-    object-fit: contain;
-}
-
-button#prevBtn,
-button#nextBtn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2rem;
-    background-color: transparent;
-    border: none;
-    color: #2f8f2f;
-    cursor: pointer;
-    z-index: 10;
-}
-
-#prevBtn {
-    left: 10px;
-}
-
+#prevBtn,
 #nextBtn {
-    right: 10px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+#prevBtn:hover,
+#nextBtn:hover {
+    background-color: #16a085;
 }
 
 .journey-section {
@@ -350,6 +369,10 @@ button#nextBtn {
     max-width: 600px;
     margin: 0 auto;
     text-align: left;
+}
+.form-response {
+    margin-top: 10px;
+    font-weight: bold;
 }
 
 .form-group {

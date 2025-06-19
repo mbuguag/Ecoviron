@@ -1,3 +1,5 @@
+import { loadComponent, resolvePath, getAssetPath, formatPrice } from "./modules/Utils.js";
+
 export async function loadLayoutComponents() {
   try {
     // Use Promise.all to load components in parallel
@@ -29,26 +31,26 @@ export async function loadLayoutComponents() {
 }
 
 // Helper function to load individual components
-async function loadComponent(url) {
-  try {
-    const response = await fetch(resolvePath(url));
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.text();
-  } catch (error) {
-    console.error(`Failed to load ${url}:`, error);
-    return null;
-  }
-}
+// async function loadComponent(url) {
+//   try {
+//     const response = await fetch(resolvePath(url));
+//     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+//     return await response.text();
+//   } catch (error) {
+//     console.error(`Failed to load ${url}:`, error);
+//     return null;
+//   }
+// }
 
 // Path resolution for different environments
-function resolvePath(relativePath) {
-  if (relativePath.startsWith('/') || relativePath.match(/^https?:/)) {
-    return relativePath;
-  }
-  // Adjust base path for your project structure
-  const basePath = window.location.pathname.includes('/Frontend') ? '/Frontend' : '';
-  return `${basePath}/${relativePath}`;
-}
+// function resolvePath(relativePath) {
+//   if (relativePath.startsWith('/') || relativePath.match(/^https?:/)) {
+//     return relativePath;
+//   }
+//   // Adjust base path for your project structure
+//   const basePath = window.location.pathname.includes('/Frontend') ? '/Frontend' : '';
+//   return `${basePath}/${relativePath}`;
+// }
 
 // Initialize any header interactivity
 function initHeaderScripts() {

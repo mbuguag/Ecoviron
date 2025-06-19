@@ -1,24 +1,24 @@
-export function initServices() {
-  const servicesGrid = document.querySelector('.services-grid');
-  if (!servicesGrid) return;
+import { API_BASE_URL } from '../apiConfig.js';
 
-  const services = [
-    {
-      title: "Work safety and Hygiene Surveys",
-      description: "Prepare compliant EIAs for projects to meet NEMA regulations.",
-      image: "assets/icons/occupational-safety-and-health.png",
-      link: "services/eia.html"
-    },
-    // ... other services
-  ];
+export async function initServices() {
+  const grid = document.getElementById('dynamic-services-grid');
+  if (!grid) return;
 
-  servicesGrid.innerHTML = services.map(service => `
-    <div class="service-card">
-      <a href="${service.link}">
-        <img src="${service.image}" alt="${service.title}" loading="lazy">
+  try {
+    const res = await fetch(`${API_BASE_URL}/services`);
+    if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
+    const services = await res.json();
+
+    grid.innerHTML = services.map(service => `
+      <div class="service-card">
+        <img src="${service.imageUrl}" alt="${service.title}" class="service-image" />
         <h3>${service.title}</h3>
         <p>${service.description}</p>
-      </a>
-    </div>
-  `).join('');
+        <a href="${service.link}" class="btn-primary">Learn More</a>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Error loading services:', error);
+    grid.innerHTML = `<p class="error">Unable to load services at the moment.</p>`;
+  }
 }

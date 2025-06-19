@@ -1,4 +1,4 @@
-import { formatPrice } from './utils.js';
+import { formatPrice } from './Utils.js';
 
 const featuredProducts = [
   {

@@ -1,8 +1,9 @@
 import { BASE_PATH } from '../apiConfig.js';
 
+
 const isLocalDev = window.location.hostname === 'localhost' || 
                    window.location.hostname === '127.0.0.1';
-
+                   
 export function formatPrice(amount) {
   return `KES ${amount.toLocaleString()}`;
 }
@@ -41,14 +42,18 @@ export function resolvePath(relativePath) {
     return relativePath;
   }
   
-  // For components, always use BASE_PATH
+  // Handle components properly (no ../ needed)
   if (relativePath.includes('components/')) {
-    return `${BASE_PATH}${relativePath}`;
+    return `/frontend/components/${relativePath.split('components/')[1]}`;
   }
-  
-  // For other relative paths, calculate based on current location
-  const currentPath = window.location.pathname;
-  const depth = currentPath.split('/').filter(Boolean).length - 1;
+
+  // Handle ecommerce assets
+  if (relativePath.includes('ecommerce/')) {
+    return `/frontend/ecommerce/${relativePath.split('ecommerce/')[1]}`;
+  }
+
+  // Default: base it on file depth
+  const depth = window.location.pathname.split('/').filter(Boolean).length - 2; // -2 for `/frontend/`
   const prefix = depth > 0 ? '../'.repeat(depth) : './';
   return prefix + relativePath;
 }
@@ -81,3 +86,5 @@ export function getAssetPath(relativePath) {
   const prefix = depth > 0 ? '../'.repeat(depth) : './';
   return prefix + relativePath;
 }
+
+// console.log('Resolved URL:', resolvePath('components/header.html'));

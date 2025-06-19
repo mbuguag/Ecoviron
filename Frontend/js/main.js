@@ -2,9 +2,8 @@ import { initCarousel } from './modules/carousel.js';
 import { initContactForm } from './modules/contact.js';
 import { initFeaturedProducts } from './modules/featured-products.js';
 import { initServices } from './modules/services.js';
-import { loadComponent, resolvePath } from './modules/utils.js';
 import { loadLayoutComponents } from './modules/components.js';
-
+import { initAboutSection } from './modules/about.js';
 
 
 // Initialize all components and page modules
@@ -38,6 +37,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (document.querySelector('.services-grid')) {
       initTasks.push(initServices());
     }
+
+    if (document.getElementById('who-we-are-content')) {
+  initTasks.push(initAboutSection());
+}
+
 
     await Promise.all(initTasks);
     

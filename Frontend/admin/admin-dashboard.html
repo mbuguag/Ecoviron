@@ -23,6 +23,8 @@
             <a href="#" onclick="showSection('products'); setActive(this)">Products</a>
             <a href="#" onclick="showSection('orders'); setActive(this)">Orders</a>
             <a href="#" onclick="showSection('users'); setActive(this)">Users</a>
+            <a href="#" onclick="showSection('contacts'); setActive(this)"> Messages</a>
+
             <a href="logout.html">Logout</a>
         </div>
 
@@ -102,6 +104,27 @@
                     </tbody>
                 </table>
             </section>
+
+            <!-- Contact Messages -->
+<section id="contacts" class="admin-section" style="display: none;">
+  <h2>Contact Messages</h2>
+  <table id="contactMessagesTable" border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Message</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="contactMessagesBody">
+      <!-- Filled dynamically -->
+    </tbody>
+  </table>
+</section>
+
         </main>
 
         <script src="js/dashboard.js"></script>
@@ -111,8 +134,7 @@
                 el.classList.add('active');
             }
         </script>
-        <canvas id="orderStatusChart" width="400" height="400"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
 
     </body>
 

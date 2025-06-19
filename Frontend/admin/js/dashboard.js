@@ -13,12 +13,15 @@ function showSection(sectionId) {
   }
 }
 
+const BACKEND_URL = "http://localhost:8080";
+
 const API_BASE = {
-  products: "/api/products",
-  dashboard: "/api/admin/summary",
-  orders: "/api/orders",
-  users: "/api/users"
+  dashboard: `${BACKEND_URL}/api/admin/summary`,
+  products: `${BACKEND_URL}/api/products`,
+  orders: `${BACKEND_URL}/api/orders`,
+  users: `${BACKEND_URL}/api/users`,
 };
+
 
 // === INIT ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,32 +35,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // === DASHBOARD ===
 function loadDashboard() {
-  fetch(API_BASE.dashboard)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("total-orders").innerText = `Total Orders: ${data.totalOrders}`;
-      document.getElementById("total-users").innerText = `Total Users: ${data.totalUsers}`;
-      document.getElementById("total-products").innerText = `Total Products: ${data.totalProducts}`;
+  const token = localStorage.getItem("token");
+
+  fetch(API_BASE.dashboard, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to load dashboard data");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      document.getElementById(
+        "total-orders"
+      ).innerText = `Total Orders: ${data.totalOrders}`;
+      document.getElementById(
+        "total-users"
+      ).innerText = `Total Users: ${data.totalUsers}`;
+      document.getElementById(
+        "total-products"
+      ).innerText = `Total Products: ${data.totalProducts}`;
 
       const ctx = document.getElementById("orderChart").getContext("2d");
       new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: {
-          labels: ['Pending', 'Shipped', 'Delivered'],
-          datasets: [{
-            label: 'Order Status',
-            data: [
-              data.orderStatus.pending,
-              data.orderStatus.shipped,
-              data.orderStatus.delivered
-            ],
-            backgroundColor: ['orange', 'blue', 'green']
-          }]
-        }
+          labels: ["Pending", "Shipped", "Delivered"],
+          datasets: [
+            {
+              label: "Order Status",
+              data: [
+                data.orderStatus.pending,
+                data.orderStatus.shipped,
+                data.orderStatus.delivered,
+              ],
+              backgroundColor: ["orange", "blue", "green"],
+            },
+          ],
+        },
       });
     })
-    .catch(err => console.error("Failed to load dashboard data", err));
+    .catch((err) => console.error("Failed to load dashboard data", err));
 }
+
 
 // === PRODUCTS ===
 function loadProducts() {
@@ -169,13 +192,26 @@ function markShipped(orderId) {
 
 // === USERS ===
 function loadUsers() {
-  fetch(API_BASE.users)
-    .then(res => res.json())
-    .then(users => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No authentication token found");
+    return;
+  }
+
+  fetch(API_BASE.users, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized or forbidden");
+      return res.json();
+    })
+    .then((users) => {
       const tbody = document.querySelector("#userTable tbody");
       tbody.innerHTML = "";
 
-      users.forEach(user => {
+      users.forEach((user) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${user.id}</td>
@@ -185,5 +221,9 @@ function loadUsers() {
         `;
         tbody.appendChild(row);
       });
+    })
+    .catch((err) => {
+      console.error("Error fetching users:", err);
     });
 }
+

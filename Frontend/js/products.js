@@ -1,6 +1,6 @@
 import { loadLayoutComponents } from './domUtils.js';
 import { fetchAllProducts } from './api.js';
-import { setupCartInteractions } from './cart.js';
+import { setupCartInteractions } from './cart-actions.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadLayoutComponents();
@@ -33,19 +33,31 @@ async function loadAndRenderProducts() {
 
 function renderProductGrid(products) {
     const gridContainer = document.getElementById("product-grid");
-    gridContainer.innerHTML = products.map(product => `
+    gridContainer.innerHTML = products
+      .map(
+        (product) => `
         <div class="product-card" dat<div class="product-card" data-category="${product.category.name.toLowerCase()}">
 a-category="${product.category}">
             <a href="product-details.html?id=${product.id}">
-                <img src="${product.imageUrl}" alt="${product.name}" class="product-image" />
+                <img src="${product.imageUrl}" alt="${
+          product.name
+        }" class="product-image" />
             </a>
             <div class="product-info">
                 <h3>${product.name}</h3>
                 <p class="product-price">${formatPrice(product.price)}</p>
-                <button class="btn add-to-cart" data-product-id="${product.id}">Add to Cart</button>
+                <button class="btn add-to-cart"
+        data-product-id="${product.id}"
+        data-product-name="${product.name}"
+        data-product-price="${product.price}">
+    Add to Cart
+</button>
+
             </div>
         </div>
-    `).join("");
+    `
+      )
+      .join("");
 
     setupCartInteractions();
 }
