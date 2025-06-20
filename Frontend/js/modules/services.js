@@ -9,14 +9,18 @@ export async function initServices() {
     if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
     const services = await res.json();
 
-    grid.innerHTML = services.map(service => `
+    grid.innerHTML = services
+      .map(
+        (service) => `
       <div class="service-card">
-        <img src="${service.imageUrl}" alt="${service.title}" class="service-image" />
+        <img src="${API_BASE_URL}${service.imageUrl}" alt="${service.title}" class="service-image" />
         <h3>${service.title}</h3>
         <p>${service.description}</p>
         <a href="${service.link}" class="btn-primary">Learn More</a>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
   } catch (error) {
     console.error('Error loading services:', error);
     grid.innerHTML = `<p class="error">Unable to load services at the moment.</p>`;

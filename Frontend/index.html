@@ -13,44 +13,61 @@
     <div id="header-container"></div>
 
     <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome to BioWorxHSE</h1>
-                <p>Driving sustainable solutions for a cleaner planet.</p>
-                <a href="services/services.html" class="btn-primary">Explore Services</a>
-            </div>
-        </section>
+       <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Welcome to BIONIXHSE</h1>
+      <p>Driving sustainable solutions for a cleaner planet.</p>
+      <a href="services/services.html" class="btn btn-primary">Explore Services</a>
+    </div>
+  </section>
 
-        <!-- Services Carousel -->
-        <section class="carousel-section">
-            <h2>Our Services</h2>
-            <div class="carousel-container">
-                <button id="prevBtn" aria-label="Previous Slide">&#10094;</button>
-                <div class="carousel-slide" id="carousel-slide"></div>
-                <button id="nextBtn" aria-label="Next Slide">&#10095;</button>
-            </div>
-        </section>
+  <section id="about" class="about-preview section-padding">
+    <div class="container">
+      <h2>Who We Are</h2>
+      <p>We’re an environmental consultancy committed to delivering impactful, sustainable services to businesses, communities, and governments across Kenya and beyond.</p>
+      <a href="about.html" class="btn-secondary">Learn More</a>
+    </div>
+  </section>
+        <!-- Services Carousel Section -->
+  <section class="carousel-section section-padding">
+    <div class="container">
+      <h2 class="section-title">Our Core Services</h2>
+      <div class="carousel-wrapper">
+        <button id="prevBtn" class="carousel-btn" aria-label="Previous Slide">&#10094;</button>
+        <div class="carousel-slide" id="carousel-slide">
+          <!-- JS will inject slides here -->
+        </div>
+        <button id="nextBtn" class="carousel-btn" aria-label="Next Slide">&#10095;</button>
+      </div>
+      <div class="carousel-progress-bar">
+    <div id="carousel-progress-bar-fill"></div>
+  </div>
+    </div>
+  </section>
 
-        <!-- Consultancy Services -->
-        <section id="consultancy-services" class="section-padding">
-            <div class="container">
-                <h2 class="section-title">Our Consultancy Services</h2>
-                <div class="services-grid"></div>
-            </div>
-        </section>
+        <!-- Consultancy Services Grid
+  <section id="consultancy-services" class="section-padding">
+    <div class="container">
+      <h2 class="section-title">Our Consultancy Services</h2>
+      <div class="services-grid" id="consultancy-grid">
+        <!-- JS will inject services here -->
+      </div>
+    </div>
+  </section> -->
 
-        <!-- Featured Products -->
-        <section class="section-padding featured-products">
-            <div class="container">
-                <h2 class="section-title">Eco-Friendly Products</h2>
-                <div class="grid-four-columns" id="featured-products-grid"></div>
-                <div class="center-text">
-                    <a href="ecommerce/product-grid.html" class="btn">View All Products</a>
-                </div>
-            </div>
-        </section>
-
+        <!-- Featured Products Section -->
+  <section class="featured-products section-padding">
+    <div class="container">
+      <h2 class="section-title">Eco-Friendly Products</h2>
+      <div class="grid-four-columns" id="featured-products-grid">
+        <!-- JS will inject product cards here -->
+      </div>
+      <div class="center-text">
+        <a href="ecommerce/product-grid.html" class="btn btn-outline">View All Products</a>
+      </div>
+    </div>
+  </section>
         <!-- Contact Section -->
         <section id="contact" class="contact-section">
             <h2>Contact Us</h2>
@@ -72,7 +89,7 @@
                     <label for="message">Your Message*</label>
                     <textarea id="message" name="message" rows="5" required placeholder="Type your message..."></textarea>
                 </div>
-                <button type="submit" class="btn-submit">Send Message</button>
+                <button type="submit" class="btn btn-submit">Send Message</button>
                 <div id="formResponse" class="form-response"></div>
             </form>
         </section>
