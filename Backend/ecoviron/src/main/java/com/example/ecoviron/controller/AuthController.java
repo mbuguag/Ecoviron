@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.ecoviron.security.JwtUtil;
 
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -57,19 +57,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        // 👇 Extract roles as strings
+        List<String> roles = user.getRoles().stream()
+                .map(Enum::name) // e.g., ADMIN, CUSTOMER
+                .toList();
+
+        // 👇 Generate token with roles
+        String token = jwtUtil.generateToken(user.getEmail(), roles);
 
         return ResponseEntity.ok(new JwtResponse(
                 token,
-                user.getRoles().iterator().next().name(), // e.g., "ADMIN"
+                roles.get(0), // first role, e.g. "ADMIN"
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
                 user.getRoles()
         ));
     }
-
-
 
 
 }

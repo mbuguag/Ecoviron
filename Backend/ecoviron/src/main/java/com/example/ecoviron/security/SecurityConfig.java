@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("api/services", "/api/services/**").permitAll()
                          .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Authenticated users only
                         .requestMatchers("/api/orders", "/api/orders/**").authenticated()
