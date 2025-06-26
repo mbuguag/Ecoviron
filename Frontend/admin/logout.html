@@ -8,10 +8,17 @@
 
     <body>
         <script>
-            localStorage.removeItem("jwt");
-            localStorage.removeItem("username");
-            window.location.href = "admin-login.html";
-        </script>
+  const role = localStorage.getItem("userRole");
+
+  localStorage.clear();
+
+  if (role === "ADMIN") {
+    window.location.href = "admin-login.html";
+  } else {
+    window.location.href = "../auth/login.html";
+  }
+</script>
+
     </body>
 
 </html>

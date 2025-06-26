@@ -12,39 +12,61 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Load essential components first
     await loadLayoutComponents();
 
-    const headerLoaded = document.getElementById('header-container').innerHTML.trim().length > 0;
-    const footerLoaded = document.getElementById('footer-container').innerHTML.trim().length > 0;
+    const headerLoaded =
+      document.getElementById("header-container").innerHTML.trim().length > 0;
+    const footerLoaded =
+      document.getElementById("footer-container").innerHTML.trim().length > 0;
 
     if (!headerLoaded || !footerLoaded) {
-      throw new Error('Header or footer not loaded');
+      throw new Error("Header or footer not loaded");
     }
 
     // Initialize page-specific modules after components load
     const initTasks = [];
-    
-    if (document.getElementById('carousel-slide')) {
+
+    if (document.getElementById("carousel-slide")) {
       initTasks.push(initCarousel());
     }
-    
-    if (document.getElementById('contactForm')) {
+
+    if (document.getElementById("contactForm")) {
       initTasks.push(initContactForm());
     }
-    
-    if (document.getElementById('featured-products-grid')) {
+
+    if (document.getElementById("featured-products-grid")) {
       initTasks.push(initFeaturedProducts());
     }
-    
-    if (document.querySelector('.services-grid')) {
+
+    if (document.querySelector(".services-grid")) {
       initTasks.push(initServices());
     }
 
-    if (document.getElementById('who-we-are-content')) {
-  initTasks.push(initAboutSection());
-}
+    if (document.getElementById("who-we-are-content")) {
+      initTasks.push(initAboutSection());
+    }
 
+    // Update auth UI (e.g., Login/Logout button) in the header
+    const authArea = document.getElementById("authArea");
+    const token = localStorage.getItem("jwtToken");
+    const userName = localStorage.getItem("userName");
+    const profilePic = localStorage.getItem("profilePic"); // Optional
+
+    if (authArea) {
+      if (token) {
+        authArea.innerHTML = `
+          <div class="user-info">
+            <img src="${
+              profilePic || "/frontend/assets/icons/user-default.jpg"
+            }" alt="User" class="user-avatar">
+            <span class="user-name">${userName || "User"}</span>
+            <a href="/frontend/auth/logout.html" class="logout-btn">Logout</a>
+          </div>
+        `;
+      } else {
+        authArea.innerHTML = `<a href="/frontend/auth/login.html" class="login-btn">Login</a>`;
+      }
+    }
 
     await Promise.all(initTasks);
-    
   } catch (error) {
     console.error('Initialization error:', error);
     // Fallback UI for critical components

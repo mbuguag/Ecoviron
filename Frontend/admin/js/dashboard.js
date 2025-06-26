@@ -1,51 +1,65 @@
-function showSection(sectionId) {
-  const sections = document.querySelectorAll(".admin-section");
-  sections.forEach(section => {
-    section.style.display = section.id === sectionId ? "block" : "none";
-  });
-
-  // Load relevant data on section switch
-  switch (sectionId) {
-    case "dashboard": loadDashboard(); break;
-    case "products": loadProducts(); break;
-    case "orders": loadOrders(); break;
-    case "users": loadUsers(); break;
-  }
-}
-
 const BACKEND_URL = "http://localhost:8080";
 
 const API_BASE = {
   dashboard: `${BACKEND_URL}/api/admin/summary`,
-  products: `${BACKEND_URL}/api/products`,
+  products: `${BACKEND_URL}/api/admin/products`,
+  publicProducts: `${BACKEND_URL}/api/products`,
   orders: `${BACKEND_URL}/api/orders`,
   users: `${BACKEND_URL}/api/users`,
 };
 
+// === Helper: Authenticated Fetch ===
+function authFetch(url, options = {}) {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found for authenticated request");
+
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
 
 // === INIT ===
 document.addEventListener("DOMContentLoaded", () => {
   showSection("dashboard");
-
   document.getElementById("productForm").addEventListener("submit", (e) => {
     e.preventDefault();
     saveProduct();
   });
 });
 
-// === DASHBOARD ===
-function loadDashboard() {
-  const token = localStorage.getItem("token");
+// === Section Display ===
+function showSection(sectionId) {
+  document.querySelectorAll(".admin-section").forEach((section) => {
+    section.style.display = section.id === sectionId ? "block" : "none";
+  });
 
-  fetch(API_BASE.dashboard, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+  switch (sectionId) {
+    case "dashboard":
+      loadDashboard();
+      break;
+    case "products":
+      loadProducts();
+      break;
+    case "orders":
+      loadOrders();
+      break;
+    case "users":
+      loadUsers();
+      break;
+  }
+}
+
+// === DASHBOARD ===
+let chartInstance = null;
+
+function loadDashboard() {
+  authFetch(API_BASE.dashboard)
     .then((res) => {
-      if (!res.ok) {
-        throw new Error("Failed to load dashboard data");
-      }
+      if (!res.ok) throw new Error("Failed to load dashboard data");
       return res.json();
     })
     .then((data) => {
@@ -60,7 +74,9 @@ function loadDashboard() {
       ).innerText = `Total Products: ${data.totalProducts}`;
 
       const ctx = document.getElementById("orderChart").getContext("2d");
-      new Chart(ctx, {
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
           labels: ["Pending", "Shipped", "Delivered"],
@@ -81,23 +97,25 @@ function loadDashboard() {
     .catch((err) => console.error("Failed to load dashboard data", err));
 }
 
-
 // === PRODUCTS ===
 function loadProducts() {
-  fetch(API_BASE.products)
-    .then(res => res.json())
-    .then(products => {
+  authFetch(API_BASE.products)
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized or forbidden");
+      return res.json();
+    })
+    .then((products) => {
       const table = document.querySelector("#productTable tbody");
       table.innerHTML = "";
 
-      products.forEach(p => {
+      products.forEach((p) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${p.name}</td>
           <td>${p.description}</td>
           <td>${p.price}</td>
-          <td>${p.category}</td>
-          <td><img src="${p.imageUrl}" width="50"/></td>
+          <td>${p.category?.name || ""}</td>
+          <td><img src="${BACKEND_URL}${p.imageUrl}" width="50"/></td>
           <td>
             <button onclick="editProduct(${p.id})">Edit</button>
             <button onclick="deleteProduct(${p.id})">Delete</button>
@@ -105,51 +123,89 @@ function loadProducts() {
         `;
         table.appendChild(row);
       });
+    })
+    .catch((err) => {
+      console.error("Failed to load products:", err);
+      alert("Access denied. Please log in as admin.");
     });
 }
 
-function saveProduct() {
-  const product = {
-    name: document.getElementById("productName").value,
-    description: document.getElementById("productDescription").value,
-    price: parseFloat(document.getElementById("productPrice").value),
-    imageUrl: document.getElementById("productImageUrl").value,
-    category: document.getElementById("productCategory").value
-  };
 
+function saveProduct() {
   const id = document.getElementById("productId").value;
-  const method = id ? "PUT" : "POST";
-  const url = id ? `${API_BASE.products}/${id}` : API_BASE.products;
+  const name = document.getElementById("productName").value;
+  const description = document.getElementById("productDescription").value;
+  const price = parseFloat(document.getElementById("productPrice").value);
+  const stock = parseInt(document.getElementById("productStock").value) || 0;
+  const featured = document.getElementById("productFeatured").checked;
+  const categoryId =
+    parseInt(document.getElementById("productCategoryId").value) || null;
+
+  const imageInput = document.getElementById("productImage");
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("You must be logged in as admin.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("description", description);
+  formData.append("price", price);
+  formData.append("stock", stock);
+  formData.append("featured", featured);
+  if (categoryId !== null) formData.append("categoryId", categoryId);
+  if (imageInput.files.length > 0)
+    formData.append("image", imageInput.files[0]);
+
+  const isUpdate = Boolean(id);
+  const url = isUpdate
+    ? `${API_BASE.products}/${id}`
+    : `${API_BASE.publicProducts}/upload`;
 
   fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(product)
+    method: isUpdate ? "PUT" : "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
   })
+    .then((res) => {
+      if (res.status === 204) return null;
+      return res.json();
+    })
     .then(() => {
       resetForm();
       loadProducts();
-    });
+    })
+    .catch((err) => console.error("Product save error:", err));
 }
 
 function editProduct(id) {
-  fetch(`${API_BASE.products}/${id}`)
-    .then(res => res.json())
-    .then(product => {
+  authFetch(`${API_BASE.products}/${id}`)
+    .then((res) => res.json())
+    .then((product) => {
       document.getElementById("formTitle").textContent = "Edit Product";
       document.getElementById("productId").value = product.id;
       document.getElementById("productName").value = product.name;
       document.getElementById("productDescription").value = product.description;
       document.getElementById("productPrice").value = product.price;
-      document.getElementById("productImageUrl").value = product.imageUrl;
-      document.getElementById("productCategory").value = product.category;
-    });
+      document.getElementById("productStock").value = product.stock || 0;
+      document.getElementById("productFeatured").checked =
+        product.featured || false;
+      document.getElementById("productCategoryId").value =
+        product.category?.id || "";
+    })
+    .catch((err) => console.error("Failed to load product for editing:", err));
 }
 
 function deleteProduct(id) {
   if (confirm("Are you sure you want to delete this product?")) {
-    fetch(`${API_BASE.products}/${id}`, { method: "DELETE" })
-      .then(() => loadProducts());
+    authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" })
+      .then((res) => {
+        if (res.status === 204 || res.ok) loadProducts();
+        else throw new Error("Failed to delete");
+      })
+      .catch((err) => console.error("Delete error:", err));
   }
 }
 
@@ -161,13 +217,13 @@ function resetForm() {
 
 // === ORDERS ===
 function loadOrders() {
-  fetch(API_BASE.orders)
-    .then(res => res.json())
-    .then(orders => {
+  authFetch(API_BASE.orders)
+    .then((res) => res.json())
+    .then((orders) => {
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = "";
 
-      orders.forEach(order => {
+      orders.forEach((order) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${order.id}</td>
@@ -182,27 +238,16 @@ function loadOrders() {
 }
 
 function markShipped(orderId) {
-  fetch(`${API_BASE.orders}/${orderId}/status`, {
+  authFetch(`${API_BASE.orders}/${orderId}/status`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: "SHIPPED" })
-  })
-    .then(() => loadOrders());
+    body: JSON.stringify({ status: "SHIPPED" }),
+  }).then(() => loadOrders());
 }
 
 // === USERS ===
 function loadUsers() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("No authentication token found");
-    return;
-  }
-
-  fetch(API_BASE.users, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+  authFetch(API_BASE.users)
     .then((res) => {
       if (!res.ok) throw new Error("Unauthorized or forbidden");
       return res.json();
@@ -222,8 +267,12 @@ function loadUsers() {
         tbody.appendChild(row);
       });
     })
-    .catch((err) => {
-      console.error("Error fetching users:", err);
-    });
+    .catch((err) => console.error("Error fetching users:", err));
 }
 
+// === Expose globally ===
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.markShipped = markShipped;
+window.showSection = showSection;
+window.resetForm = resetForm;
