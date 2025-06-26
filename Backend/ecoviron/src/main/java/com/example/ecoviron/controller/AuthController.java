@@ -13,8 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.ecoviron.security.JwtUtil;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -30,24 +33,68 @@ public class AuthController {
     @Autowired
     private final JwtUtil jwtUtil;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid UserRegisterDto dto) {
-        if (userRepository.existsByEmail(dto.getEmail())){
-            return ResponseEntity.badRequest().body("Email already in use");
+    @PostMapping(value = "/register", consumes = "multipart/form-data")
+    public ResponseEntity<?> register(
+            @RequestParam("fullName") String fullName,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam(value = "profilePic", required = false) MultipartFile profilePic
+    ) {
+        try {
+            // Check for existing user
+            if (userRepository.existsByEmail(email)) {
+                return ResponseEntity.badRequest().body("Email already in use");
+            }
+
+            // Handle profile picture upload
+            String imageUrl = null;
+            if (profilePic != null && !profilePic.isEmpty()) {
+                try {
+                    String uploadsDir = System.getProperty("user.dir") + "/uploads/profile-pics/";
+                    File dir = new File(uploadsDir);
+                    if (!dir.exists()) {
+                        boolean created = dir.mkdirs();
+                        if (!created) {
+                            System.err.println("❌ Failed to create directory: " + uploadsDir);
+                            return ResponseEntity.internalServerError().body("Failed to create upload directory.");
+                        }
+                    }
+
+                    String originalFilename = profilePic.getOriginalFilename();
+                    String sanitizedFilename = System.currentTimeMillis() + "_" +
+                            originalFilename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+                    File dest = new File(dir, sanitizedFilename);
+
+                    System.out.println("✅ Saving image to: " + dest.getAbsolutePath());
+                    profilePic.transferTo(dest);
+                    imageUrl = "/uploads/profile-pics/" + sanitizedFilename;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return ResponseEntity.internalServerError().body("Failed to save profile picture.");
+                }
+            }
+
+            // Save user
+            User user = User.builder()
+                    .email(email)
+                    .fullName(fullName)
+                    .password(passwordEncoder.encode(password))
+                    .profilePicture(imageUrl)
+                    .roles(Set.of(Role.CUSTOMER))
+                    .build();
+
+            userRepository.save(user);
+            System.out.println("✅ Registered user: " + email);
+            return ResponseEntity.ok("User registered successfully");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.internalServerError().body("An unexpected error occurred during registration.");
         }
-
-        Role assignedRole = dto.getRole() != null ? dto.getRole() : Role.CUSTOMER;
-        User user = User.builder()
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .fullName(dto.getFullName())
-                .roles(Set.of((Role) assignedRole))
-                .build();
-
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
-
     }
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
@@ -57,23 +104,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid credentials");
         }
 
-        // 👇 Extract roles as strings
         List<String> roles = user.getRoles().stream()
-                .map(Enum::name) // e.g., ADMIN, CUSTOMER
+                .map(Enum::name)
                 .toList();
 
-        // 👇 Generate token with roles
         String token = jwtUtil.generateToken(user.getEmail(), roles);
 
         return ResponseEntity.ok(new JwtResponse(
                 token,
-                roles.get(0), // first role, e.g. "ADMIN"
+                roles.get(0),
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
-                user.getRoles()
+                user.getRoles(),
+                user.getProfilePicture() // ✅ include profile image URL here
         ));
     }
+
 
 
 }
