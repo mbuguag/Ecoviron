@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/services", "/api/services/**").permitAll()
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/api/blogs/**").permitAll()
+                        .requestMatchers("/api/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Authenticated-only

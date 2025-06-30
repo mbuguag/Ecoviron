@@ -8,6 +8,8 @@ import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.OrderService;
 import com.example.ecoviron.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +25,14 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
+    public record OrderResponse(String orderReference) {}
+
+
+    @PostMapping("/save")
+    public ResponseEntity<OrderResponse> saveOrder(@RequestBody OrderRequestDto orderDto, @AuthenticationPrincipal User user) {
+        Order savedOrder = orderService.save(orderDto, user);
+        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
+    }
 
     @PostMapping("/checkout")
     public Order checkout(@RequestHeader("Authorization") String token) {
@@ -33,7 +43,8 @@ public class OrderController {
     @GetMapping
     public List<Order> getOrders(@RequestHeader("Authorization") String token) {
         User user = UserUtil.getUserFromToken(token);
-        if (user.getRoles().equals("Role.ROLE_ADMIN")) {
+        if (user.getRoles().stream().anyMatch(role -> role.name().equals("ADMIN"))) {
+
             return orderService.getAllOrders();
         } else {
             return orderService.getOrdersByUser(user);
@@ -46,5 +57,13 @@ public class OrderController {
         long delivered = orderRepository.countByStatus(OrderStatus.DELIVERED);
         return new OrderSummaryDTO(pending, delivered);
     }
+
+    @GetMapping("/{orderReference}")
+    public ResponseEntity<Order> getOrderByReference(@PathVariable String orderReference) {
+        return orderRepository.findByOrderReference(orderReference)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
+
 

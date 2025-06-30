@@ -2,9 +2,9 @@ package com.example.ecoviron.entity;
 
 public enum OrderStatus {
     PENDING,
-    PROCESSING,
+    PAID,
     SHIPPED,
     DELIVERED,
-    CANCELLED,
-    RETURNED
+    CANCELLED
+
 }

@@ -1,9 +1,12 @@
 package com.example.ecoviron.controller;
 
 import com.example.ecoviron.dto.BlogPostDto;
+import com.example.ecoviron.dto.PagedResponse;
 import com.example.ecoviron.entity.BlogPost;
 import com.example.ecoviron.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,30 @@ public class BlogPostController {
         return ResponseEntity.ok(blogs);
     }
 
+    // Paginated GET
+    @GetMapping("/public")
+    public ResponseEntity<PagedResponse<BlogPostDto>> getPaginatedBlogs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        Page<BlogPost> blogPage = blogService.getPaginatedPosts(PageRequest.of(page, size));
+        List<BlogPostDto> blogDtos = blogPage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        PagedResponse<BlogPostDto> response = new PagedResponse<>(
+                blogDtos,
+                blogPage.getNumber(),
+                blogPage.getSize(),
+                blogPage.getTotalElements(),
+                blogPage.getTotalPages(),
+                blogPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Single blog
     @GetMapping("/{id}")
     public ResponseEntity<BlogPostDto> getBlogById(@PathVariable Long id) {
         BlogPost blogPost = blogService.getPostById(id);
@@ -54,13 +81,15 @@ public class BlogPostController {
         return ResponseEntity.noContent().build();
     }
 
-    // Helper methods for conversion
+    // Helper methods
     private BlogPostDto convertToDto(BlogPost post) {
         BlogPostDto dto = new BlogPostDto();
+        dto.setId(post.getId());
         dto.setTitle(post.getTitle());
         dto.setSnippet(post.getSnippet());
         dto.setImageUrl(post.getImageUrl());
         dto.setLink(post.getLink());
+        dto.setContent(post.getContent());
         return dto;
     }
 
@@ -70,6 +99,7 @@ public class BlogPostController {
         post.setSnippet(dto.getSnippet());
         post.setImageUrl(dto.getImageUrl());
         post.setLink(dto.getLink());
+        post.setContent(dto.getContent());
         return post;
     }
 }

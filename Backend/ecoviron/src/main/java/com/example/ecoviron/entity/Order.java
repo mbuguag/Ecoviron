@@ -22,7 +22,10 @@ public class Order {
 
     private LocalDateTime orderDate;
 
-    @ManyToOne
+    private String orderReference;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
@@ -32,4 +35,8 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @OneToMany(mappedBy = "order")
+    private List<Payment> payments;
+
 }

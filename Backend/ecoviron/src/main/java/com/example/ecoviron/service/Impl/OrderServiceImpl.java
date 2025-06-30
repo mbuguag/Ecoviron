@@ -1,9 +1,6 @@
 package com.example.ecoviron.service.Impl;
 
-import com.example.ecoviron.entity.Cart;
-import com.example.ecoviron.entity.Order;
-import com.example.ecoviron.entity.OrderItem;
-import com.example.ecoviron.entity.User;
+import com.example.ecoviron.entity.*;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.OrderService;
@@ -67,4 +64,23 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
     }
+
+    @Override
+    public Order saveOrder(Order order, User user) {
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.PENDING); // default status
+
+        // if needed: assign each orderItem the parent order
+        if (order.getItems() != null) {
+            order.getItems().forEach(item -> item.setOrder(order));
+        }
+
+        // generate orderReference if your entity requires one
+        String reference = "ORD-" + System.currentTimeMillis();
+        order.setOrderReference(reference);
+
+        return orderRepository.save(order);
+    }
+
 }

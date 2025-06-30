@@ -5,6 +5,8 @@ import com.example.ecoviron.repository.BlogPostRepository;
 import com.example.ecoviron.service.BlogService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,10 @@ public class BlogServiceImpl  implements BlogService {
     public BlogPost getPostById(Long id) {
         return blogPostRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Blog post not found with ID: " + id));
+    }
+    @Override
+    public Page<BlogPost> getPaginatedPosts(Pageable pageable) {
+        return blogPostRepository.findAll(pageable);
     }
 
     @Override
