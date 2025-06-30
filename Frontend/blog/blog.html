@@ -1,38 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Our Blog | GreenEarth Environmental Consultancy</title>
-        <link rel="stylesheet" href="../css/styles.css" />
-    </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Blog | GreenEarth Environmental Consultancy</title>
+ 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/blog.css" />
+</head>
 
-    <body>
-        <div id="header-container"></div>
+<body>
+  <div id="header-container"></div>
 
-        <main>
-            <section class="hero blog-hero">
-                <div class="hero-content">
-                    <h1>Our Blog</h1>
-                    <p>Insights, tips, and updates on environmental best practices and sustainability.</p>
-                </div>
-            </section>
+  <main>
+    <section class="hero blog-hero">
+      <div class="hero-content">
+        <h1>Our Blog</h1>
+        <p>Insights, tips, and updates on environmental best practices and sustainability.</p>
+      </div>
+    </section>
 
-            <section class="section-padding">
-                <div class="container">
-                    <h2 class="section-title">Latest Articles</h2>
-                    <div class="grid-three-columns" id="blog-grid">
-                        <!-- Blog cards will be inserted here by JS -->
-                    </div>
-                </div>
-            </section>
-        </main>
+    <section class="section-padding">
+      <div class="container">
+        <h2 class="section-title">Latest Articles</h2>
+        <div class="grid-three-columns" id="blog-grid">
+          <!--Js to inject blog cards dynamically -->
+        </div>
+        <div class="pagination-controls" id="pagination"></div>
 
-        <footer id="footer-container"></footer>
+      </div>
+    </section>
+  </main>
 
-        <script type="module" src="../js/main.js"></script>
-        <script src="../js/blog.js"></script>
-    </body>
+  <footer id="footer-container"></footer>
+
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/blog.js"></script>
+</body>
 
 </html>

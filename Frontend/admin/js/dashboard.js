@@ -6,13 +6,13 @@ const API_BASE = {
   publicProducts: `${BACKEND_URL}/api/products`,
   orders: `${BACKEND_URL}/api/orders`,
   users: `${BACKEND_URL}/api/users`,
+  blogs: `${BACKEND_URL}/api/blogs`,
+  uploadImage: `${BACKEND_URL}/api/images/blog`,
 };
 
-// === Helper: Authenticated Fetch ===
 function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No token found for authenticated request");
-
   return fetch(url, {
     ...options,
     headers: {
@@ -22,21 +22,38 @@ function authFetch(url, options = {}) {
   });
 }
 
-// === INIT ===
+let quill;
+
+function initQuillEditor() {
+  const editorContainer = document.getElementById("editor");
+  if (editorContainer && typeof Quill !== "undefined") {
+    quill = new Quill(editorContainer, { theme: "snow" });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   showSection("dashboard");
-  document.getElementById("productForm").addEventListener("submit", (e) => {
+  initQuillEditor();
+
+  document.getElementById("productForm")?.addEventListener("submit", (e) => {
     e.preventDefault();
     saveProduct();
   });
+
+  document.getElementById("blogForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveBlog();
+  });
+
+  document
+    .getElementById("cancelEdit")
+    ?.addEventListener("click", resetBlogForm);
 });
 
-// === Section Display ===
 function showSection(sectionId) {
   document.querySelectorAll(".admin-section").forEach((section) => {
     section.style.display = section.id === sectionId ? "block" : "none";
   });
-
   switch (sectionId) {
     case "dashboard":
       loadDashboard();
@@ -50,18 +67,16 @@ function showSection(sectionId) {
     case "users":
       loadUsers();
       break;
+    case "blogs":
+      loadBlogs();
+      break;
   }
 }
 
-// === DASHBOARD ===
 let chartInstance = null;
-
 function loadDashboard() {
   authFetch(API_BASE.dashboard)
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to load dashboard data");
-      return res.json();
-    })
+    .then((res) => res.json())
     .then((data) => {
       document.getElementById(
         "total-orders"
@@ -75,7 +90,6 @@ function loadDashboard() {
 
       const ctx = document.getElementById("orderChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
-
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
@@ -93,21 +107,15 @@ function loadDashboard() {
           ],
         },
       });
-    })
-    .catch((err) => console.error("Failed to load dashboard data", err));
+    });
 }
 
-// === PRODUCTS ===
 function loadProducts() {
   authFetch(API_BASE.products)
-    .then((res) => {
-      if (!res.ok) throw new Error("Unauthorized or forbidden");
-      return res.json();
-    })
+    .then((res) => res.json())
     .then((products) => {
       const table = document.querySelector("#productTable tbody");
       table.innerHTML = "";
-
       products.forEach((p) => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -119,17 +127,11 @@ function loadProducts() {
           <td>
             <button onclick="editProduct(${p.id})">Edit</button>
             <button onclick="deleteProduct(${p.id})">Delete</button>
-          </td>
-        `;
+          </td>`;
         table.appendChild(row);
       });
-    })
-    .catch((err) => {
-      console.error("Failed to load products:", err);
-      alert("Access denied. Please log in as admin.");
     });
 }
-
 
 function saveProduct() {
   const id = document.getElementById("productId").value;
@@ -140,14 +142,9 @@ function saveProduct() {
   const featured = document.getElementById("productFeatured").checked;
   const categoryId =
     parseInt(document.getElementById("productCategoryId").value) || null;
-
   const imageInput = document.getElementById("productImage");
   const token = localStorage.getItem("token");
-
-  if (!token) {
-    alert("You must be logged in as admin.");
-    return;
-  }
+  if (!token) return alert("You must be logged in as admin.");
 
   const formData = new FormData();
   formData.append("name", name);
@@ -169,15 +166,11 @@ function saveProduct() {
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
   })
-    .then((res) => {
-      if (res.status === 204) return null;
-      return res.json();
-    })
+    .then((res) => res.json())
     .then(() => {
       resetForm();
       loadProducts();
-    })
-    .catch((err) => console.error("Product save error:", err));
+    });
 }
 
 function editProduct(id) {
@@ -194,18 +187,14 @@ function editProduct(id) {
         product.featured || false;
       document.getElementById("productCategoryId").value =
         product.category?.id || "";
-    })
-    .catch((err) => console.error("Failed to load product for editing:", err));
+    });
 }
 
 function deleteProduct(id) {
   if (confirm("Are you sure you want to delete this product?")) {
-    authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" })
-      .then((res) => {
-        if (res.status === 204 || res.ok) loadProducts();
-        else throw new Error("Failed to delete");
-      })
-      .catch((err) => console.error("Delete error:", err));
+    authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" }).then(
+      (res) => res.ok && loadProducts()
+    );
   }
 }
 
@@ -215,14 +204,12 @@ function resetForm() {
   document.getElementById("formTitle").textContent = "Add Product";
 }
 
-// === ORDERS ===
 function loadOrders() {
   authFetch(API_BASE.orders)
     .then((res) => res.json())
     .then((orders) => {
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = "";
-
       orders.forEach((order) => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -230,8 +217,7 @@ function loadOrders() {
           <td>${order.userEmail}</td>
           <td>$${order.total}</td>
           <td>${order.status}</td>
-          <td><button onclick="markShipped(${order.id})">Mark as Shipped</button></td>
-        `;
+          <td><button onclick="markShipped(${order.id})">Mark as Shipped</button></td>`;
         tbody.appendChild(row);
       });
     });
@@ -245,34 +231,121 @@ function markShipped(orderId) {
   }).then(() => loadOrders());
 }
 
-// === USERS ===
 function loadUsers() {
   authFetch(API_BASE.users)
-    .then((res) => {
-      if (!res.ok) throw new Error("Unauthorized or forbidden");
-      return res.json();
-    })
+    .then((res) => res.json())
     .then((users) => {
       const tbody = document.querySelector("#userTable tbody");
       tbody.innerHTML = "";
-
       users.forEach((user) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${user.id}</td>
           <td>${user.name}</td>
           <td>${user.email}</td>
-          <td>${user.role}</td>
-        `;
+          <td>${user.role}</td>`;
         tbody.appendChild(row);
       });
-    })
-    .catch((err) => console.error("Error fetching users:", err));
+    });
 }
 
-// === Expose globally ===
+function loadBlogs() {
+  authFetch(API_BASE.blogs)
+    .then((res) => res.json())
+    .then((blogs) => {
+      const tbody = document.querySelector("#blogList");
+      tbody.innerHTML = "";
+      blogs.forEach((blog) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${blog.title}</td>
+          <td>${blog.snippet}</td>
+          <td><img src="${BACKEND_URL}${blog.imageUrl}" width="50"/></td>
+          <td>
+            <button class="edit-blog-btn" data-id="${blog.id}">Edit</button>
+            <button onclick="deleteBlog(${blog.id})">Delete</button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+
+      document.querySelectorAll(".edit-blog-btn").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const blogId = btn.dataset.id;
+          if (blogId) {
+            loadBlogForEdit(blogId);
+          }
+        })
+      );
+    })
+    .catch((err) => console.error("Error loading blogs:", err));
+}
+
+function loadBlogForEdit(id) {
+  authFetch(`${API_BASE.blogs}/${id}`)
+    .then((res) => res.json())
+    .then((blog) => {
+      document.getElementById("blogId").value = blog.id;
+      document.getElementById("title").value = blog.title;
+      document.getElementById("snippet").value = blog.snippet;
+      document.getElementById("link").value = blog.link;
+      if (quill) quill.root.innerHTML = blog.content;
+      document.getElementById("submitBtn").textContent = "Update Blog";
+      document.getElementById("cancelEdit").style.display = "inline-block";
+    });
+}
+
+function saveBlog() {
+  const id = document.getElementById("blogId").value;
+  const title = document.getElementById("title").value;
+  const snippet = document.getElementById("snippet").value;
+  const link = document.getElementById("link").value;
+  const imageInput = document.getElementById("imageInput");
+  if (!quill) return alert("Editor is not ready yet. Try reloading the page.");
+  const content = quill.root.innerHTML;
+
+  const formData = new FormData();
+  formData.append("image", imageInput.files[0]);
+
+  fetch(API_BASE.uploadImage, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.text())
+    .then((imageUrl) => {
+      const payload = { title, snippet, link, imageUrl, content };
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${API_BASE.blogs}/${id}` : API_BASE.blogs;
+
+      authFetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).then(() => {
+        resetBlogForm();
+        loadBlogs();
+      });
+    });
+}
+
+function deleteBlog(id) {
+  if (confirm("Delete this blog post?")) {
+    authFetch(`${API_BASE.blogs}/${id}`, { method: "DELETE" }).then(() =>
+      loadBlogs()
+    );
+  }
+}
+
+function resetBlogForm() {
+  document.getElementById("blogForm").reset();
+  document.getElementById("blogId").value = "";
+  if (quill) quill.root.innerHTML = "";
+  document.getElementById("submitBtn").textContent = "Publish Blog";
+  document.getElementById("cancelEdit").style.display = "none";
+}
+
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.markShipped = markShipped;
 window.showSection = showSection;
 window.resetForm = resetForm;
+window.deleteBlog = deleteBlog;

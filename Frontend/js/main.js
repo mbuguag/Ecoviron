@@ -9,7 +9,7 @@ import { initAboutSection } from './modules/about.js';
 // Initialize all components and page modules
 window.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Load essential components first
+    
     await loadLayoutComponents();
 
     const headerLoaded =
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       throw new Error("Header or footer not loaded");
     }
 
-    // Initialize page-specific modules after components load
+    
     const initTasks = [];
 
     if (document.getElementById("carousel-slide")) {
@@ -44,7 +44,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       initTasks.push(initAboutSection());
     }
 
-    // Update auth UI (e.g., Login/Logout button) in the header
+    
     const authArea = document.getElementById("authArea");
     const token = localStorage.getItem("jwtToken");
     const userName = localStorage.getItem("userName");
@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await Promise.all(initTasks);
   } catch (error) {
     console.error('Initialization error:', error);
-    // Fallback UI for critical components
+   
     if (!document.getElementById('header-container').innerHTML) {
       document.getElementById('header-container').innerHTML = `
         <header class="default-header">

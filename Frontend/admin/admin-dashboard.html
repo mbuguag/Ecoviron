@@ -12,6 +12,9 @@
     </script>
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.quilljs.com/latest/quill.snow.css" rel="stylesheet">
+
+
   </head>
 
   <body>
@@ -132,6 +135,52 @@
         </table>
       </section>
 
+    <!-- Blog Management -->
+<section id="blogs" class="admin-section" style="display: none">
+  <h2>Blog Management</h2>
+
+  <form id="blogForm" enctype="multipart/form-data">
+    <input type="hidden" id="blogId" />
+
+    <label>Title: <input type="text" id="title" required /></label>
+    <label>Snippet: <textarea id="snippet" rows="3" required></textarea></label>
+    <label>Link (optional): <input type="text" id="link" /></label>
+    <label>
+      Blog Image:
+      <input type="file" id="imageInput" accept="image/*" required />
+    </label>
+    <div id="editor" style="height: 200px; background: #fff;"></div>
+
+    <button type="submit" id="submitBtn">Publish Blog</button>
+    <button type="button" id="cancelEdit" style="display: none;">Cancel Edit</button>
+  </form>
+
+  <hr />
+
+  <table id="blogTable" border="1">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Snippet</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="blogList">
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
+</section>
+
+
+  <div class="pagination-controls">
+    <button id="prevPage">Previous</button>
+    <span id="pageInfo"></span>
+    <button id="nextPage">Next</button>
+  </div>
+</section>
+
+
       <!-- Contact Messages -->
       <section id="contacts" class="admin-section" style="display: none">
         <h2>Contact Messages</h2>
@@ -152,6 +201,9 @@
         </table>
       </section>
     </main>
+
+    <script src="https://cdn.quilljs.com/latest/quill.min.js"></script>
+
 
     <script src="js/dashboard.js"></script>
     <script>

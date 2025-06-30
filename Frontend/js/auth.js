@@ -59,13 +59,13 @@ export function handleRegister(formId, endpoint) {
     button.textContent = "Registering...";
 
     const formData = new FormData();
-    formData.append("fullName", form.fullName.value); // 👈 match @RequestParam
+    formData.append("fullName", form.fullName.value);
     formData.append("email", form.email.value);
     formData.append("password", form.password.value);
 
     const imageFile = form.querySelector('input[type="file"]')?.files?.[0];
     if (imageFile) {
-      formData.append("profilePic", imageFile); // 👈 match @RequestParam
+      formData.append("profilePic", imageFile);
     }
 
     fetch(endpoint, {

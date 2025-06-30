@@ -12,8 +12,22 @@ export function initCarousel() {
       title: "Office Inspections",
       image: "assets/images/officer-inspection.png",
     },
-    { title: "Waste Water Management", image: "assets/images/reelbed-wastewater.png" },
-    { title: "Environmental Audits", image: "assets/images/a.png" },
+    {
+      title: "Waste Water Management",
+      image: "assets/images/reelbed-wastewater.png",
+    },
+    {
+      title: "Environmental Audits",
+      image: "assets/images/reelbed-wastewater.png",
+    },
+    {
+      title: "Environmental Audits",
+      image: "assets/images/reelbed-wastewater.png",
+    },
+    {
+      title: "Environmental Assessment",
+      image: "assets/images/hero-bg.png",
+    },
   ];
 
   const itemsPerView = () => {

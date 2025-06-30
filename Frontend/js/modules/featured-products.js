@@ -38,7 +38,7 @@ export async function initFeaturedProducts() {
       })
       .join("");
 
-    setupFeaturedCarousel(); // Add carousel scroll buttons logic
+    setupFeaturedCarousel();
   } catch (error) {
     console.error("Error loading featured products:", error);
     container.innerHTML = `<p class="error-message">Unable to load featured products at the moment.</p>`;
@@ -53,7 +53,7 @@ function setupFeaturedCarousel() {
 
   if (!container || !leftBtn || !rightBtn) return;
 
-  const scrollAmount = 300;
+  const scrollAmount = 150;
 
   leftBtn.addEventListener("click", () => {
     container.scrollBy({ left: -scrollAmount, behavior: "smooth" });

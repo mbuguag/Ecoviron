@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin - Blog Manager | BIONIX-EHS</title>
+  
+  <!-- Core Styles -->
   <link rel="stylesheet" href="../css/styles.css" />
+
+  <!-- Quill WYSIWYG Styles -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
 </head>
 <body>
   <div id="header-container"></div>
@@ -15,9 +20,11 @@
         <h1 class="section-title">Blog Management</h1>
         <p class="section-subtitle">Add and manage blog posts for the public site.</p>
 
-        <!-- Blog Form Card -->
+        <!-- Blog Form -->
         <div class="card admin-form-card">
           <form id="blogForm" enctype="multipart/form-data">
+            <input type="hidden" id="blogId" /> <!-- For edit mode -->
+
             <div class="form-group">
               <label for="title">Title <span>*</span></label>
               <input type="text" id="title" name="title" required />
@@ -30,20 +37,30 @@
 
             <div class="form-group">
               <label for="link">Article Link (optional)</label>
-              <input type="text" id="link" name="link" />
+              <input type="url" id="link" name="link" placeholder="https://example.com/article" />
             </div>
 
             <div class="form-group">
               <label for="imageInput">Blog Image <span>*</span></label>
-              <input type="file" id="imageInput" accept="image/*" required />
+              <input type="file" id="imageInput" accept="image/*" />
+              <img id="previewImage" src="" alt="Preview" style="max-width: 200px; display: none; margin-top: 10px;" />
             </div>
 
-            <button type="submit" class="btn-primary">Publish Blog</button>
+            <div class="form-group">
+              <label for="content">Content <span>*</span></label>
+              <div id="editor" style="height: 200px;"></div>
+              <input type="hidden" id="content" name="content" />
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <button type="submit" class="btn-primary" id="submitBtn">Publish Blog</button>
+              <button type="button" id="cancelEdit" class="btn-outline" style="display: none; margin-left: 10px;">Cancel Edit</button>
+            </div>
             <p id="statusMsg" class="status-message"></p>
           </form>
         </div>
 
-        <!-- Blog Management Table -->
+        <!-- Blog List Table -->
         <section class="admin-section" style="margin-top: 3rem;">
           <h2 class="section-subtitle">Published Blogs</h2>
 
@@ -52,7 +69,7 @@
             <input type="text" id="searchInput" placeholder="Search blogs..." />
           </div>
 
-          <!-- Blog Table -->
+          <!-- Table -->
           <div class="card admin-table-card">
             <table class="admin-table">
               <thead>
@@ -64,26 +81,27 @@
                 </tr>
               </thead>
               <tbody id="blogList">
-                <!-- Filled by JS -->
+                <!-- Injected via JS -->
               </tbody>
             </table>
           </div>
 
-          <!-- Pagination Controls -->
+          <!-- Pagination -->
           <div class="pagination-controls">
             <button id="prevPage" class="btn-outline small-btn">Previous</button>
-            <span id="pageInfo"></span>
+            <span id="pageInfo">Page 1</span>
             <button id="nextPage" class="btn-outline small-btn">Next</button>
           </div>
         </section>
-
       </div>
     </section>
   </main>
 
   <footer id="footer-container"></footer>
 
+  <!-- Scripts -->
   <script type="module" src="../js/main.js"></script>
   <script src="../js/admin-blog.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </body>
 </html>

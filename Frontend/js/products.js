@@ -88,7 +88,7 @@ function setupFilterButtons() {
     button.addEventListener("click", () => {
       filterProducts(btnFilter);
       window.history.pushState({}, "", `?category=${btnFilter}`);
-      setupFilterButtons(); // Refresh active class
+      setupFilterButtons();
     });
   });
 }
