@@ -8,6 +8,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupFilterButtons();
 });
 
+const BACKEND_URL = "http://localhost:8080";
+
+const API_BASE = {
+  products: `${BACKEND_URL}/api/products`
+ 
+};
 function getCategoryFromQuery() {
   const params = new URLSearchParams(window.location.search);
   return params.get("category") || "all";
@@ -40,9 +46,14 @@ function renderProductGrid(products) {
         product.category?.name?.toLowerCase() || "uncategorized"
       }">
         <a href="product-details.html?id=${product.id}">
-          <img src="${product.imageUrl}" alt="${
-        product.name
-      }" class="product-image" />
+          <img 
+  src="${BACKEND_URL}${product.imageUrl}" 
+  alt="${product.name}" 
+  class="product-image" 
+  loading="lazy"
+/>
+
+
         </a>
         <div class="product-info">
           <h3>${product.name}</h3>
@@ -77,7 +88,7 @@ function setupFilterButtons() {
     button.addEventListener("click", () => {
       filterProducts(btnFilter);
       window.history.pushState({}, "", `?category=${btnFilter}`);
-      setupFilterButtons(); // Refresh active class
+      setupFilterButtons();
     });
   });
 }

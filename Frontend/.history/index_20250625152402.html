@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Environmental Consultancy</title>
+    <meta name="description" content="Driving sustainable solutions for a cleaner planet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+    <div id="header-container"></div>
+
+    <main>
+       <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Welcome to BIONIX-HSE</h1>
+      <p>Driving sustainable solutions for a cleaner planet.</p>
+      <a href="services/services.html" class="btn btn-primary">Explore Services</a>
+    </div>
+  </section>
+
+  <section id="about" class="about-preview section-padding">
+    <div class="container">
+      <h2>Who We Are</h2>
+      <p>We’re an environmental consultancy committed to delivering impactful, sustainable services to businesses, communities, and governments across Kenya and beyond.</p>
+      <a href="about.html" class="btn-secondary">Learn More</a>
+    </div>
+  </section>
+        <!-- Services Carousel Section -->
+  <section class="carousel-section section-padding">
+    <div class="container">
+      <h2 class="section-title">Our Core Services</h2>
+      <div class="carousel-wrapper">
+        <button id="prevBtn" class="carousel-btn" aria-label="Previous Slide">&#10094;</button>
+        <div class="carousel-slide" id="carousel-slide">
+          <!-- JS will inject slides here -->
+        </div>
+        <button id="nextBtn" class="carousel-btn" aria-label="Next Slide">&#10095;</button>
+      </div>
+      <div class="carousel-progress-bar">
+    <div id="carousel-progress-bar-fill"></div>
+  </div>
+    </div>
+  </section>
+
+        <!-- Consultancy Services Grid
+  <section id="consultancy-services" class="section-padding">
+    <div class="container">
+      <h2 class="section-title">Our Consultancy Services</h2>
+      <div class="services-grid" id="consultancy-grid">
+        <!-- JS will inject services here -->
+      </div>
+    </div>
+  </section> -->
+
+        <!-- Featured Products Section -->
+  <section class="featured-products section-padding">
+    <div class="container">
+      <h2 class="section-title">Eco-Friendly Products</h2>
+      <div class="grid-four-columns" id="featured-products-grid">
+        <!-- JS will inject product cards here -->
+      </div>
+      <div class="center-text">
+        <a href="ecommerce/product-grid.html" class="btn btn-outline">View All Products</a>
+      </div>
+    </div>
+  </section>
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <h2>Contact Us</h2>
+            <p>We'd love to hear from you. Please fill out the form below and we'll get in touch shortly.</p>
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Full Name*</label>
+                    <input type="text" id="name" name="name" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address*</label>
+                    <input type="email" id="email" name="email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="e.g. +254 712 345 678">
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Message*</label>
+                    <textarea id="message" name="message" rows="5" required placeholder="Type your message..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-submit">Send Message</button>
+                <div id="formResponse" class="form-response"></div>
+            </form>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <!-- Single JavaScript Module -->
+    <script type="module" src="js/main.js"></script>
+    
+</body>
+</html>

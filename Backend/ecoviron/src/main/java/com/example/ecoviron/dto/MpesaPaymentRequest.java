@@ -1,11 +1,9 @@
 package com.example.ecoviron.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class PaymentRequest {
+@Data
+public class MpesaPaymentRequest {
     private String phone;
     private String amount;
     private String orderReference;

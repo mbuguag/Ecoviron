@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ecoviron Environmental Consultancy</title>
+    <title>BionixEHS Environmental Consultancy</title>
     <meta name="description" content="Driving sustainable solutions for a cleaner planet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="css/styles.css" />
@@ -16,7 +16,7 @@
        <!-- Hero Section -->
   <section class="hero">
     <div class="container hero-content">
-      <h1>Welcome to BIONIXHSE</h1>
+      <h1>Welcome to BIONIX-HSE</h1>
       <p>Driving sustainable solutions for a cleaner planet.</p>
       <a href="services/services.html" class="btn btn-primary">Explore Services</a>
     </div>
@@ -29,6 +29,8 @@
       <a href="about.html" class="btn-secondary">Learn More</a>
     </div>
   </section>
+
+
         <!-- Services Carousel Section -->
   <section class="carousel-section section-padding">
     <div class="container">
@@ -51,23 +53,27 @@
     <div class="container">
       <h2 class="section-title">Our Consultancy Services</h2>
       <div class="services-grid" id="consultancy-grid">
-        <!-- JS will inject services here -->
-      </div>
+        JS will inject services here
+       </div>
     </div>
   </section> -->
 
-        <!-- Featured Products Section -->
-  <section class="featured-products section-padding">
-    <div class="container">
-      <h2 class="section-title">Eco-Friendly Products</h2>
-      <div class="grid-four-columns" id="featured-products-grid">
-        <!-- JS will inject product cards here -->
+     <section class="featured-products section-padding">
+  <div class="container">
+    <h2 class="section-title">Eco-Friendly Products</h2>
+    <div class="carousel-grid-wrapper">
+      <button class="carousel-btn left" id="carouselLeft">&#10094;</button>
+      <div class="carousel-grid" id="featured-products-grid">
+        <!-- Js to inject product cards -->
       </div>
-      <div class="center-text">
-        <a href="ecommerce/product-grid.html" class="btn btn-outline">View All Products</a>
-      </div>
+      <button class="carousel-btn right" id="carouselRight">&#10095;</button>
     </div>
-  </section>
+    <div class="center-text">
+      <a href="ecommerce/product-grid.html" class="btn btn-outline">View All Products</a>
+    </div>
+  </div>
+</section>
+
         <!-- Contact Section -->
         <section id="contact" class="contact-section">
             <h2>Contact Us</h2>
@@ -97,8 +103,9 @@
 
     <div id="footer-container"></div>
 
-    <!-- Single JavaScript Module -->
+    
     <script type="module" src="js/main.js"></script>
+    <!-- <script type="module" src="../js/services.js"></script> -->
     
 </body>
 </html>

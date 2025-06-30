@@ -29,4 +29,8 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<com.example.ecoviron.entity.Role> roles;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
 }

@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '../apiConfig.js';
 
+
 export async function initServices() {
   const grid = document.getElementById('dynamic-services-grid');
   if (!grid) return;

@@ -125,6 +125,11 @@
     background-color: #33691e;
 }
 
+.profile-icon-container {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2e7d32;
+}
 /* Clear floats */
 .site-header::after {
     content: "";
@@ -1525,4 +1530,213 @@ a:hover {
 
  .site-footer .footer-socials a:hover {
      color: #0056b3;
+ }
+
+ .blog-card {
+     background: #fff;
+     border-radius: 10px;
+     overflow: hidden;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ }
+
+ .blog-card img {
+     width: 100%;
+     height: auto;
+     display: block;
+ }
+
+ .blog-card-body {
+     padding: 1rem;
+ }
+
+ /* === Auth Forms (Login/Register) === */
+ .auth-form {
+     max-width: 400px;
+     margin: 0 auto;
+     background: #fff;
+     padding: 2rem;
+     border-radius: 12px;
+     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+ }
+
+ .auth-form input[type="text"],
+ .auth-form input[type="email"],
+ .auth-form input[type="password"],
+ .auth-form input[type="file"] {
+     padding: 12px 15px;
+     font-size: 1rem;
+     border: 1px solid #ccc;
+     border-radius: 8px;
+     width: 100%;
+     box-sizing: border-box;
+     transition: border 0.2s ease;
+ }
+
+ .auth-form input:focus {
+     border-color: #2ecc71;
+     outline: none;
+ }
+
+ .auth-form .btn {
+     padding: 12px;
+     background-color: #2ecc71;
+     color: white;
+     font-size: 1rem;
+     border: none;
+     border-radius: 8px;
+     cursor: pointer;
+     transition: background-color 0.2s ease;
+ }
+
+ .auth-form .btn:hover {
+     background-color: #27ae60;
+ }
+
+ .auth-form p {
+     text-align: center;
+     font-size: 0.9rem;
+ }
+
+ .auth-form a {
+     color: #2ecc71;
+     text-decoration: none;
+     font-weight: 500;
+ }
+
+ .auth-form a:hover {
+     text-decoration: underline;
+ }
+
+ /* Centering container */
+ .section-padding {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 90vh;
+     background-color: #f7f9fc;
+ }
+
+ /* Page headers */
+ .container h2 {
+     text-align: center;
+     margin-bottom: 1.5rem;
+     color: #2c3e50;
+ }
+
+ /* Profile icon (if you use it) */
+ .auth-form .profile-icon {
+     width: 80px;
+     height: 80px;
+     margin: 0 auto;
+     display: block;
+     border-radius: 50%;
+     object-fit: cover;
+     margin-bottom: 1rem;
+     border: 2px solid #2ecc71;
+ }
+
+ .user-info {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }
+
+ .user-avatar {
+     width: 30px;
+     height: 30px;
+     border-radius: 50%;
+     object-fit: cover;
+ }
+
+ .user-name {
+     font-weight: 500;
+ }
+
+ .logout-btn {
+     background: none;
+     border: none;
+     color: #c00;
+     cursor: pointer;
+     text-decoration: underline;
+ }
+
+ .user-info {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }
+
+ .user-avatar {
+     width: 30px;
+     height: 30px;
+     border-radius: 50%;
+     object-fit: cover;
+ }
+
+ .user-name {
+     font-weight: 500;
+     color: #333;
+ }
+
+ .logout-btn {
+     color: #c0392b;
+     text-decoration: none;
+     margin-left: 10px;
+ }
+
+ .carousel-grid-wrapper {
+     position: relative;
+     overflow: hidden;
+ }
+
+ .carousel-grid {
+     display: flex;
+     gap: 1.5rem;
+     overflow-x: auto;
+     scroll-behavior: smooth;
+     padding-bottom: 1rem;
+ }
+
+ .carousel-grid::-webkit-scrollbar {
+     display: none;
+ }
+
+ .product-card {
+     flex: 0 0 auto;
+     width: 240px;
+     border: 1px solid #eee;
+     padding: 1rem;
+     border-radius: 12px;
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+     background-color: #fff;
+ }
+
+ .product-card:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+ }
+
+ .carousel-btn {
+     position: absolute;
+     top: 50%;
+     transform: translateY(-50%);
+     z-index: 2;
+     background: rgba(255, 255, 255, 0.9);
+     border: none;
+     font-size: 2rem;
+     cursor: pointer;
+     padding: 0.3rem 0.6rem;
+     border-radius: 50%;
+     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+ }
+
+ .carousel-btn.left {
+     left: 10px;
+ }
+
+ .carousel-btn.right {
+     right: 10px;
  }

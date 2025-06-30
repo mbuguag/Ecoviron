@@ -80,7 +80,28 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByUser(user);
     }
 
+<<<<<<< HEAD
     private String generateOrderReference() {
         return "ORD-" + System.currentTimeMillis();
     }
+=======
+    @Override
+    public Order saveOrder(Order order, User user) {
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.PENDING); // default status
+
+        // if needed: assign each orderItem the parent order
+        if (order.getItems() != null) {
+            order.getItems().forEach(item -> item.setOrder(order));
+        }
+
+        // generate orderReference if your entity requires one
+        String reference = "ORD-" + System.currentTimeMillis();
+        order.setOrderReference(reference);
+
+        return orderRepository.save(order);
+    }
+
+>>>>>>> 0adeff7a2bbf24d66d8ba480a90d3600e36c7eeb
 }

@@ -31,33 +31,34 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        //Public endpoints
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/product", "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // ✅ allow only GET publicly
                         .requestMatchers("/api/about/**").permitAll()
-                        .requestMatchers("api/services", "/api/services/**").permitAll()
-                         .requestMatchers("/api/cart/**").permitAll()
+                        .requestMatchers("/api/services", "/api/services/**").permitAll()
+                        .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/api/blogs/**").permitAll()
+                        .requestMatchers("/api/images/**", "/uploads/**").permitAll()
+                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
 
-                        // Authenticated users only
+                        // Authenticated-only
                         .requestMatchers("/api/orders", "/api/orders/**").authenticated()
 
-                        //Admin-only write operations
+                        // Admin-only
                         .requestMatchers("/api/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
-                        .requestMatchers("/api/contact/admin").hasRole("ADMIN")
-
-
-
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
+                        .requestMatchers("/api/contact/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
 
-                        //Catch-all fallback
+                        // Catch-all
                         .anyRequest().authenticated()
                 )
+
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
