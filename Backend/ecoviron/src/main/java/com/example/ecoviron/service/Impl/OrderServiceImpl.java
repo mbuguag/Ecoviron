@@ -1,13 +1,10 @@
 package com.example.ecoviron.service.Impl;
 
-import com.example.ecoviron.entity.Cart;
-import com.example.ecoviron.entity.Order;
-import com.example.ecoviron.entity.OrderItem;
-import com.example.ecoviron.entity.User;
+import com.example.ecoviron.entity.*;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,21 +12,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final CartService cartService;
 
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
-
+    /**
+     * Places an order based on current user's cart
+     */
     @Override
     public Order placeOrder(User user) {
         Cart cart = cartService.getCartByUser(user);
+
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> OrderItem.builder()
                         .product(cartItem.getProduct())
@@ -47,24 +42,45 @@ public class OrderServiceImpl implements OrderService {
                 .orderDate(LocalDateTime.now())
                 .items(orderItems)
                 .totalAmount(totalAmount)
+                .status(OrderStatus.PENDING)
+                .orderReference(generateOrderReference())
                 .build();
 
         orderItems.forEach(item -> item.setOrder(order));
+
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(user);
-
         return savedOrder;
     }
 
-    // Get all orders (admin)
+    /**
+     * Saves an order from direct request (e.g., frontend checkout form)
+     */
+    @Override
+    public Order saveOrder(Order order, User user) {
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.PENDING);
+        order.setOrderReference(generateOrderReference());
+
+        if (order.getItems() != null) {
+            order.getItems().forEach(item -> item.setOrder(order));
+        }
+
+        return orderRepository.save(order);
+    }
+
     @Override
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    // Get orders by user
     @Override
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
+    }
+
+    private String generateOrderReference() {
+        return "ORD-" + System.currentTimeMillis();
     }
 }

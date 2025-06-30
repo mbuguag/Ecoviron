@@ -19,7 +19,7 @@ public class CartController {
     private CartService cartService;
 
     @Autowired
-    private UserService userService; // Assumes you have a way to get current user
+    private UserService userService;
 
 
     // Example: Get user from security context (replace this method with actual logic)

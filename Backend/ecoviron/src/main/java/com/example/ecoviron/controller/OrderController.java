@@ -8,6 +8,7 @@ import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.OrderService;
 import com.example.ecoviron.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -38,6 +39,15 @@ public class OrderController {
         } else {
             return orderService.getOrdersByUser(user);
         }
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<Order> saveOrder(
+            @RequestBody Order order,
+            @RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
+        Order savedOrder = orderService.saveOrder(order, user);
+        return ResponseEntity.ok(savedOrder);
     }
 
     @GetMapping("/summary")

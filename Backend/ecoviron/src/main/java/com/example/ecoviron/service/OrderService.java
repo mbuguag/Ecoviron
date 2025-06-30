@@ -11,4 +11,6 @@ public interface OrderService {
     List<Order> getAllOrders();
 
     List<Order> getOrdersByUser(User user);
+
+    Order saveOrder(Order order, User user);
 }
