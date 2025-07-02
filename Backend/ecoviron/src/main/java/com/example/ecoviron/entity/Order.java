@@ -31,6 +31,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
 
+    @Column(name = "shipping_address")
+    private String shippingAddress;
+
     private double totalAmount;
 
     @Enumerated(EnumType.STRING)
@@ -38,5 +41,10 @@ public class Order {
 
     @OneToMany(mappedBy = "order")
     private List<Payment> payments;
+
+    @Column(name = "payment_reference")
+    private String paymentReference;
+
+    private LocalDateTime paymentDate;
 
 }

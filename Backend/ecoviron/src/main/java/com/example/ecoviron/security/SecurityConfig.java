@@ -33,14 +33,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // ✅ allow only GET publicly
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/about/**").permitAll()
                         .requestMatchers("/api/services", "/api/services/**").permitAll()
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
                         .requestMatchers("/api/blogs/**").permitAll()
                         .requestMatchers("/api/images/**", "/uploads/**").permitAll()
-                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
 
                         // Authenticated-only
                         .requestMatchers("/api/orders", "/api/orders/**").authenticated()

@@ -1,5 +1,6 @@
 package com.example.ecoviron.controller;
 
+import com.example.ecoviron.dto.OrderRequestDto;
 import com.example.ecoviron.dto.OrderSummaryDTO;
 import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.OrderStatus;
@@ -28,11 +29,14 @@ public class OrderController {
     public record OrderResponse(String orderReference) {}
 
 
-    @PostMapping("/save")
-    public ResponseEntity<OrderResponse> saveOrder(@RequestBody OrderRequestDto orderDto, @AuthenticationPrincipal User user) {
+    public ResponseEntity<OrderResponse> saveOrder(
+            @RequestBody OrderRequestDto orderDto,
+            @RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
         Order savedOrder = orderService.save(orderDto, user);
         return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
     }
+
 
     @PostMapping("/checkout")
     public Order checkout(@RequestHeader("Authorization") String token) {
