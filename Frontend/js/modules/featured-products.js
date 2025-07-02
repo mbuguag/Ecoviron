@@ -28,7 +28,8 @@ export async function initFeaturedProducts() {
                 alt="${product.name}" 
                 class="product-image"
                 loading="lazy"
-                onerror="this.src='assets/images/fallback.jpg'"
+                onerror="this.onerror=null;this.src='http://127.0.0.1:5500/frontend/assets/images/fallback.jpg'"
+
               />
               <h4 class="animated-text">${product.name}</h4>
               <p class="price">${formatPrice(product.price)}</p>

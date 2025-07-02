@@ -96,5 +96,21 @@ window.initComponents = {
   services: initServices
 };
 
+export const layoutLoaded = (async () => {
+  await loadLayoutComponents();
+
+  const headerLoaded =
+    document.getElementById("header-container")?.innerHTML.trim().length > 0;
+  const footerLoaded =
+    document.getElementById("footer-container")?.innerHTML.trim().length > 0;
+
+  if (!headerLoaded || !footerLoaded) {
+    throw new Error("Header or footer not loaded correctly");
+  }
+
+  return true;
+})();
+
+
 // console.log('Current path:', window.location.pathname);
 // console.log('BASE_PATH:', BASE_PATH);

@@ -25,8 +25,8 @@
 }
 
 .logo-img {
-    width: 40px;
-    height: 40px;
+    width: 100px;
+    height: 100px;
     margin-right: 0.5rem;
 }
 
@@ -34,6 +34,7 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: #fff;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .nav-menu {

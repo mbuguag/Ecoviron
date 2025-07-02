@@ -1,118 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout | Ecoviron Shop</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | Ecoviron Shop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
 
-    <link rel="stylesheet" href="../css/styles.css" />
-  </head>
+<body>
+  <div id="header-container"></div>
 
-  <body>
-    <div id="header-container"></div>
+  <main>
+    <section class="section-padding checkout-section">
+      <div class="container">
+        <h2>Checkout</h2>
+        
+        <div id="checkout-cart"></div>
 
-    <main>
-      <section class="section-padding checkout-section">
-        <div class="container">
-          <h2>Checkout</h2>
-
-          <div id="checkout-cart"></div>
-
-          <form id="checkout-form" class="checkout-form">
+        <form id="checkout-form" class="checkout-form">
+          <div class="form-section">
             <h3>Billing Details</h3>
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required />
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="address">Shipping Address</label>
+              <input type="text" id="address" name="address" required />
+            </div>
+          </div>
 
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" required />
+          <div class="form-section">
+            <h3>Payment Method</h3>
+            <div class="form-group">
+              <label for="payment">Select Payment Method</label>
+              <select id="payment" name="payment" required>
+                <option value="">Select...</option>
+                <option value="mpesa">M-Pesa</option>
+                <option value="card">Credit/Debit Card</option>
+              </select>
+            </div>
+            
+            <div id="mpesa-phone-section" class="payment-details" style="display: none;">
+              <div class="form-group">
+                <label for="mpesa-phone">M-Pesa Phone Number</label>
+                <input type="tel" id="mpesa-phone" name="mpesa-phone" 
+                placeholder="e.g. 254712345678" 
+                pattern="254[17][0-9]{8}"
+                title="Enter a valid M-Pesa number(2547XXXXXXXX)"/>
+              </div>
+            </div>
+            
+            <div id="card-details-section" class="payment-details" style="display: none;">
+              <!-- Card payment fields would go here -->
+            </div>
+          </div>
 
-            <label for="address">Shipping Address</label>
-            <input type="text" id="address" name="address" required />
-
-            <label for="payment">Payment Method</label>
-            <select id="payment" name="payment" required>
-              <option value="">Select...</option>
-              <option value="mpesa">M-Pesa</option>
-              <option value="card">Credit/Debit Card</option>
-            </select>
-
-            <h2>Checkout</h2>
+          <div class="order-summary">
+            <h3>Order Summary</h3>
             <div id="checkout-summary"></div>
-            <button id="place-order-btn" class="btn primary">
+            <button id="place-order-btn" class="btn primary" type="submit">
               Place Order
             </button>
-          </form>
-        </div>
-      </section>
-    </main>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
 
-    <footer id="footer-container"></footer>
+  <footer id="footer-container"></footer>
 
-    <script type="module" src="../js/main.js"></script>
-    <script src="../js/checkout.js"></script>  
-    
-    <!-- <script>
-            const productData = {
-                1: {
-                    name: "Reusable Water Bottle",
-                    price: "KES 850",
-                    image: "../assets/images/products/water-bottle.jpg"
-                },
-                2: {
-                    name: "Solar Lantern",
-                    price: "KES 2,500",
-                    image: "../assets/images/products/solar-lantern.jpg"
-                },
-                3: {
-                    name: "Eco Tote Bag",
-                    price: "KES 500",
-                    image: "../assets/images/products/tote-bag.jpg"
-                },
-                4: {
-                    name: "Biodegradable Soap",
-                    price: "KES 300",
-                    image: "../assets/images/products/soap.jpg"
-                }
-            };
-
-            function loadCheckoutCart() {
-                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                let html = '<ul class="checkout-cart-list">';
-                let total = 0;
-
-                if (cart.length === 0) {
-                    document.getElementById("checkout-cart").innerHTML = "<p>Your cart is empty.</p>";
-                    document.getElementById("checkout-form").style.display = "none";
-                    return;
-                }
-
-                cart.forEach(id => {
-                    const product = productData[id];
-                    if (product) {
-                        html += `
-            <li>
-              <img src="${product.image}" alt="${product.name}" />
-              <span>${product.name}</span> - <span>${product.price}</span>
-            </li>
-          `;
-
-                        total += parseInt(product.price.replace(/[^\d]/g, ''));
-                    }
-                });
-
-                html += `</ul><p class="total-amount">Total: KES ${total.toLocaleString()}</p>`;
-                document.getElementById("checkout-cart").innerHTML = html;
-            }
-
-            document.getElementById("checkout-form").addEventListener("submit", function (e) {
-                e.preventDefault();
-                alert("Order placed successfully!");
-                localStorage.removeItem("cart");
-                window.location.href = "/Frontend/index.html";
-            });
-
-            window.addEventListener("DOMContentLoaded", loadCheckoutCart);
-        </script> -->
-  </body>
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/checkout.js"></script>
+  
+  <script>
+    document.getElementById('payment').addEventListener('change', function() {
+      const paymentMethod = this.value;
+      document.querySelectorAll('.payment-details').forEach(section => {
+        section.style.display = 'none';
+      });
+      
+      if (paymentMethod === 'mpesa') {
+        document.getElementById('mpesa-phone-section').style.display = 'block';
+      } else if (paymentMethod === 'card') {
+        document.getElementById('card-details-section').style.display = 'block';
+      }
+    });
+  </script>
+</body>
 </html>
