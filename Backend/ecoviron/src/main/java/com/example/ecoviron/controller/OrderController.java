@@ -1,5 +1,6 @@
 package com.example.ecoviron.controller;
 
+import com.example.ecoviron.dto.OrderRequestDto;
 import com.example.ecoviron.dto.OrderSummaryDTO;
 import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.OrderStatus;
@@ -9,10 +10,7 @@ import com.example.ecoviron.service.OrderService;
 import com.example.ecoviron.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-<<<<<<< HEAD
-=======
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
->>>>>>> 0adeff7a2bbf24d66d8ba480a90d3600e36c7eeb
 import org.springframework.web.bind.annotation.*;
 
 
@@ -31,11 +29,11 @@ public class OrderController {
     public record OrderResponse(String orderReference) {}
 
 
-    @PostMapping("/save")
-    public ResponseEntity<OrderResponse> saveOrder(@RequestBody OrderRequestDto orderDto, @AuthenticationPrincipal User user) {
-        Order savedOrder = orderService.save(orderDto, user);
-        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
-    }
+//    @PostMapping("/save")
+//    public ResponseEntity<OrderResponse> saveOrder(@RequestBody OrderRequestDto orderDto, @AuthenticationPrincipal User user) {
+//        Order savedOrder = orderService.save(orderDto, user);
+//        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
+//    }
 
     @PostMapping("/checkout")
     public Order checkout(@RequestHeader("Authorization") String token) {

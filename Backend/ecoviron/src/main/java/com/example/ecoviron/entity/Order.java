@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,11 +37,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-<<<<<<< HEAD
-    private String orderReference;
-=======
     @OneToMany(mappedBy = "order")
     private List<Payment> payments;
->>>>>>> 0adeff7a2bbf24d66d8ba480a90d3600e36c7eeb
-
 }
