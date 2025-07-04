@@ -8,7 +8,7 @@ export function handleLogin(formId, endpoint) {
     button.disabled = true;
     button.textContent = "Logging in...";
 
-    // Clear previous session
+    
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("profileImage");
@@ -86,5 +86,10 @@ export function handleRegister(formId, endpoint) {
         button.textContent = "Register";
       });
   });
+}
+
+export function isLoggedIn() {
+  const token = localStorage.getItem("jwtToken") || localStorage.getItem("jwtToken");
+  return !!token;
 }
 

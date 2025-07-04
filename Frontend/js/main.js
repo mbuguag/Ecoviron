@@ -4,7 +4,8 @@ import { initFeaturedProducts } from './modules/featured-products.js';
 import { initServices } from './modules/services.js';
 import { loadLayoutComponents } from './modules/components.js';
 import { initAboutSection } from './modules/about.js';
-
+import { updateMiniCartCount } from "./cart-actions.js";
+import { isLoggedIn } from './auth.js';
 
 // Initialize all components and page modules
 window.addEventListener('DOMContentLoaded', async () => {
@@ -12,6 +13,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     await loadLayoutComponents();
 
+    await updateMiniCartCount();
     const headerLoaded =
       document.getElementById("header-container").innerHTML.trim().length > 0;
     const footerLoaded =

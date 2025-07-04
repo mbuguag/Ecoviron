@@ -18,12 +18,24 @@
             <section class="section-padding">
                 <div class="container">
                     <h1 class="section-title">Eco-Friendly Products</h1>
-                    <div class="product-filter">
-                        <a href="product-grid.html?category=all"><button data-filter="all">All Products</button></a>
-                        <a href="product-grid.html?category=sustainability"><button data-filter="sustainability">Sustainability</button></a>
-                       <a href="product-grid.html?category=energy"><button data-filter="energy">Energy</button></a> 
-                       <a href="product-grid.html?category=personal-care"> <button data-filter="personal-care">Personal Care</button></a>
-                    </div>
+                   <div class="product-controls">
+  <div class="product-filter">
+    <button class="filter-btn" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="sustainability">Sustainability</button>
+    <button class="filter-btn" data-filter="energy">Energy</button>
+    <button class="filter-btn" data-filter="personal-care">Personal Care</button>
+  </div>
+
+  <div class="product-sort">
+    <label for="sort-select">Sort by:</label>
+    <select id="sort-select">
+      <option value="default">Default</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+    </select>
+  </div>
+</div>
+
                     <div class="grid-four-columns" id="product-grid">
                         <!-- Product cards injected by JS -->
                     </div>
@@ -36,6 +48,7 @@
         <script type="module" src="../js/main.js"></script>
         <script type="module" src="../js/products.js"></script>
         <script type="module" src="../js/cart-actions.js"></script>
+        
     </body>
 
 </html>
