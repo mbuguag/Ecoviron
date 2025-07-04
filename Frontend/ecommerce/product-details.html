@@ -1,110 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details | Ecoviron Shop</title>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Product Details | Ecoviron Shop</title>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- FontAwesome & Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/styles.css"/>
 
-        <link rel="stylesheet" href="../css/styles.css">
-    </head>
+</head>
+<body>
+  <!-- Header Placeholder -->
+  <div id="header-container"></div>
 
-    <body>
-        <div id="header-container"></div>
+  <!-- Main Content -->
+  <main class="section-padding product-detail-section">
+    <div class="container">
+      
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb" id="breadcrumb">
+        <a href="/">Home</a><span> &gt; </span>
+        <a href="product-grid.html">Shop</a><span> &gt; </span>
+        <span id="breadcrumb-product-name">Product</span>
+      </nav>
 
-        <main>
-            <section class="section-padding product-detail-section">
-                <div class="container">
-                    <a href="/frontend/ecommerce/product-grid.html" class="back-link">← Back to Shop</a>
-                    <div id="product-detail" class="product-detail-wrapper">
-                        <!-- JS will inject product details here -->
-                    </div>
-                </div>
-            </section>
-        </main>
+      <!-- Back Link -->
+      <a href="product-grid.html" class="back-link">← Back to Shop</a>
 
-        <footer id="footer-container"></footer>
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loading-spinner" style="display: none;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+      </div>
 
-        <script type="module" src="../js/main.js"></script>
-        <script type="module" src="../js/product-details.js"></script>
-        <script type="module" src="../js/cart-actions"></script>
-        
-        <!-- <script>
-            const productData = {
-                1: {
-                    name: "Reusable Water Bottle",
-                    price: "KES 850",
-                    image: "../assets/images/products/water-bottle.jpg",
-                    description: "Stay hydrated while reducing single-use plastics. Made from BPA-free materials."
-                },
-                2: {
-                    name: "Solar Lantern",
-                    price: "KES 2,500",
-                    image: "../assets/images/products/solar-lantern.jpg",
-                    description: "Eco-friendly lighting solution powered by solar energy."
-                },
-                3: {
-                    name: "Eco Tote Bag",
-                    price: "KES 500",
-                    image: "../assets/images/products/tote-bag.jpg",
-                    description: "Durable, reusable shopping bag to reduce plastic waste."
-                },
-                4: {
-                    name: "Biodegradable Soap",
-                    price: "KES 300",
-                    image: "../assets/images/products/soap.jpg",
-                    description: "Natural soap that's gentle on your skin and the environment."
-                }
-            };
+      <!-- Product Detail Container -->
+      <div id="product-detail" class="product-detail-wrapper">
+        <!-- JS Injects Product Detail -->
+      </div>
 
-            function getProductIdFromURL() {
-                const params = new URLSearchParams(window.location.search);
-                return params.get('id');
-            }
+      <!-- Related Products Section -->
+      <section class="related-products-section section-padding">
+        <h3>You May Also Like</h3>
+        <div id="related-products" class="grid-three-columns">
+          <!-- JS Injects Related Products -->
+        </div>
+      </section>
 
-            function loadProductDetail() {
-                const productId = getProductIdFromURL();
-                const product = productData[productId];
+    </div>
+  </main>
 
-                if (!product) {
-                    document.getElementById("product-detail").innerHTML = `
-          <div class="not-found">
-            <p>Sorry, the product you're looking for was not found.</p>
-            <a href="/frontend/ecommerce/product-grid.html" class="btn">Return to Shop</a>
-          </div>`;
-                    return;
-                }
+  <!-- Sticky Mobile Cart Bar -->
+  <div id="mobile-cart-bar" class="mobile-cart-bar"></div>
 
-                document.getElementById("product-detail").innerHTML = `
-        <div class="product-detail-card">
-          <img src="${product.image}" alt="${product.name}" class="product-image" />
-          <div class="product-info">
-            <h2>${product.name}</h2>
-            <p class="product-price">${product.price}</p>
-            <p>${product.description}</p>
-            <button class="btn" onclick="addToCart('${productId}')">Add to Cart</button>
-          </div>
-        </div>`;
-            }
+  <!-- Sticky Price Bar (optional) -->
+  <div class="sticky-bar" id="mobile-sticky-bar" style="display: none;">
+    <span class="price" id="sticky-price"></span>
+    <button class="btn" id="sticky-add-to-cart">Add to Cart</button>
+  </div>
 
-          function addToCart(productId) {
-                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                const index = cart.findIndex(item => item.id == productId);
+  <!-- Footer Placeholder -->
+  <footer id="footer-container"></footer>
 
-                if (index !== -1) {
-                    cart[index].quantity += 1;
-                } else {
-                    cart.push({ id: parseInt(productId), quantity: 1 });
-                }
-
-                localStorage.setItem("cart", JSON.stringify(cart));
-                alert("Product added to cart!");
-            }
-
-
-            window.addEventListener('DOMContentLoaded', loadProductDetail);
-        </script> -->
-    </body>
-
+  <!-- JS Modules -->
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/product-details.js"></script>
+  <script type="module" src="../js/cart-actions.js"></script>
+</body>
 </html>

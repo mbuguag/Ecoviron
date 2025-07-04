@@ -30,5 +30,7 @@ build/
 !**/src/test/**/build/
 /uploads/
 
+
 ### VS Code ###
 .vscode/
+.history/

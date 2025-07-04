@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,9 +43,11 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<Payment> payments;
 
+
     @Column(name = "payment_reference")
     private String paymentReference;
 
     private LocalDateTime paymentDate;
+
 
 }

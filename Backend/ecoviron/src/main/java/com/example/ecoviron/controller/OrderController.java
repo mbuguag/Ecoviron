@@ -29,15 +29,6 @@ public class OrderController {
     public record OrderResponse(String orderReference) {}
 
 
-    public ResponseEntity<OrderResponse> saveOrder(
-            @RequestBody OrderRequestDto orderDto,
-            @RequestHeader("Authorization") String token) {
-        User user = UserUtil.getUserFromToken(token);
-        Order savedOrder = orderService.save(orderDto, user);
-        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
-    }
-
-
     @PostMapping("/checkout")
     public Order checkout(@RequestHeader("Authorization") String token) {
         User user = UserUtil.getUserFromToken(token);
@@ -53,6 +44,15 @@ public class OrderController {
         } else {
             return orderService.getOrdersByUser(user);
         }
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<OrderResponse> saveOrder(
+            @RequestBody OrderRequestDto orderDto,
+            @RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
+        Order savedOrder = orderService.save(orderDto, user);
+        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
     }
 
     @GetMapping("/summary")

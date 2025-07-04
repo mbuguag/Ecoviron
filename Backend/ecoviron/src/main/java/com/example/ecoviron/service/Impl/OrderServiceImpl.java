@@ -6,27 +6,21 @@ import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.repository.ProductRepository;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
 
-    @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, CartService cartService) {
-        this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
-        this.cartService = cartService;
-    }
 
     @Override
     public Order save(OrderRequestDto orderDto, User user) {
@@ -48,16 +42,20 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.PENDING)
                 .shippingAddress(orderDto.getCustomerDetails().getShippingAddress())
                 .orderDate(LocalDateTime.now())
-                .orderReference(UUID.randomUUID().toString())
+                .orderReference(generateOrderReference())
                 .build();
 
         items.forEach(item -> item.setOrder(order));
         return orderRepository.save(order);
     }
 
+    /**
+     * Places an order based on current user's cart contents
+     */
     @Override
     public Order placeOrder(User user) {
         Cart cart = cartService.getCartByUser(user);
+
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> OrderItem.builder()
                         .product(cartItem.getProduct())
@@ -75,14 +73,13 @@ public class OrderServiceImpl implements OrderService {
                 .orderDate(LocalDateTime.now())
                 .items(orderItems)
                 .totalAmount(totalAmount)
-                .orderReference(UUID.randomUUID().toString())
+                .orderReference(generateOrderReference())
                 .status(OrderStatus.PENDING)
                 .build();
 
         orderItems.forEach(item -> item.setOrder(order));
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(user);
-
         return savedOrder;
     }
 
@@ -94,5 +91,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
+    }
+
+    private String generateOrderReference() {
+        return "ORD-" + System.currentTimeMillis();
     }
 }
