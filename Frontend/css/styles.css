@@ -25,7 +25,6 @@
 }
 
 .logo-img {
-<<<<<<< HEAD
     width: 100px;
     height: 100px;
     margin-right: 0.5rem;
@@ -36,17 +35,6 @@
     font-weight: bold;
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
-=======
-  width: 40px;
-  height: 40px;
-  margin-right: 0.5rem;
-}
-
-.logo-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
->>>>>>> ecoviron_branch
 }
 
 .nav-menu {
