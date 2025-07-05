@@ -223,11 +223,11 @@
   transition: all 0.3s ease;
 }
 
-/* .btn-primary {
+.btn-primary {
   background-color: #27ae60;
   color: #fff;
   border: none;
-} */
+}
 
 .btn-primary:hover {
   background-color: #219150;
@@ -244,52 +244,169 @@
   color: #fff;
 }
 
-/* ========== Carousel Section ========== */
-.carousel-wrapper {
-  overflow: hidden;
+/* About Section Styling */
+.about-preview {
+  background-color: #f8f9fa;
   position: relative;
+}
+
+.about-preview .container {
+  max-width: 800px;
+  padding: 60px 20px;
+  position: relative;
+}
+
+.about-preview h2 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.about-preview h2::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: #27ae60;
+}
+
+.about-preview p {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+.btn-secondary {
+  display: inline-block;
+  background-color: #27ae60;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-secondary:hover {
+  background-color: transparent;
+  color: #27ae60;
+  border-color: #27ae60;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .about-preview .container {
+    padding: 40px 15px;
+  }
+  
+  .about-preview h2 {
+    font-size: 2rem;
+  }
+  
+  .about-preview p {
+    font-size: 1rem;
+  }
+}
+
+
+.carousel-wrapper {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  max-width: 100%;
+  padding: 2rem 0;
   margin: 0 auto;
-  padding: 20px 0;
 }
 
 /* Track */
 .carousel-slide {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-  width: 100%;
+  transition: transform 0.6s ease-in-out;
+  will-change: transform;
 }
 
-/* Optional: hide scrollbar for horizontal scroll fallback */
 .carousel-slide::-webkit-scrollbar {
   display: none;
 }
 
-/* Navigation buttons */
+/* Each carousel item */
+.carousel-item {
+  box-sizing: border-box;
+  padding: 1rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  text-align: center;
+}
+
+.carousel-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.carousel-item img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  object-fit: cover;
+   opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.8s ease, filter 0.8s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-item img.loaded {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.carousel-item h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.carousel-item:nth-child(even) {
+  transition-delay: 0.2s;
+}
+.carousel-item:nth-child(odd) {
+  transition-delay: 0.4s;
+}
+
+/* Buttons */
 .carousel-btn,
 #prevBtn,
 #nextBtn {
-  background-color: #1abc9c;
-  color: white;
-  font-size: 24px;
-  padding: 10px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  background-color: #1abc9c;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
   z-index: 10;
   transition: background 0.3s ease;
 }
 
 #prevBtn {
-  left: 10px;
+  left: 1rem;
 }
 
 #nextBtn {
-  right: 10px;
+  right: 1rem;
 }
 
 .carousel-btn:hover,
@@ -298,66 +415,17 @@
   background-color: #16a085;
 }
 
-/* Each slide item */
-.carousel-item {
-  flex: 0 0 33.3333%;
-  box-sizing: border-box;
-  padding: 0 10px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-  text-align: center;
-}
-
-.carousel-item img {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-}
-
-.carousel-item h3 {
-  font-size: 1.1rem;
-  color: #2c3e50;
-}
-
-.carousel-item.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.carousel-item:nth-child(even) {
-  transition-delay: 0.2s;
-}
-
-.carousel-item:nth-child(odd) {
-  transition-delay: 0.4s;
-}
-/* Responsive Design */
-@media screen and (max-width: 1024px) {
-  .carousel-item {
-    flex: 0 0 50%;
-    /* 2 items */
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .carousel-item {
-    flex: 0 0 100%;
-    /* 1 item on small screens */
-  }
-}
-
-/* Dots Navigation */
+/* Dots */
 .carousel-dots {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 1rem;
 }
 
 .carousel-dot {
   display: inline-block;
   width: 12px;
   height: 12px;
-  margin: 0 5px;
+  margin: 0 6px;
   background-color: #ccc;
   border-radius: 50%;
   cursor: pointer;
@@ -367,6 +435,43 @@
 .carousel-dot.active {
   background-color: #1abc9c;
 }
+
+/* Progress Bar */
+.carousel-progress-bar {
+  height: 4px;
+  background-color: #e0e0e0;
+  margin-top: 10px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#carousel-progress-bar-fill {
+  height: 100%;
+  width: 0;
+  background-color: #1abc9c;
+  transition: width 0.4s ease;
+}
+
+/* Responsive Layout */
+@media (max-width: 599px) {
+  .carousel-item {
+    flex: 0 0 100%;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .carousel-item {
+    flex: 0 0 50%;
+  }
+}
+
+@media (min-width: 900px) {
+  .carousel-item {
+    flex: 0 0 33.3333%;
+  }
+}
+
+
 
 .journey-section {
   padding: 60px 20px;
@@ -926,6 +1031,118 @@ main.service-detail {
     transform: translateY(0);
   }
 }
+/* ========== Hero Section ========== */
+.hero.about-hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+              url('../assets/images/about-hero.jpg') no-repeat center/cover;
+  color: #fff;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.hero.about-hero .hero-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.hero.about-hero .hero-content p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ========== General Section Styles ========== */
+.section-padding {
+  padding: 60px 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2f5d3a;
+  margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.section-title::after {
+  content: "";
+  width: 60px;
+  height: 3px;
+  background-color: #4caf50;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+/* ========== About Section ========== */
+.about-section #who-we-are-content {
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.8;
+  background-color: #f9fdfb;
+  padding: 20px;
+  border-left: 4px solid #4caf50;
+  border-radius: 5px;
+}
+
+/* ========== Mission and Vision Section ========== */
+.grid-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.mission-vision-section h3 {
+  font-size: 1.5rem;
+  color: #2e7d32;
+  margin-bottom: 15px;
+}
+
+.mission-vision-section div[id$='-content'] {
+  font-size: 1.1rem;
+  background-color: #eefaf0;
+  padding: 20px;
+  border-radius: 6px;
+  border-left: 4px solid #66bb6a;
+  color: #444;
+  line-height: 1.7;
+}
+
+#who-we-are-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.2em;
+  color: #444;
+  text-align: justify;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .grid-two-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .hero.about-hero .hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero.about-hero .hero-content p {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+}
+
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -113,6 +113,17 @@ export const layoutLoaded = (async () => {
   return true;
 })();
 
+// Dynamically load checkout logic only when on the checkout page
+if (window.location.pathname.includes("checkout.html")) {
+  import("./checkout.js")
+    .then(() => {
+      console.log("✅ checkout.js dynamically loaded");
+    })
+    .catch((err) => {
+      console.error(" Failed to load checkout.js", err);
+    });
+}
+
 
 // console.log('Current path:', window.location.pathname);
 // console.log('BASE_PATH:', BASE_PATH);

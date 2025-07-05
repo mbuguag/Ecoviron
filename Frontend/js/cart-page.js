@@ -7,6 +7,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadCartItems();
 });
 
+function buildImageUrl(path) {
+  if (!path) return "";
+  const cleanPath = path.replace(/^\/?uploads\//, ""); // remove leading "uploads/" if present
+  return IMAGE_BASE_URL + cleanPath;
+}
+
+
+const IMAGE_BASE_URL = "http://localhost:8080/uploads/";
+
 async function loadCartItems() {
   let items = [];
 
@@ -71,9 +80,17 @@ async function renderCart(items) {
               item.product.id
             }"
               data-qty="${item.quantity}" data-item-id="${item.id || ""}">
-            <img src="${item.product.imageUrl}" alt="${
-              item.product.name
-            }" class="cart-thumb" />
+           ${
+             item.product.imageUrl
+               ? `<img src="${buildImageUrl(item.product.imageUrl)}" alt="${
+                   item.product.name
+                 }" class="cart-thumb" />`
+               : ""
+           }
+
+
+
+
             <div class="cart-item-info">
               <div class="cart-item-header">
                 <a href="product-details.html?id=${item.product.id}">${
@@ -187,7 +204,7 @@ function setupRemoveButtons(cartItems) {
         } else {
           removeGuestCartItem(productId);
         }
-        await loadCartItems(); // re-render cart
+        await loadCartItems();
       } catch (err) {
         console.error("Remove item failed:", err);
         alert("Failed to remove item.");

@@ -1,8 +1,7 @@
-import { API_BASE_URL } from '../apiConfig.js';
-
+import { API_BASE_URL } from "../apiConfig.js";
 
 export async function initServices() {
-  const grid = document.getElementById('dynamic-services-grid');
+  const grid = document.getElementById("dynamic-services-grid");
   if (!grid) return;
 
   try {
@@ -14,7 +13,9 @@ export async function initServices() {
       .map(
         (service) => `
       <div class="service-card">
-        <img src="${API_BASE_URL}${service.imageUrl}" alt="${service.title}" class="service-image" />
+        <img src="${API_BASE_URL.replace("/api", "")}${
+          service.imageUrl
+        }" alt="${service.title}" class="service-image" />
         <h3>${service.title}</h3>
         <p>${service.description}</p>
         <a href="${service.link}" class="btn-primary">Learn More</a>
@@ -23,7 +24,7 @@ export async function initServices() {
       )
       .join("");
   } catch (error) {
-    console.error('Error loading services:', error);
+    console.error("Error loading services:", error);
     grid.innerHTML = `<p class="error">Unable to load services at the moment.</p>`;
   }
 }
