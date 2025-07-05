@@ -1,5 +1,7 @@
 package com.example.ecoviron.controller;
 
+import com.example.ecoviron.dto.OrderDetailsDTO;
+import com.example.ecoviron.dto.OrderItemDTO;
 import com.example.ecoviron.dto.OrderRequestDto;
 import com.example.ecoviron.dto.OrderSummaryDTO;
 import com.example.ecoviron.entity.Order;
@@ -26,7 +28,7 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
-    public record OrderResponse(String orderReference) {}
+    public record OrderResponse(Long id, String orderReference) {}
 
 
     @PostMapping("/checkout")
@@ -50,10 +52,13 @@ public class OrderController {
     public ResponseEntity<OrderResponse> saveOrder(
             @RequestBody OrderRequestDto orderDto,
             @RequestHeader("Authorization") String token) {
+
         User user = UserUtil.getUserFromToken(token);
         Order savedOrder = orderService.save(orderDto, user);
-        return ResponseEntity.ok(new OrderResponse(savedOrder.getOrderReference()));
+
+        return ResponseEntity.ok(new OrderResponse(savedOrder.getId(), savedOrder.getOrderReference()));
     }
+
 
     @GetMapping("/summary")
     public OrderSummaryDTO getOrderSummary() {
@@ -63,11 +68,33 @@ public class OrderController {
     }
 
     @GetMapping("/{orderReference}")
-    public ResponseEntity<Order> getOrderByReference(@PathVariable String orderReference) {
+    public ResponseEntity<OrderDetailsDTO> getOrderByReference(@PathVariable String orderReference) {
         return orderRepository.findByOrderReference(orderReference)
-                .map(ResponseEntity::ok)
+                .map(order -> ResponseEntity.ok(mapToOrderDetailsDTO(order)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    private OrderDetailsDTO mapToOrderDetailsDTO(Order order) {
+        OrderDetailsDTO dto = new OrderDetailsDTO();
+        dto.setOrderReference(order.getOrderReference());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setStatus(order.getStatus().name());
+        dto.setShippingAddress(order.getShippingAddress());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setCustomerName(order.getUser().getFullName());
+
+        List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> {
+            OrderItemDTO i = new OrderItemDTO();
+            i.setProductName(item.getProduct().getName());
+            i.setPrice(item.getPrice());
+            i.setQuantity(item.getQuantity());
+            return i;
+        }).toList();
+
+        dto.setItems(itemDTOs);
+        return dto;
+    }
+
 }
 
 

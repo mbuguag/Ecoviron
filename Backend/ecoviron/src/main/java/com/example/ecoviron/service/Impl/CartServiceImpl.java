@@ -38,25 +38,32 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart addItemToCart(User user, Long productId, int quantity) {
         Cart cart = getCartByUser(user);
+
+        // Check if item already exists in cart
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(i -> i.getProduct().getId().equals(productId))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+            // If item exists, update quantity
+            CartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + quantity);
         } else {
+            // Else, create and add new CartItem
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
-            CartItem item = new CartItem();
-            item.setCart(cart);
-            item.setProduct(product);
-            item.setQuantity(quantity);
-            cart.getItems().add(item);
+            CartItem newItem = new CartItem();
+            newItem.setCart(cart);
+            newItem.setProduct(product);
+            newItem.setQuantity(quantity);
+
+            cart.getItems().add(newItem);
         }
 
-        return cartRepository.save(cart);
+        return cartRepository.save(cart); // Save updated cart and items
     }
+
 
     @Override
     public Cart updateItemQuantity(User user, Long itemId, int quantity) {
@@ -80,6 +87,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void clearCart(User user) {
         Cart cart = getCartByUser(user);
+        cartItemRepository.deleteByCart(cart);
         cart.getItems().clear();
         cartRepository.save(cart);
     }
