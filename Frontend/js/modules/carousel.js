@@ -1,4 +1,3 @@
-// modules/carousel.js
 
 export async function initCarousel() {
   const carouselSlide = document.getElementById("carousel-slide");
@@ -7,7 +6,7 @@ export async function initCarousel() {
 
   if (!carouselSlide) return;
 
-  const services = await fetchServices(); // Replace or mock
+  const services = await fetchServices();
 
   const itemsPerView = () => {
     const width = window.innerWidth;
@@ -44,7 +43,7 @@ export async function initCarousel() {
     updateActiveDot();
     triggerAnimations();
 
-    // ✅ Image fade-in on load
+    
     const images = carouselSlide.querySelectorAll("img");
     images.forEach((img) => {
       if (img.complete) {
@@ -100,7 +99,7 @@ export async function initCarousel() {
       dot.classList.add("carousel-dot");
       dot.addEventListener("click", () => {
         showSlide(i);
-        restartAutoScroll(); // Pause on manual interaction
+        restartAutoScroll();
       });
       dotContainer.appendChild(dot);
     }
