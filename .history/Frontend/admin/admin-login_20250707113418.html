@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Admin Login</title>
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+
+    <body>
+        <!-- <script>
+            const token = localStorage.getItem("token");
+            const role = localStorage.getItem("role");
+
+            if (!token || role !== "ADMIN") {
+                alert("Access denied: Admins only");
+                window.location.href = "/frontend/login.html";
+            }
+        </script> -->
+        <div class="login-container">
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm">
+                <input type="text" id="username" placeholder="Username" required />
+                <input type="password" id="password" placeholder="Password" required />
+                <button type="submit">Login</button>
+                <p id="error-msg" class="error"></p>
+            </form>
+        </div>
+
+        <script>
+           document.getElementById("adminLoginForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                const form = e.target;
+
+                fetch("http://localhost:8080/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: form.username.value,
+                        password: form.password.value
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.token) {
+                            if (!data.roles.includes("ADMIN")) {
+                                alert("Access denied: You are not an admin.");
+                                return;
+                            }
+                            localStorage.setItem("token", data.token);
+                            localStorage.setItem("name", data.name);
+                            localStorage.setItem("userId", data.userId);
+                            localStorage.setItem("role", "ADMIN");
+                            window.location.href = "../admin/admin-dashboard.html";
+                        } else {
+                            alert("Login failed");
+                        }
+                    });
+            });
+
+        </script>
+    </body>
+
+</html>

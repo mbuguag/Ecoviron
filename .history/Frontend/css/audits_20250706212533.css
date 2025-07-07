@@ -1,0 +1,145 @@
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.7;
+}
+
+a {
+  color: #1b6ec2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Hero Banner */
+.banner {
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)),
+              url('../images/eia-banner.jpg') center/cover no-repeat;
+  color: #fff;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.banner h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.banner p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Content Section */
+.content-section {
+  padding: 4rem 1.5rem;
+  background: #fff;
+}
+
+.content-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #1b6ec2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-section p {
+  margin-bottom: 1rem;
+}
+
+.content-section ul,
+.content-section ol {
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+}
+
+.content-section li {
+  margin-bottom: 0.75rem;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #333;
+}
+
+/* Buttons */
+.button-group {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: #1b6ec2;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #154b9a;
+}
+
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #c8c8c8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .banner h1 {
+    font-size: 2rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | Ecoviron Shop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .breadcrumb {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: #777;
+    }
+
+    .breadcrumb a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .breadcrumb span {
+      margin: 0 5px;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      z-index: 1000;
+      box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .sticky-bar .price {
+      font-weight: bold;
+    }
+
+    .sticky-bar .btn {
+      padding: 0.5rem 1rem;
+    }
+
+    @media(min-width: 768px) {
+      .sticky-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header (injected by JS) -->
+  <div id="header-container"></div>
+
+  <main>
+    <section class="section-padding product-detail-section">
+      <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+          <a href="/">Home</a><span>&gt;</span>
+          <a href="product-grid.html">Shop</a><span>&gt;</span>
+          <span id="breadcrumb-product-name">Product</span>
+        </div>
+
+        <a href="/frontend/ecommerce/product-grid.html" class="back-link">← Back to Shop</a>
+
+        <!-- Product Detail -->
+        <div id="product-detail" class="product-detail-wrapper">
+          <div class="loading-spinner" id="product-loading">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+          </div>
+        </div>
+
+        <!-- You May Also Like -->
+        <section class="related-products-section section-padding">
+          <div class="container">
+            <h3>You May Also Like</h3>
+            <div id="related-products" class="grid-three-columns">
+              <!-- JS will inject related products here -->
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Sticky Add to Cart (mobile only) -->
+  <div class="sticky-bar" id="mobile-sticky-bar" style="display: none">
+    <span class="price" id="sticky-price"></span>
+    <button class="btn" id="sticky-add-to-cart">Add to Cart</button>
+  </div>
+
+  <!-- Footer (injected by JS) -->
+  <footer id="footer-container"></footer>
+
+  <!-- Scripts -->
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/product-details.js"></script>
+  <script type="module" src="../js/cart-actions.js"></script>
+</body>
+
+</html>

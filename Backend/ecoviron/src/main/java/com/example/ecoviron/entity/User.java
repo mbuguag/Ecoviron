@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -32,5 +34,9 @@ public class User {
 
     @Column(name = "profile_picture")
     private String profilePicture;
+
+    @Column(nullable = true)
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
 
 }

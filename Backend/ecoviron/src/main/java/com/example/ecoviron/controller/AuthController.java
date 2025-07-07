@@ -5,7 +5,6 @@ import com.example.ecoviron.dto.UserLoginDto;
 import com.example.ecoviron.entity.Role;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -55,7 +57,7 @@ public class AuthController {
                     if (!dir.exists()) {
                         boolean created = dir.mkdirs();
                         if (!created) {
-                            System.err.println("❌ Failed to create directory: " + uploadsDir);
+                            System.err.println(" Failed to create directory: " + uploadsDir);
                             return ResponseEntity.internalServerError().body("Failed to create upload directory.");
                         }
                     }
@@ -65,7 +67,7 @@ public class AuthController {
                             originalFilename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
                     File dest = new File(dir, sanitizedFilename);
 
-                    System.out.println("✅ Saving image to: " + dest.getAbsolutePath());
+                    System.out.println(" Saving image to: " + dest.getAbsolutePath());
                     profilePic.transferTo(dest);
                     imageUrl = "/uploads/profile-pics/" + sanitizedFilename;
 
@@ -85,7 +87,7 @@ public class AuthController {
                     .build();
 
             userRepository.save(user);
-            System.out.println("✅ Registered user: " + email);
+            System.out.println("Registered user: " + email);
             return ResponseEntity.ok("User registered successfully");
 
         } catch (Exception ex) {
@@ -110,17 +112,62 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(user.getEmail(), roles);
 
-        return ResponseEntity.ok(new JwtResponse(
+        // Construct and return the response
+        AuthResponseDto response = new AuthResponseDto(
                 token,
-                roles.get(0),
-                user.getId(),
                 user.getFullName(),
                 user.getEmail(),
-                user.getRoles(),
-                user.getProfilePicture() // ✅ include profile image URL here
-        ));
+                roles.get(0), // assuming single role
+                user.getProfilePicture() // can be null
+        );
+
+        return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDto dto) {
+        Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body("Email not found");
+        }
+
+        User user = optionalUser.get();
+
+        // Generate token & expiry
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30)); // expires in 30 mins
+        userRepository.save(user);
+
+        // TODO: Send email with reset link (e.g., /reset-password.html?token=...)
+        System.out.println("Reset token for " + user.getEmail() + ": " + token);
+
+        return ResponseEntity.ok("Reset instructions sent to your email (dev-mode: see console)");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDto dto) {
+        Optional<User> optionalUser = userRepository.findByResetToken(dto.getToken());
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body("Invalid or expired token");
+        }
+
+        User user = optionalUser.get();
+
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Token expired");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Password reset successful");
+    }
 
 
 }

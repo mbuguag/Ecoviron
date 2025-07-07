@@ -1,0 +1,49 @@
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    public record OrderResponse(String orderReference) {}
+
+    @PostMapping("/save")
+    public OrderResponse saveOrder(@RequestBody Order orderRequest, @RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
+        Order savedOrder = orderService.saveOrder(orderRequest, user);
+        return new OrderResponse(savedOrder.getOrderReference());
+    }
+
+    @PostMapping("/checkout")
+    public Order checkout(@RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
+        return orderService.placeOrder(user);
+    }
+
+    @GetMapping
+    public List<Order> getOrders(@RequestHeader("Authorization") String token) {
+        User user = UserUtil.getUserFromToken(token);
+        if (user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+            return orderService.getAllOrders();
+        } else {
+            return orderService.getOrdersByUser(user);
+        }
+    }
+
+    @GetMapping("/summary")
+    public OrderSummaryDTO getOrderSummary() {
+        long pending = orderRepository.countByStatus(OrderStatus.PENDING);
+        long delivered = orderRepository.countByStatus(OrderStatus.DELIVERED);
+        return new OrderSummaryDTO(pending, delivered);
+    }
+
+    @GetMapping("/{orderReference}")
+    public ResponseEntity<Order> getOrderByReference(@PathVariable String orderReference) {
+        return orderRepository.findByOrderReference(orderReference)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+}

@@ -16,7 +16,7 @@ public class OrderRequestDto {
     public static class OrderItemDto {
         private Long productId;
         private int quantity;
-        private String name;
+//        private String name;
         private double price;
     }
 

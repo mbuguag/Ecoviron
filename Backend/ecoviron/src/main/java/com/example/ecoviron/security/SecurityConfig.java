@@ -39,6 +39,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
                         .requestMatchers("/api/blogs/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/quote/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll() // Allow only POST for quote requests
                         .requestMatchers("/api/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
 
@@ -52,12 +54,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
-                        .requestMatchers("/api/contact/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/contact/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/quotes/**").hasRole("ADMIN")
 
                         // Catch-all
                         .anyRequest().authenticated()
                 )
+
 
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

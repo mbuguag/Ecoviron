@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Blog Manager | BIONIX-EHS</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main>
+    <section class="section-padding">
+      <div class="container">
+        <h1 class="section-title">Blog Management</h1>
+        <p class="section-subtitle">Add and manage blog posts for the public site.</p>
+
+        <!-- Blog Form Card -->
+        <div class="card admin-form-card">
+          <form id="blogForm" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="title">Title <span>*</span></label>
+              <input type="text" id="title" name="title" required />
+            </div>
+
+            <div class="form-group">
+              <label for="snippet">Snippet <span>*</span></label>
+              <textarea id="snippet" name="snippet" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="link">Article Link (optional)</label>
+              <input type="text" id="link" name="link" />
+            </div>
+
+            <div class="form-group">
+              <label for="imageInput">Blog Image <span>*</span></label>
+              <input type="file" id="imageInput" accept="image/*" required />
+            </div>
+
+            <button type="submit" class="btn-primary">Publish Blog</button>
+            <p id="statusMsg" class="status-message"></p>
+          </form>
+        </div>
+
+        <!-- Blog Management Table -->
+        <section class="admin-section" style="margin-top: 3rem;">
+          <h2 class="section-subtitle">Published Blogs</h2>
+
+          <!-- Search -->
+          <div class="form-group">
+            <input type="text" id="searchInput" placeholder="Search blogs..." />
+          </div>
+
+          <!-- Blog Table -->
+          <div class="card admin-table-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Snippet</th>
+                  <th>Image</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="blogList">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-controls">
+            <button id="prevPage" class="btn-outline small-btn">Previous</button>
+            <span id="pageInfo"></span>
+            <button id="nextPage" class="btn-outline small-btn">Next</button>
+          </div>
+        </section>
+
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script type="module" src="../js/main.js"></script>
+  <script src="../js/admin-blog.js"></script>
+</body>
+</html>

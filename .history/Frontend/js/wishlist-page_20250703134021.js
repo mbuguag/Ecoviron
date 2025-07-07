@@ -1,0 +1,115 @@
+import { loadLayoutComponents } from "./domUtils.js";
+
+const wishlistGrid = document.getElementById("wishlist-grid");
+const emptyMessage = document.getElementById("empty-message");
+const token = localStorage.getItem("jwtToken");
+const API_BASE_URL = "http://localhost:8080/api";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadLayoutComponents();
+  loadWishlist();
+});
+
+async function loadWishlist() {
+  if (token) {
+    await loadWishlistFromBackend();
+  } else {
+    loadWishlistFromLocalStorage();
+  }
+}
+
+async function loadWishlistFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/wishlist`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch wishlist");
+
+    const items = await res.json();
+    if (items.length === 0) return showEmptyMessage();
+
+    renderWishlistItems(items);
+  } catch (error) {
+    console.error("Wishlist fetch error:", error);
+    showEmptyMessage();
+  }
+}
+
+function loadWishlistFromLocalStorage() {
+  const items = JSON.parse(localStorage.getItem("wishlist")) || [];
+  if (items.length === 0) {
+    return showEmptyMessage();
+  }
+  renderWishlistItems(items);
+}
+
+function renderWishlistItems(items) {
+  wishlistGrid.innerHTML = items
+    .map((item) => {
+      const imageUrl = item.imageUrl?.startsWith("http")
+        ? item.imageUrl
+        : `http://localhost:8080${item.imageUrl}`;
+
+      return `
+      <div class="product-card">
+        <a href="product-details.html?id=${item.productId || item.id}">
+          <img src="${imageUrl}" alt="${item.name}" class="product-image" />
+        </a>
+        <h4>${item.name}</h4>
+        <p class="product-price">KES ${parseInt(
+          item.price
+        ).toLocaleString()}</p>
+        <button class="btn btn-remove" data-id="${item.productId || item.id}">
+          Remove
+        </button>
+      </div>
+    `;
+    })
+    .join("");
+
+  attachRemoveListeners();
+}
+
+function attachRemoveListeners() {
+  const buttons = document.querySelectorAll(".btn-remove");
+  buttons.forEach((btn) =>
+    btn.addEventListener("click", async () => {
+      const productId = btn.dataset.id;
+      if (token) {
+        await removeFromBackendWishlist(productId);
+      } else {
+        removeFromLocalStorageWishlist(productId);
+      }
+      loadWishlist(); // refresh view
+    })
+  );
+}
+
+async function removeFromBackendWishlist(productId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to remove item from backend wishlist");
+  } catch (err) {
+    console.error("Error removing wishlist item:", err);
+  }
+}
+
+function removeFromLocalStorageWishlist(productId) {
+  let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+  wishlist = wishlist.filter((item) => item.id != productId);
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+}
+
+function showEmptyMessage() {
+  wishlistGrid.innerHTML = "";
+  emptyMessage.style.display = "block";
+}

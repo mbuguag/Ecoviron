@@ -18,7 +18,10 @@ public class ServiceEntity {
     private Long id;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private String imageUrl;
     private String link;
 }

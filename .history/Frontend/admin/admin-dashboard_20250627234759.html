@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - EcoAdmin</title>
+    <script>
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "../admin/admin-login.html";
+      }
+    </script>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js" />
+
+    <!-- ✅ Add Quill CSS -->
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h2>EcoAdmin</h2>
+      <a href="#" onclick="showSection('dashboard'); setActive(this)" class="active">Dashboard</a>
+      <a href="#" onclick="showSection('products'); setActive(this)">Products</a>
+      <a href="#" onclick="showSection('orders'); setActive(this)">Orders</a>
+      <a href="#" onclick="showSection('users'); setActive(this)">Users</a>
+      <a href="#" onclick="showSection('blogs'); setActive(this)">Blogs</a>
+      <a href="#" onclick="showSection('contacts'); setActive(this)">Messages</a>
+      <a href="logout.html">Logout</a>
+    </div>
+
+    <main>
+      <!-- Other sections omitted for brevity -->
+
+      <!-- Blog Management -->
+      <section id="blogs" class="admin-section" style="display: none">
+        <h2>Blog Management</h2>
+
+        <form id="blogForm" enctype="multipart/form-data">
+          <input type="hidden" id="blogId" />
+
+          <label>Title: <input type="text" id="title" required /></label>
+          <label>Snippet: <textarea id="snippet" rows="3" required></textarea></label>
+          <label>Link (optional): <input type="text" id="link" /></label>
+          <label>
+            Blog Image:
+            <input type="file" id="imageInput" accept="image/*" required />
+          </label>
+          <div id="editor" style="height: 200px; background: #fff;"></div>
+
+          <button type="submit" id="submitBtn">Publish Blog</button>
+          <button type="button" id="cancelEdit" style="display: none;">Cancel Edit</button>
+        </form>
+
+        <hr />
+
+        <table id="blogTable" border="1">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Snippet</th>
+              <th>Image</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="blogList"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <!-- ✅ Quill JS must come before dashboard.js -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+      function setActive(el) {
+        document.querySelectorAll(".sidebar a").forEach((a) => a.classList.remove("active"));
+        el.classList.add("active");
+      }
+    </script>
+  </body>
+</html>
