@@ -1,7 +1,8 @@
-import { BASE_PATH } from '../apiConfig.js';
+import { BASE_PATH } from "./js/apiConfig.js";
 
-const isLocalDev = window.location.hostname === 'localhost' || 
-                   window.location.hostname === '127.0.0.1';
+const isLocalDev =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
 /**
  * Formats a number as KES currency.
@@ -15,25 +16,24 @@ export function formatPrice(amount) {
  */
 export async function loadComponent(relativePath, containerId) {
   const url = resolvePath(relativePath);
-  
+
   try {
-    const cacheBuster = isLocalDev ? `?t=${new Date().getTime()}` : '';
+    const cacheBuster = isLocalDev ? `?t=${new Date().getTime()}` : "";
     const fullUrl = `${url}${cacheBuster}`;
-    
+
     const res = await fetch(fullUrl);
     if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
 
     const html = await res.text();
     const container = document.getElementById(containerId);
-    
+
     if (container) {
       container.innerHTML = html;
       return true;
     }
-    
+
     console.warn(`Container #${containerId} not found`);
     return false;
-    
   } catch (err) {
     console.error(`Error loading ${url} into #${containerId}:`, err);
     return false;
@@ -44,7 +44,7 @@ export async function loadComponent(relativePath, containerId) {
  * Resolves a relative component path into a fully qualified URL using BASE_PATH.
  */
 export function resolvePath(relativePath) {
-  if (relativePath.startsWith('/') || relativePath.startsWith('http')) {
+  if (relativePath.startsWith("/") || relativePath.startsWith("http")) {
     return relativePath;
   }
 
@@ -55,9 +55,9 @@ export function resolvePath(relativePath) {
  * Resolves a static asset path (images, icons, etc.) to its full path using BASE_PATH.
  */
 export function getAssetPath(relativePath) {
-  relativePath = relativePath.replace(/\\/g, '/').replace(/^\//, '');
+  relativePath = relativePath.replace(/\\/g, "/").replace(/^\//, "");
 
-  if (relativePath.startsWith('http')) {
+  if (relativePath.startsWith("http")) {
     return relativePath;
   }
 

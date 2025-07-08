@@ -12,19 +12,16 @@ const getCartItems = async () => {
   if (isLoggedIn()) {
     try {
       const cart = await CartAPI.getCart();
-      console.log("Fetched cart from backend:", cart); // 👈 Add this
-
       if (!cart || !Array.isArray(cart.items)) return [];
+      return cart.items
+        .filter((item) => item.product)
+        .map((item) => ({
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+        }));
 
-      const validItems = cart.items.filter((item) => item.product);
-      console.log("Valid items:", validItems); // 👈 And this
-
-      return validItems.map((item) => ({
-        productId: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-      }));
     } catch (err) {
       console.error("Error fetching cart from backend:", err);
       return [];
@@ -33,7 +30,6 @@ const getCartItems = async () => {
     return JSON.parse(localStorage.getItem("cart") || "[]");
   }
 };
-
 
 
 

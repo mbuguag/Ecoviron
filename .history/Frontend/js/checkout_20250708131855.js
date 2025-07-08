@@ -10,31 +10,17 @@ const ORDER_SUCCESS_URL = "order-success.html";
 
 const getCartItems = async () => {
   if (isLoggedIn()) {
-    try {
-      const cart = await CartAPI.getCart();
-      console.log("Fetched cart from backend:", cart); // 👈 Add this
-
-      if (!cart || !Array.isArray(cart.items)) return [];
-
-      const validItems = cart.items.filter((item) => item.product);
-      console.log("Valid items:", validItems); // 👈 And this
-
-      return validItems.map((item) => ({
-        productId: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-      }));
-    } catch (err) {
-      console.error("Error fetching cart from backend:", err);
-      return [];
-    }
+    const cart = await CartAPI.getCart();
+    return cart.items.map((item) => ({
+      productId: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+    }));
   } else {
     return JSON.parse(localStorage.getItem("cart") || "[]");
   }
 };
-
-
 
 
 const formatCurrency = (amount) => `KES ${amount.toLocaleString()}`;
@@ -57,7 +43,7 @@ const calculateOrderSummary = async () => {
 };
 
 async function renderCheckoutSummary(summaryContainer, form) {
-  const { items, total } = await calculateOrderSummary(); // ✅ Await here
+  const { items, total } = calculateOrderSummary();
 
   if (items.length === 0) {
     summaryContainer.innerHTML = `
@@ -90,7 +76,6 @@ async function renderCheckoutSummary(summaryContainer, form) {
 
   summaryContainer.innerHTML = html;
 }
-
 
 function validateForm(data) {
   if (!data.name || !data.email || !data.address || !data.paymentMethod) {

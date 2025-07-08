@@ -7,4 +7,4 @@ export const API_BASE_URL = isLocalDev
   : 'https://your-live-api.com/api';
 
 
-export const BASE_PATH = isLocalDev ? '/frontend/' : '/';
+export const BASE_PATH = isLocalDev ? '/Frontend/' : '/';

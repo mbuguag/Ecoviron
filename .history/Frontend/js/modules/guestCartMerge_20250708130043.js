@@ -1,5 +1,5 @@
-import { getGuestCart, clearGuestCart } from "../cart/guestCart.js";
-import { CartAPI } from "../cart/cart-api.js";
+import { getGuestCart, clearGuestCart } from "./guest-cart.js";
+import { CartAPI } from ".";
 
 export async function mergeGuestCartWithServer() {
   const guestCart = getGuestCart();

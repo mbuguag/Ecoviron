@@ -1,5 +1,5 @@
 import { CartAPI } from "./cart/cart-api.js";
-import { getGuestCart } from "./cart/guestCart.js";
+import { getGuestCart } from "./cart/guestart.js";
 import { fetchAllProducts, fetchProductById } from "./api.js";
 import { isLoggedIn } from "./auth.js";
 
