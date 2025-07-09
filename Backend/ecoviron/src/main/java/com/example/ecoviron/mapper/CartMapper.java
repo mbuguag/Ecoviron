@@ -2,8 +2,8 @@ package com.example.ecoviron.mapper;
 
 import com.example.ecoviron.dto.CartItemDto;
 import com.example.ecoviron.dto.CartResponseDto;
+import com.example.ecoviron.dto.ProductDto;
 import com.example.ecoviron.entity.Cart;
-import com.example.ecoviron.entity.CartItem;
 import com.example.ecoviron.entity.Product;
 
 import java.util.List;
@@ -16,21 +16,31 @@ public class CartMapper {
 
         List<CartItemDto> itemDtos = cart.getItems().stream().map(item -> {
             CartItemDto itemDto = new CartItemDto();
-            Product product = item.getProduct();
-
             itemDto.setId(item.getId());
-            itemDto.setProductId(product.getId());
-            itemDto.setProductName(product.getName());
-            itemDto.setProductImage(product.getImageUrl());
-            itemDto.setPrice(product.getPrice());
             itemDto.setQuantity(item.getQuantity());
 
+            Product product = item.getProduct();
+            ProductDto productDto = new ProductDto();
+            productDto.setId(product.getId());
+            productDto.setName(product.getName());
+            productDto.setPrice(product.getPrice());
+            productDto.setImageUrl(product.getImageUrl());
+
+            itemDto.setProduct(productDto);
             return itemDto;
         }).collect(Collectors.toList());
 
         dto.setItems(itemDtos);
-        dto.setTotalQuantity(itemDtos.stream().mapToInt(CartItemDto::getQuantity).sum());
-        dto.setTotalPrice(itemDtos.stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum());
+
+        dto.setTotalQuantity(
+                itemDtos.stream().mapToInt(CartItemDto::getQuantity).sum()
+        );
+
+        dto.setTotalPrice(
+                itemDtos.stream()
+                        .mapToDouble(i -> i.getProduct().getPrice() * i.getQuantity())
+                        .sum()
+        );
 
         return dto;
     }

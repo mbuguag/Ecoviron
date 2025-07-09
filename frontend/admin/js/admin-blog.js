@@ -1,4 +1,4 @@
-// admin-blog.js - Improved Version
+
 const blogForm = document.getElementById("blogForm");
 const imageInput = document.getElementById("imageInput");
 const statusMsg = document.getElementById("statusMsg");

@@ -12,12 +12,12 @@ const getCartItems = async () => {
   if (isLoggedIn()) {
     try {
       const cart = await CartAPI.getCart();
-      console.log("Fetched cart from backend:", cart); // 👈 Add this
+      console.log("Fetched cart from backend:", cart);
 
       if (!cart || !Array.isArray(cart.items)) return [];
 
       const validItems = cart.items.filter((item) => item.product);
-      console.log("Valid items:", validItems); // 👈 And this
+      console.log("Valid items:", validItems);
 
       return validItems.map((item) => ({
         productId: item.product.id,
@@ -57,7 +57,7 @@ const calculateOrderSummary = async () => {
 };
 
 async function renderCheckoutSummary(summaryContainer, form) {
-  const { items, total } = await calculateOrderSummary(); // ✅ Await here
+  const { items, total } = await calculateOrderSummary();
 
   if (items.length === 0) {
     summaryContainer.innerHTML = `
@@ -109,17 +109,29 @@ function validateForm(data) {
   }
 }
 
-async function initiateMpesaPayment(phone, amount, orderId) {
+async function initiateMpesaPayment(phone, amount, orderReference) {
   console.log("📲 Initiating M-Pesa payment...");
+  const token = localStorage.getItem("jwtToken");
   const res = await fetch(`${API_BASE_URL}/payment/pay`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, amount: String(amount), orderId }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ phone, amount: String(amount), orderReference }),
   });
 
+
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to initiate M-Pesa payment.");
+   let errorMessage = "Failed to initiate M-Pesa payment.";
+   try {
+     const error = await res.json();
+     errorMessage = error.message || errorMessage;
+   } catch (_) {
+     // response is empty or not JSON
+   }
+   throw new Error(errorMessage);
+
   }
 
   alert("M-Pesa STK push sent. Complete the payment on your phone.");
@@ -131,7 +143,7 @@ async function submitOrder(event, refs) {
   const { paymentSelect, mpesaPhoneInput } = refs;
 
   try {
-    const cart = getCartItems();
+    const cart =  await getCartItems();
     if (cart.length === 0) throw new Error("Your cart is empty.");
 
     const token = localStorage.getItem("jwtToken");
@@ -195,7 +207,7 @@ async function submitOrder(event, refs) {
     console.log(" Order saved:", orderId, orderReference);
 
     if (paymentMethod === "mpesa") {
-      await initiateMpesaPayment(mpesaPhone, totalAmount, orderId);
+      await initiateMpesaPayment(mpesaPhone, totalAmount, orderReference);
     }
 
     // Clear both guest and backend cart

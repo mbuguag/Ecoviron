@@ -53,52 +53,58 @@
 
       <!-- Product Management -->
       <section id="products" class="admin-section" style="display: none">
-        <h2>Product Management</h2>
-        <form id="productForm">
-          <h3 id="formTitle">Add Product</h3>
-          <input type="hidden" id="productId" />
-          <label>Name: <input type="text" id="productName" required /></label>
-          <label
-            >Description: <input type="text" id="productDescription" required
-          /></label>
-          <label
-            >Price: <input type="number" id="productPrice" required
-          /></label>
-          <label
-            >Image File:
-            <input type="file" id="productImage" accept="image/*" required
-          /></label>
-          <label>Category: <input type="text" id="productCategory" /></label>
-          <label
-            >Stock: <input type="number" id="productStock" value="0"
-          /></label>
-          <label
-            >Featured:
-            <input type="checkbox" id="productFeatured" />
-          </label>
-          <label
-            >Category ID:
-            <input type="number" id="productCategoryId" />
-          </label>
+  <h2>Product Management</h2>
+  <form id="productForm">
+    <h3 id="formTitle">Add Product</h3>
+    <input type="hidden" id="productId" name="id" />
 
-          <button type="submit">Save</button>
-          <button type="button" onclick="resetForm()">Cancel</button>
-        </form>
-        <hr />
-        <table id="productTable" border="1">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Image</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </section>
+    <label>Name:
+      <input type="text" id="productName" name="name" required />
+    </label>
+
+    <label>Description:
+      <input type="text" id="productDescription" name="description" required />
+    </label>
+
+    <label>Price:
+      <input type="number" id="productPrice" name="price" step="0.01" required />
+    </label>
+
+    <label>Image File:
+      <input type="file" id="productImage" name="image" accept="image/*" required />
+    </label>
+
+    <label>Stock:
+      <input type="number" id="productStock" name="stock" value="0" />
+    </label>
+
+    <label>Featured:
+      <input type="checkbox" id="productFeatured" name="featured" />
+    </label>
+
+    <label>Category ID:
+      <input type="number" id="productCategoryId" name="categoryId" />
+    </label>
+
+    <button type="submit">Save</button>
+    <button type="button" onclick="resetForm()">Cancel</button>
+  </form>
+  <hr />
+  <table id="productTable" border="1">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Category</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
 
       <!-- Order Management -->
       <section id="orders" class="admin-section" style="display: none">
@@ -216,7 +222,7 @@
     <script src="https://cdn.quilljs.com/latest/quill.min.js"></script>
 
 
-    <script src="js/dashboard.js"></script>
+    <script type="module" src="../admin/js/dashboard.js"></script>
     <script>
       function setActive(el) {
         document

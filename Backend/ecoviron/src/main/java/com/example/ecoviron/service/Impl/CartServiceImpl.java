@@ -1,5 +1,8 @@
 package com.example.ecoviron.service.Impl;
 
+import com.example.ecoviron.dto.CartDto;
+import com.example.ecoviron.dto.CartItemDto;
+import com.example.ecoviron.dto.ProductDto;
 import com.example.ecoviron.entity.Cart;
 import com.example.ecoviron.entity.CartItem;
 import com.example.ecoviron.entity.Product;
@@ -12,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -91,4 +96,37 @@ public class CartServiceImpl implements CartService {
         cart.getItems().clear();
         cartRepository.save(cart);
     }
+
+    public CartDto convertToDto(Cart cart) {
+        CartDto cartDto = new CartDto();
+
+        double totalPrice = 0;
+        int totalQuantity = 0;
+        List<CartItemDto> itemDtos = new ArrayList<>();
+
+        for (CartItem item : cart.getItems()) {
+            CartItemDto itemDto = new CartItemDto();
+            itemDto.setId(item.getId());
+            itemDto.setQuantity(item.getQuantity());
+
+            Product product = item.getProduct();
+            ProductDto productDto = new ProductDto();
+            productDto.setId(product.getId());
+            productDto.setName(product.getName());
+            productDto.setPrice(product.getPrice());
+            productDto.setImageUrl(product.getImageUrl());
+
+            itemDto.setProduct(productDto);
+            itemDtos.add(itemDto);
+
+            totalPrice += product.getPrice() * item.getQuantity();
+            totalQuantity += item.getQuantity();
+        }
+
+        cartDto.setItems(itemDtos);
+        cartDto.setTotalPrice(totalPrice);
+        cartDto.setTotalQuantity(totalQuantity);
+        return cartDto;
+    }
+
 }

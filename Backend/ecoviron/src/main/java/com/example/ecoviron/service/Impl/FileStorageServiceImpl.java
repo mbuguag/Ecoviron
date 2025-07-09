@@ -22,13 +22,19 @@ public class FileStorageServiceImpl implements FileStorageService {
             throw new IOException("File is empty");
         }
 
-        Path dirPath = Paths.get(basePath, subDir);
+        // Ensure base directory exists
+        Path dirPath = Paths.get(basePath, subDir).toAbsolutePath().normalize();
         Files.createDirectories(dirPath);
 
+        // Generate unique filename
         String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         Path filePath = dirPath.resolve(filename);
+
+        // Save the file
         file.transferTo(filePath.toFile());
 
+        // Return accessible URL
         return "/uploads/" + subDir + "/" + filename;
     }
+
 }
