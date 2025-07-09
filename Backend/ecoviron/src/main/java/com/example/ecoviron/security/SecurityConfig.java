@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/payment/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/about/**").permitAll()
                         .requestMatchers("/api/services", "/api/services/**").permitAll()
@@ -46,6 +47,9 @@ public class SecurityConfig {
 
                         // Authenticated-only
                         .requestMatchers("/api/orders", "/api/orders/**").authenticated()
+                        .requestMatchers("/api/payment/**").authenticated()
+
+
 
                         // Admin-only
                         .requestMatchers("/api/categories/**").hasRole("ADMIN")

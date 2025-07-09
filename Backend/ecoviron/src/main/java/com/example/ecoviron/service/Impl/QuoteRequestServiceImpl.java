@@ -35,7 +35,7 @@ public class QuoteRequestServiceImpl implements QuoteRequestService {
 
         // === 1. Notify admin/team ===
         SimpleMailMessage adminMessage = new SimpleMailMessage();
-        adminMessage.setTo("yourteam@company.com"); // Replace with actual admin email
+        adminMessage.setTo("mbuguajoseph481@gmail.com");
         adminMessage.setSubject("New Quote Request: " + dto.getService());
         adminMessage.setText("Name: " + dto.getName() +
                 "\nEmail: " + dto.getEmail() +

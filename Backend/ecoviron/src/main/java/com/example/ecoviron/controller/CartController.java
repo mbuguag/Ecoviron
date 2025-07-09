@@ -7,6 +7,7 @@ import com.example.ecoviron.entity.User;
 import com.example.ecoviron.mapper.CartMapper;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class CartController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<CartResponseDto> addToCart(@RequestBody AddToCartRequest request) {
+    public ResponseEntity<CartResponseDto> addToCart(@Valid @RequestBody AddToCartRequest request) {
         if (request.productId == null || request.quantity <= 0) {
             return ResponseEntity.badRequest().build();
         }
