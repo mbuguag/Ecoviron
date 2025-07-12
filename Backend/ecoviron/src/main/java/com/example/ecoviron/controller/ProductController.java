@@ -26,51 +26,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product){
-        return ResponseEntity.ok(productService.saveProduct(product));
-    }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") double price,
-            @RequestParam(value = "stock", defaultValue = "0") int stock,
-            @RequestParam(value = "featured", defaultValue = "false") boolean featured,
-            @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam("image") MultipartFile imageFile
-    ) {
-        try {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            String filename = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
-            File dest = new File(dir, filename);
-            imageFile.transferTo(dest);
-
-            String imageUrl = "/uploads/products/" + filename;
-
-            Product product = new Product();
-            product.setName(name);
-            product.setDescription(description);
-            product.setPrice(price);
-            product.setStock(stock);
-            product.setFeatured(featured);
-            product.setImageUrl(imageUrl);
-
-            if (categoryId != null) {
-                Category category = new Category();
-                category.setId(categoryId); // assuming it exists
-                product.setCategory(category);
-            }
-
-            return ResponseEntity.ok(productService.saveProduct(product));
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("Image upload failed");
-        }
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable Long id) {
@@ -90,19 +46,6 @@ public class ProductController {
     public ResponseEntity<List<Product>> getFeaturedProducts() {
         return ResponseEntity.ok(productService.getFeaturedProducts());
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        return ResponseEntity.ok(productService.updateProduct(id, product));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
-    }
-
-
 
 
 }

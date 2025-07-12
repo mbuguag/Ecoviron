@@ -1,5 +1,6 @@
 package com.example.ecoviron.service.Impl;
 
+import com.example.ecoviron.dto.ProductUploadDto;
 import com.example.ecoviron.entity.Category;
 import com.example.ecoviron.entity.Product;
 import com.example.ecoviron.exception.ResourceNotFoundException;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -55,10 +59,46 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product updateProductWithImage(Long id, ProductUploadDto dto) {
+        return productRepository.findById(id).map(existing -> {
+            existing.setName(dto.getName());
+            existing.setDescription(dto.getDescription());
+            existing.setPrice(dto.getPrice());
+            existing.setStock(dto.getStock());
+            existing.setFeatured(dto.isFeatured());
+
+            if (dto.getCategoryId() != null) {
+                Category category = categoryRepository.findById(dto.getCategoryId())
+                        .orElseThrow(() -> new RuntimeException("Category not found"));
+                existing.setCategory(category);
+            }
+
+            // Delete previous image if a new one is being uploaded
+            if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+                deleteFileIfExists(existing.getImageUrl()); // 💥 remove old image
+
+                try {
+                    String imagePath = fileStorageService.saveFile(dto.getImage(), "products");
+                    existing.setImageUrl(imagePath);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to save image", e);
+                }
+            } else if (dto.getExistingImageUrl() != null) {
+                existing.setImageUrl(dto.getExistingImageUrl());
+            }
+
+            return productRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+    }
+
+
+    @Override
     public void deleteProduct(Long id) {
         Product existing = getProductById(id);
+        deleteFileIfExists(existing.getImageUrl());
         productRepository.delete(existing);
     }
+
 
     @Override
     public List<Product> getFeaturedProducts() {
@@ -83,6 +123,17 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productRepository.save(product);
+    }
+
+    private void deleteFileIfExists(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            try {
+                Path imagePath = Paths.get("uploads").resolve(imageUrl.replace("/uploads/", ""));
+                Files.deleteIfExists(imagePath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to delete image file: " + imageUrl, e);
+            }
+        }
     }
 
 }

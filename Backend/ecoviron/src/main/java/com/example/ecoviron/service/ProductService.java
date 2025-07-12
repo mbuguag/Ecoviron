@@ -1,5 +1,6 @@
 package com.example.ecoviron.service;
 
+import com.example.ecoviron.dto.ProductUploadDto;
 import com.example.ecoviron.entity.Product;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,5 +14,7 @@ public interface ProductService {
     void deleteProduct(Long id);
     public List<Product> getFeaturedProducts();
     Product saveProductWithImage(Product product, MultipartFile image, Long categoryId);
+    Product updateProductWithImage(Long id, ProductUploadDto dto);
+
 
 }

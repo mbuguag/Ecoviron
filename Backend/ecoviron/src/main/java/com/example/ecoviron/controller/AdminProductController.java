@@ -2,31 +2,52 @@ package com.example.ecoviron.controller;
 
 import com.example.ecoviron.dto.ProductUploadDto;
 import com.example.ecoviron.entity.Product;
+import com.example.ecoviron.service.OrderItemService;
 import com.example.ecoviron.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/products")
-@CrossOrigin
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"})
 public class AdminProductController {
-    @Autowired
+
     private final ProductService productService;
 
-    public AdminProductController(ProductService productService) {
+    private final OrderItemService orderItemService;
+
+    public AdminProductController(ProductService productService, OrderItemService orderItemService) {
         this.productService = productService;
+        this.orderItemService = orderItemService;
     }
 
-    // CREATE product
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminProductController.class);
+
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        logger.info("Admin creating product: {}", product.getName());
         Product saved = productService.saveProduct(product);
         return ResponseEntity.ok(saved);
     }
+
+    @PostMapping("/products/{id}")
+    public ResponseEntity<?> updateProductViaPost(
+            @PathVariable Long id,
+            @ModelAttribute ProductUploadDto dto
+    ) {
+        // logic to update the product
+        Product updated = productService.updateProductWithImage(id, dto);
+        return ResponseEntity.ok(updated);
+    }
+
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> uploadProductWithImage(@ModelAttribute ProductUploadDto dto) {
@@ -41,30 +62,43 @@ public class AdminProductController {
         return ResponseEntity.ok(saved);
     }
 
-    // READ all products
+
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
 
-    // READ product by ID
+
+    @GetMapping("/{productId}/order-count")
+    public long getProductOrderCount(@PathVariable Long productId) {
+        return orderItemService.countOrdersForProduct(productId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
+        return (product != null) ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
     }
 
-    // UPDATE product
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
-        Product updated = productService.updateProduct(id, updatedProduct);
+
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @ModelAttribute ProductUploadDto dto
+    ) {
+        Product updated = productService.updateProductWithImage(id, dto);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE product
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("User: " + auth.getName());
+        System.out.println("Authorities: " + auth.getAuthorities());
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

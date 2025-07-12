@@ -1,5 +1,6 @@
 package com.example.ecoviron.repository;
 
+import com.example.ecoviron.entity.OrderItem;
 import com.example.ecoviron.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 

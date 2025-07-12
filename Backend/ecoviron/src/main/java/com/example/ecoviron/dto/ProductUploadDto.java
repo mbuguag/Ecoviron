@@ -12,4 +12,6 @@ public class ProductUploadDto {
     private boolean featured;
     private Long categoryId;
     private MultipartFile image;
+    private String existingImageUrl;
+
 }

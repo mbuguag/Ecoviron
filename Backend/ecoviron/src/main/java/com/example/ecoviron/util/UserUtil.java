@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class UserUtil {
 
     private static JwtUtil jwtUtil;
-    private static UserRepository userRepository;
+    public static UserRepository userRepository;
 
     @Autowired
     public UserUtil(JwtUtil jwtUtil, UserRepository userRepository) {

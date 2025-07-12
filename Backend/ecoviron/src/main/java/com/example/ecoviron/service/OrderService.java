@@ -18,5 +18,6 @@ public interface OrderService {
     Order save(OrderRequestDto orderDto, User user);
 
 
+    void updateStatus(Long id, String status);
 }
 
