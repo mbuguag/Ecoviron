@@ -54,41 +54,45 @@
       <!-- Product Management -->
       <section id="products" class="admin-section" style="display: none">
   <h2>Product Management</h2>
-  <form id="productForm">
-    <h3 id="formTitle">Add Product</h3>
-    <input type="hidden" id="productId" name="id" />
+ <form id="productForm" enctype="multipart/form-data">
+  <h3 id="formTitle">Add Product</h3>
+  <input type="hidden" id="productId" name="id" />
+  <input type="hidden" id="existingImageUrl" name="existingImageUrl" />
 
-    <label>Name:
-      <input type="text" id="productName" name="name" required />
-    </label>
+  <label>Name:
+    <input type="text" id="productName" name="name" required />
+  </label>
 
-    <label>Description:
-      <input type="text" id="productDescription" name="description" required />
-    </label>
+  <label>Description:
+    <input type="text" id="productDescription" name="description" required />
+  </label>
 
-    <label>Price:
-      <input type="number" id="productPrice" name="price" step="0.01" required />
-    </label>
+  <label>Price:
+    <input type="number" id="productPrice" name="price" step="0.01" required />
+  </label>
 
-    <label>Image File:
-      <input type="file" id="productImage" name="image" accept="image/*" required />
-    </label>
+  <label>Image File:
+    <input type="file" id="productImage" name="image" accept="image/*" />
+  </label>
 
-    <label>Stock:
-      <input type="number" id="productStock" name="stock" value="0" />
-    </label>
+  <input type="hidden" id="existingImageUrl" name="existingImageUrl" />
 
-    <label>Featured:
-      <input type="checkbox" id="productFeatured" name="featured" />
-    </label>
+  <label>Stock:
+    <input type="number" id="productStock" name="stock" value="0" />
+  </label>
 
-    <label>Category ID:
-      <input type="number" id="productCategoryId" name="categoryId" />
-    </label>
+  <label>Featured:
+    <input type="checkbox" id="productFeatured" name="featured" />
+  </label>
 
-    <button type="submit">Save</button>
-    <button type="button" onclick="resetForm()">Cancel</button>
-  </form>
+  <label>Category ID:
+    <input type="number" id="productCategoryId" name="categoryId" />
+  </label>
+
+  <button type="submit">Save</button>
+  <button type="button" onclick="resetForm()">Cancel</button>
+</form>
+
   <hr />
   <table id="productTable" border="1">
     <thead>
@@ -98,6 +102,7 @@
         <th>Price</th>
         <th>Category</th>
         <th>Image</th>
+        <th>Orders</th>
         <th>Actions</th>
       </tr>
     </thead>

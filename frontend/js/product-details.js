@@ -1,4 +1,4 @@
-import { loadLayoutComponents } from "./domUtils.js";
+import { loadLayoutComponents } from "./Utils.js";
 import { fetchProductById, fetchAllProducts } from "./api.js";
 import { addToCart } from "./cart-actions.js";
 

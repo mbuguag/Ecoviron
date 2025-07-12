@@ -1,4 +1,4 @@
-import { layoutLoaded } from "./utils.js";
+import { layoutLoaded } from "./main.js";
 
 const API_BASE_URL = "http://localhost:8080/api";
 const container = document.getElementById("order-details");
@@ -95,5 +95,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  // Show "View Orders" only if logged in
+  const token = localStorage.getItem("jwtToken");
+  const viewOrdersBtn = document.getElementById("view-orders-btn");
+  if (token && viewOrdersBtn) {
+    viewOrdersBtn.style.display = "inline-block";
+  }
+
   fetchOrderDetails(orderRef);
 });
+

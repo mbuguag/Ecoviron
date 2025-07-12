@@ -14,15 +14,27 @@ export const API_BASE = {
 
 export function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
-  if (!token) throw new Error("Missing auth token");
+  if (!token) {
+    alert("Your session has expired. Please log in again.");
+    window.location.href = "/login.html";
+    return Promise.reject("Missing token");
+  }
+
+  const headers = {
+    ...(options.headers || {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
   return fetch(url, {
     ...options,
-    headers: {
-      ...(options.headers || {}),
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 }
+
 
 let quill;
 
@@ -126,7 +138,14 @@ function loadProducts() {
     .then((products) => {
       const tbody = document.querySelector("#productTable tbody");
       tbody.innerHTML = "";
-      products.forEach((p) => {
+
+      products.forEach(async (p) => {
+        // Fetch order count per product
+        const orderCountRes = await authFetch(
+          `${API_BASE.products}/${p.id}/order-count`
+        );
+        const orderCount = await orderCountRes.json();
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${p.name}</td>
@@ -134,6 +153,7 @@ function loadProducts() {
           <td>${p.price}</td>
           <td>${p.category?.name || "—"}</td>
           <td><img src="${BACKEND_URL}${p.imageUrl}" width="50" /></td>
+          <td>${orderCount}</td> <!-- Display order count -->
           <td>
             <button onclick="editProduct(${p.id})">Edit</button>
             <button onclick="deleteProduct(${p.id})">Delete</button>
@@ -144,38 +164,38 @@ function loadProducts() {
     });
 }
 
+
 function saveProduct() {
   const form = document.getElementById("productForm");
   const formData = new FormData(form);
   const isEditing = !!form.productId.value;
 
+  // If editing, include existing imageUrl (if no new file is selected)
+  if (isEditing && !form.productImage.files[0]) {
+    const existingImage = document
+      .querySelector(`#productTable tr[data-id="${form.productId.value}"] img`)
+      ?.getAttribute("src")
+      ?.replace(BACKEND_URL, "");
+    if (existingImage) {
+      formData.append("existingImageUrl", existingImage);
+    }
+  }
+
+  const method = isEditing ? "PUT" : "POST";
   const url = isEditing
     ? `${API_BASE.products}/${form.productId.value}`
     : API_BASE.uploadProduct;
+  
 
-  const method = isEditing ? "PUT" : "POST";
-
-  const fetchFn = isEditing
-    ? authFetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: form.productId.value,
-          name: form.productName.value,
-          description: form.productDescription.value,
-          price: parseFloat(form.productPrice.value),
-          stock: parseInt(form.productStock.value),
-          featured: form.productFeatured.checked,
-          category: { id: parseInt(form.productCategoryId.value) },
-        }),
-      })
-    : authFetch(url, {
-        method,
-        body: formData,
-      });
-
-  fetchFn
-    .then((res) => res.json())
+  // ✅ Let the browser set the Content-Type for FormData
+  authFetch(url, {
+    method,
+    body: formData,
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to save product");
+      return res.json();
+    })
     .then(() => {
       form.reset();
       form.productId.value = "";
@@ -183,6 +203,8 @@ function saveProduct() {
     })
     .catch((err) => alert("Error saving product: " + err.message));
 }
+
+
 
 function editProduct(id) {
   authFetch(`${API_BASE.products}/${id}`)
@@ -196,15 +218,39 @@ function editProduct(id) {
       form.productStock.value = p.stock;
       form.productFeatured.checked = p.featured;
       form.productCategoryId.value = p.category?.id || "";
+      form.existingImageUrl.value = p.imageUrl || "";
     });
 }
 
+
 function deleteProduct(id) {
-  if (!confirm("Delete this product?")) return;
-  authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" })
-    .then(() => loadProducts())
-    .catch((err) => alert("Failed to delete product"));
+  // Step 1: Check order count before deleting
+  authFetch(`${API_BASE.products}/${id}/order-count`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch order count");
+      return res.json();
+    })
+    .then((count) => {
+      if (count > 0) {
+        alert(
+          `This product has been ordered ${count} time(s) and cannot be deleted.`
+        );
+        return;
+      }
+
+      // Step 2: Confirm deletion if no orders
+      if (!confirm("This product has no orders. Delete this product?")) return;
+
+      return authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" });
+    })
+    .then((res) => {
+      if (res) {
+        loadProducts();
+      }
+    })
+    .catch((err) => alert("Error: " + err.message));
 }
+
 
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
@@ -315,7 +361,10 @@ function loadOrders() {
         row.innerHTML = `
           <td>${o.id}</td>
           <td>${o.userEmail}</td>
-          <td>$${o.total}</td>
+          <td>${new Intl.NumberFormat("en-KE", {
+            style: "currency",
+            currency: "KES",
+          }).format(o.totalAmount)}</td>
           <td>${o.status}</td>
           <td><button onclick="markShipped(${o.id})">Mark Shipped</button></td>
         `;
