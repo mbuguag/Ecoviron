@@ -6,6 +6,7 @@ import com.example.ecoviron.entity.OrderStatus;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.service.OrderService;
+import com.example.ecoviron.service.UserService;
 import com.example.ecoviron.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,10 @@ public class OrderController {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private UserService userService;
+
 
     public record OrderResponse(Long id, String orderReference) {}
 
@@ -100,16 +105,22 @@ public class OrderController {
         dto.setCustomerName(order.getUser().getFullName());
 
         List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> {
-            OrderItemDTO i = new OrderItemDTO();
-            i.setProductName(item.getProduct().getName());
-            i.setPrice(item.getPrice());
-            i.setQuantity(item.getQuantity());
+            OrderItemDTO i = new OrderItemDTO(item);
             return i;
         }).toList();
 
         dto.setItems(itemDTOs);
         return dto;
     }
+
+    @GetMapping("/my-orders")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<OrderDto>> getMyOrders() {
+        User user = userService.getCurrentUser();
+        List<OrderDto> orders = orderService.getOrdersForUser(user);
+        return ResponseEntity.ok(orders);
+    }
+
 
 }
 

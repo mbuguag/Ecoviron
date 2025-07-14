@@ -1,5 +1,6 @@
 package com.example.ecoviron.service.Impl;
 
+import com.example.ecoviron.dto.OrderDto;
 import com.example.ecoviron.dto.OrderRequestDto;
 import com.example.ecoviron.entity.*;
 import com.example.ecoviron.repository.OrderRepository;
@@ -127,6 +128,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderRepository.save(order);
+    }
+
+    public List<OrderDto> getOrdersForUser(User user) {
+        List<Order> orders = orderRepository.findByUser(user);
+        return orders.stream().map(OrderDto::new).collect(Collectors.toList());
     }
 
 

@@ -25,6 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        String uploadPath = "file:/C:/Users/Admin/Desktop/Environ/Backend/ecoviron/uploads/";
         // For profile pictures
         registry.addResourceHandler("/profile-pics/**")
                 .addResourceLocations("file:" + System.getProperty("user.dir") + "/profile-pics/");

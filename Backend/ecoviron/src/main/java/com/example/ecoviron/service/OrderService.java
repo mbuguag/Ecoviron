@@ -1,5 +1,6 @@
 package com.example.ecoviron.service;
 
+import com.example.ecoviron.dto.OrderDto;
 import com.example.ecoviron.dto.OrderRequestDto;
 import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.User;
@@ -19,5 +20,8 @@ public interface OrderService {
 
 
     void updateStatus(Long id, String status);
+
+    List<OrderDto> getOrdersForUser(User user);
+
 }
 
