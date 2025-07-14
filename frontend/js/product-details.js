@@ -1,9 +1,8 @@
-import { loadLayoutComponents } from "./Utils.js";
+import { loadLayoutComponents } from "../js/modules/components.js";
 import { fetchProductById, fetchAllProducts } from "./api.js";
 import { addToCart } from "./cart-actions.js";
 
-const BACKEND_URL = "http://localhost:8080/api";
-
+const API_BASE = "http://localhost:8080/api";
 const productDetailContainer = document.getElementById("product-detail");
 const breadcrumb = document.getElementById("breadcrumb");
 const relatedContainer = document.getElementById("related-products");
@@ -33,8 +32,8 @@ async function loadProductDetail() {
     renderProductDetail(product);
     updateBreadcrumb(product.name);
     await loadRelatedProducts(product);
-  } catch (error) {
-    console.error("Error loading product:", error);
+  } catch (err) {
+    console.error("Error loading product:", err);
     renderError();
   } finally {
     showLoading(false);
@@ -78,13 +77,14 @@ function renderProductDetail(product) {
   `;
 
   setupThumbnailEvents();
+  setupStickyBar(product);
+
   document
     .getElementById("add-to-cart-btn")
-    .addEventListener("click", () => handleAddToCart(product));
+    ?.addEventListener("click", () => handleAddToCart(product));
   document
     .getElementById("wishlist-btn")
-    .addEventListener("click", () => handleWishlistToggle(product));
-  setupStickyBar(product);
+    ?.addEventListener("click", () => handleWishlistToggle(product));
 }
 
 function setupStickyBar(product) {
@@ -97,22 +97,18 @@ function setupStickyBar(product) {
 
   document
     .getElementById("mobile-cart-btn")
-    .addEventListener("click", () => handleAddToCart(product));
+    ?.addEventListener("click", () => handleAddToCart(product));
 }
 
 async function handleWishlistToggle(product) {
   const token = localStorage.getItem("jwtToken");
   const btn = document.getElementById("wishlist-btn");
-  btn.classList.toggle("active");
-  const isActive = btn.classList.contains("active");
+  const isActive = btn.classList.toggle("active");
 
-  if (!token) {
-    toggleGuestWishlist(product, isActive);
-    return;
-  }
+  if (!token) return toggleGuestWishlist(product, isActive);
 
   try {
-    const url = `${BACKEND_URL}/wishlist/${isActive ? "add" : "remove"}/${
+    const url = `${API_BASE}/wishlist/${isActive ? "add" : "remove"}/${
       product.id
     }`;
     const res = await fetch(url, {

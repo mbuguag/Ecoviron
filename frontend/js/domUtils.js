@@ -4,8 +4,8 @@ export async function loadLayoutComponents() {
   try {
    
     const [headerHtml, footerHtml] = await Promise.all([
-      loadComponent('../components/header.html', `header-container`),
-      loadComponent('../components/footer.html', `footer-container`)
+      loadComponent('components/header.html', `header-container`),
+      loadComponent('components/footer.html', `footer-container`)
     ]);
 
     
