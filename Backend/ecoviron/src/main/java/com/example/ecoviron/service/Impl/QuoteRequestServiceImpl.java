@@ -58,7 +58,7 @@ public class QuoteRequestServiceImpl implements QuoteRequestService {
                 Here's what you submitted:
                 %s
                 
-                – GreenEarth Environmental Consultancy Team
+                – Bionix-EHS Environmental Consultancy Team
                 """.formatted(
                 dto.getName(),
                 dto.getService(),

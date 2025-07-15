@@ -6,6 +6,7 @@ import com.example.ecoviron.entity.*;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.repository.ProductRepository;
 import com.example.ecoviron.service.CartService;
+import com.example.ecoviron.service.EmailService;
 import com.example.ecoviron.service.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final EmailService emailService;
 
     @Override
     public Order placeOrder(User user) {
@@ -32,16 +34,11 @@ public class OrderServiceImpl implements OrderService {
         Cart cart = cartService.getCartByUser(user);
 
         List<OrderItem> orderItems = cart.getItems().stream()
-                .map(cartItem -> {
-                    log.info("Mapping cart item to order item: productId={}, quantity={}",
-                            cartItem.getProduct().getId(), cartItem.getQuantity());
-
-                    return OrderItem.builder()
-                            .product(cartItem.getProduct())
-                            .quantity(cartItem.getQuantity())
-                            .price(cartItem.getProduct().getPrice())
-                            .build();
-                })
+                .map(cartItem -> OrderItem.builder()
+                        .product(cartItem.getProduct())
+                        .quantity(cartItem.getQuantity())
+                        .price(cartItem.getProduct().getPrice())
+                        .build())
                 .collect(Collectors.toList());
 
         double totalAmount = orderItems.stream()
@@ -66,22 +63,25 @@ public class OrderServiceImpl implements OrderService {
         cartService.clearCart(user);
         log.info("Cart cleared after placing order.");
 
+        try {
+            emailService.sendOrderNotification(savedOrder, user); // to admin
+            emailService.sendCustomerOrderReceiptHtml(savedOrder, user); // to customer
+            log.info("Admin and customer notified via email.");
+        } catch (Exception e) {
+            log.warn("Failed to send email notifications: {}", e.getMessage());
+        }
+
         return savedOrder;
     }
 
     @Transactional
     @Override
     public Order save(OrderRequestDto orderDto, User user) {
-        log.info("Starting order save for user: {}", user.getEmail());
+        log.info("Starting manual order save for user: {}", user.getEmail());
 
         List<OrderItem> items = orderDto.getItems().stream().map(dto -> {
-            log.info("Fetching product for item: productId={}, quantity={}", dto.getProductId(), dto.getQuantity());
-
             Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> {
-                        log.error("Product not found: {}", dto.getProductId());
-                        return new RuntimeException("Product not found: " + dto.getProductId());
-                    });
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + dto.getProductId()));
 
             return OrderItem.builder()
                     .product(product)
@@ -91,7 +91,6 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
 
         String reference = generateOrderReference();
-        log.info("Creating order with reference: {}", reference);
 
         Order order = Order.builder()
                 .user(user)
@@ -105,13 +104,20 @@ public class OrderServiceImpl implements OrderService {
 
         items.forEach(item -> item.setOrder(order));
 
-        log.info("Saving order to DB...");
+        log.info("Saving manual order to DB...");
         Order savedOrder = orderRepository.save(order);
         log.info("Order saved successfully. ID={}, Reference={}", savedOrder.getId(), savedOrder.getOrderReference());
 
-        log.info("Clearing cart for user: {}", user.getEmail());
         cartService.clearCart(user);
         log.info("Cart cleared successfully.");
+
+        try {
+            emailService.sendOrderNotification(savedOrder, user); // to admin
+            emailService.sendCustomerOrderReceiptHtml(savedOrder, user); // to customer
+            log.info("Admin and customer notified via email.");
+        } catch (Exception e) {
+            log.warn("Failed to send email notifications: {}", e.getMessage());
+        }
 
         return savedOrder;
     }
@@ -130,11 +136,13 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
+    @Override
     public List<OrderDto> getOrdersForUser(User user) {
-        List<Order> orders = orderRepository.findByUser(user);
-        return orders.stream().map(OrderDto::new).collect(Collectors.toList());
+        return orderRepository.findByUser(user)
+                .stream()
+                .map(OrderDto::new)
+                .collect(Collectors.toList());
     }
-
 
     @Override
     public List<Order> getAllOrders() {

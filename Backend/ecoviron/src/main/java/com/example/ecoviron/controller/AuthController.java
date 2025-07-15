@@ -5,6 +5,7 @@ import com.example.ecoviron.dto.UserLoginDto;
 import com.example.ecoviron.entity.Role;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.UserRepository;
+import com.example.ecoviron.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,10 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private final JwtUtil jwtUtil;
+
+    @Autowired
+    private final EmailService emailService;
+
 
     @PostMapping(value = "/register", consumes = "multipart/form-data")
     public ResponseEntity<?> register(
@@ -137,14 +142,15 @@ public class AuthController {
         // Generate token & expiry
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
-        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30)); // expires in 30 mins
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
 
-        // TODO: Send email with reset link (e.g., /reset-password.html?token=...)
-        System.out.println("Reset token for " + user.getEmail() + ": " + token);
+        // ✅ Send email with reset instructions
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
 
-        return ResponseEntity.ok("Reset instructions sent to your email (dev-mode: see console)");
+        return ResponseEntity.ok("Reset instructions sent to your email");
     }
+
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDto dto) {
@@ -166,7 +172,9 @@ public class AuthController {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
 
+        System.out.println("Password reset successful for " + user.getEmail());
         return ResponseEntity.ok("Password reset successful");
+
     }
 
 

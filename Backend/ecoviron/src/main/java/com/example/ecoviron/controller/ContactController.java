@@ -2,6 +2,7 @@ package com.example.ecoviron.controller;
 
 import com.example.ecoviron.entity.ContactMessage;
 import com.example.ecoviron.service.ContactMessageService;
+import com.example.ecoviron.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,18 @@ public class ContactController {
 
     private final ContactMessageService service;
 
+    private final EmailService emailService;
     @PostMapping
     public ResponseEntity<ContactMessage> submitMessage(@RequestBody ContactMessage message) {
-        return new ResponseEntity<>(service.saveMessage(message), HttpStatus.CREATED);
+        ContactMessage saved = service.saveMessage(message);
+
+        //  Send email to admin
+        emailService.sendAdminNotification(saved);
+
+        //  Send confirmation to sender
+        emailService.sendContactConfirmation(saved);
+
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @GetMapping("/admin")
