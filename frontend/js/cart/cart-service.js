@@ -1,5 +1,5 @@
 import { CartAPI } from "./api/cart-api.js";
-import { getGuestCart, addToGuestCart, clearGuestCart } from "./guestCart.js";
+import { getGuestCart, addToGuestCart, clearGuestCart } from "../guestCart.js";
 
 function isLoggedIn() {
   return !!localStorage.getItem("jwtToken");

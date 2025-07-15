@@ -2,9 +2,10 @@ export function renderUserDropdown() {
   const authArea = document.getElementById("authArea");
   if (!authArea) return;
   const name = localStorage.getItem("username");
-  const photo =
-    localStorage.getItem("profileImage") ||
-    "/frontend/assets/icons/default-avatar.png";
+ const photo = localStorage.getItem("profileImage")?.startsWith("/uploads")
+   ? `http://localhost:8080${localStorage.getItem("profileImage")}`
+   : "/frontend/assets/icons/default-avatar.png";
+
 
   if (!name) {
     authArea.innerHTML = `<a href="/frontend/auth/login.html">Login</a>`;

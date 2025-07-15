@@ -79,31 +79,32 @@ export function handleRegister(formId, endpoint) {
     button.textContent = "Registering...";
 
     try {
-      const body = {
-        fullName: form.fullName.value.trim(),
-        email: form.email.value.trim(),
-        password: form.password.value,
-      };
+      const formData = new FormData(form); // automatically collects all input fields including file
 
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: formData, // Do NOT set headers — browser will set multipart/form-data with boundary
       });
 
-      if (!res.ok) throw new Error("Registration failed");
-
       const msg = await res.text();
-      alert(msg);
+
+      if (!res.ok) throw new Error(msg);
+
+      sessionStorage.setItem(
+        "loginMessage",
+        "Account created successfully! Please log in."
+      );
       window.location.href = "login.html";
+
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Registration failed");
     } finally {
       button.disabled = false;
       button.textContent = "Register";
     }
   });
 }
+
 
 // Token Refresh (optional)
 export async function refreshToken() {
