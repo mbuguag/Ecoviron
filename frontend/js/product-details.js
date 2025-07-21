@@ -1,8 +1,9 @@
 import { loadLayoutComponents } from "../js/modules/components.js";
 import { fetchProductById, fetchAllProducts } from "./api.js";
 import { addToCart } from "./cart-actions.js";
+import { getQueryParam } from "./modules/Utils.js";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "http://localhost:8080";
 const productDetailContainer = document.getElementById("product-detail");
 const breadcrumb = document.getElementById("breadcrumb");
 const relatedContainer = document.getElementById("related-products");
@@ -16,15 +17,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadProductDetail();
 });
 
-function getProductIdFromURL() {
-  return new URLSearchParams(window.location.search).get("id");
-}
-
 async function loadProductDetail() {
-  const productId = getProductIdFromURL();
+  const productId = getQueryParam("id");
   if (!productId) return renderNotFound();
 
   showLoading(true);
+
   try {
     const product = await fetchProductById(productId);
     currentProduct = product;
@@ -41,7 +39,10 @@ async function loadProductDetail() {
 }
 
 function renderProductDetail(product) {
-  const gallery = [product.imageUrl, ...(product.galleryImages || [])];
+  const gallery = [product.imageUrl, ...(product.galleryImages || [])].map(
+    (img) => (img.startsWith("http") ? img : `${API_BASE}/${img}`)
+  );
+
   const rating = product.rating || 4;
 
   productDetailContainer.innerHTML = `
@@ -53,11 +54,10 @@ function renderProductDetail(product) {
         <div class="thumbnail-row">
           ${gallery
             .map(
-              (img, i) => `
-            <img src="${img}" class="thumbnail ${
-                i === 0 ? "active" : ""
-              }" alt="thumb-${i}" />
-          `
+              (img, i) =>
+                `<img src="${img}" class="thumbnail ${
+                  i === 0 ? "active" : ""
+                }" alt="thumb-${i}" />`
             )
             .join("")}
         </div>
@@ -177,14 +177,18 @@ function renderRelatedProducts(products) {
   relatedContainer.innerHTML = products
     .map(
       (p) => `
-    <div class="product-card">
-      <a href="product-details.html?id=${p.id}">
-        <img src="${p.imageUrl}" alt="${p.name}" class="product-image" />
-      </a>
-      <h4>${p.name}</h4>
-      <p class="product-price">${formatPrice(p.price)}</p>
-    </div>
-  `
+      <div class="product-card">
+        <a href="product-details.html?id=${p.id}">
+          <img src="${
+            p.imageUrl.startsWith("http")
+              ? p.imageUrl
+              : `${API_BASE}/${p.imageUrl}`
+          }" alt="${p.name}" class="product-image" />
+        </a>
+        <h4>${p.name}</h4>
+        <p class="product-price">${formatPrice(p.price)}</p>
+      </div>
+    `
     )
     .join("");
 }
@@ -203,13 +207,13 @@ function setupThumbnailEvents() {
 }
 
 function updateBreadcrumb(name) {
-  if (breadcrumb) {
-    breadcrumb.innerHTML = `
-      <a href="/">Home</a> &gt;
-      <a href="/frontend/ecommerce/product-grid.html">Shop</a> &gt;
-      <span>${name}</span>
-    `;
-  }
+  if (!breadcrumb) return;
+
+  breadcrumb.innerHTML = `
+    <a href="/">Home</a> &gt;
+    <a href="/frontend/ecommerce/product-grid.html">Shop</a> &gt;
+    <span>${name}</span>
+  `;
 }
 
 function renderStars(rating) {

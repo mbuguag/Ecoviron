@@ -7,9 +7,32 @@ import { loadLayoutComponents } from "./modules/components.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
 import { renderUserDropdown } from "./auth-ui.js";
+import { initNewsletter } from "./modules/newsletter.js";
 
+// Sticky Header Functionality
+function initStickyHeader() {
+  const header = document.querySelector("#header-container");
+  if (!header) return;
 
+  const stickyClass = "sticky";
+  const stickyThreshold = 100;
 
+  window.addEventListener("scroll", () => {
+    const header = document.querySelector("header");
+    if (window.scrollY > 100) {
+      header.classList.add("sticky");
+      document.body.classList.add("has-sticky");
+    } else {
+      header.classList.remove("sticky");
+      document.body.classList.remove("has-sticky");
+    }
+  });
+
+  // Initialize based on current scroll position
+  if (window.scrollY > stickyThreshold) {
+    header.classList.add(stickyClass);
+  }
+}
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -17,6 +40,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     renderUserDropdown();
     const initTasks = [];
+
+    // Initialize sticky header if header exists
+    initTasks.push(initStickyHeader());
 
     // Only load quote modal if the trigger exists
     if (document.querySelector('[data-toggle="quote-modal"]')) {
@@ -34,9 +60,17 @@ window.addEventListener("DOMContentLoaded", async () => {
       initTasks.push(initServices());
     if (document.getElementById("who-we-are-content"))
       initTasks.push(initAboutSection());
+    if (document.getElementById("newsletter-form")) {
+  initTasks.push(initNewsletter());
+}
+
 
     // Always update cart badge count
     initTasks.push(updateMiniCartCount());
+
+    AOS.init();
+
+    initTasks.push(addChatFab());
 
     await Promise.all(initTasks);
   } catch (error) {
@@ -47,7 +81,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     const footer = document.getElementById("footer-container");
 
     if (header && header.innerHTML.trim() === "") {
-      header.innerHTML = `<header class="default-header"><a href="/">Ecoviron</a></header>`;
+      header.innerHTML = `<header class="default-header"><a href="/">Bionix-EHS</a></header>`;
     }
 
     if (footer && footer.innerHTML.trim() === "") {
@@ -79,6 +113,16 @@ export const layoutLoaded = (async () => {
 
   return true;
 })();
+
+// function addChatFab() {
+//   const fab = document.createElement("a");
+//   fab.href = "https://wa.me/254705686093";
+//   fab.target = "_blank";
+//   fab.className = "chat-fab";
+//   fab.innerHTML = `<img src="assets/icons/whatsapp.jpg" alt="Chat" />`;
+//   document.body.appendChild(fab);
+// }
+
 
 // Dynamically load checkout logic if on checkout page
 if (window.location.pathname.includes("checkout")) {

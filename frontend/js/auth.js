@@ -95,7 +95,6 @@ export function handleRegister(formId, endpoint) {
         "Account created successfully! Please log in."
       );
       window.location.href = "login.html";
-
     } catch (err) {
       alert(err.message || "Registration failed");
     } finally {
@@ -104,7 +103,6 @@ export function handleRegister(formId, endpoint) {
     }
   });
 }
-
 
 // Token Refresh (optional)
 export async function refreshToken() {
