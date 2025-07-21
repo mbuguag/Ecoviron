@@ -34,6 +34,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/newsletter/**").permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/about/**").permitAll()
@@ -45,6 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll() // Allow only POST for quote requests
                         .requestMatchers("/api/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+
 
                         // Authenticated-only
                         .requestMatchers("/api/orders", "/api/orders/**").authenticated()
