@@ -6,6 +6,7 @@ import com.example.ecoviron.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,8 +33,10 @@ public class ContactController {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/messages")
     public ResponseEntity<List<ContactMessage>> getAllMessages() {
         return ResponseEntity.ok(service.getAllMessages());
     }
+
 }

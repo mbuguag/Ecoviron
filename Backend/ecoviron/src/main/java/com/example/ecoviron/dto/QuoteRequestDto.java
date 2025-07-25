@@ -2,6 +2,8 @@ package com.example.ecoviron.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,4 +14,5 @@ public class QuoteRequestDto {
     private String email;
     private String service;
     private String message;
+    private LocalDateTime submittedAt;
 }

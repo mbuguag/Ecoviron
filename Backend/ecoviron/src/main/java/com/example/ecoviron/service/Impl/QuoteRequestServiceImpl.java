@@ -78,7 +78,9 @@ public class QuoteRequestServiceImpl implements QuoteRequestService {
                         .email(q.getEmail())
                         .service(q.getService())
                         .message(q.getMessage())
+                        .submittedAt(q.getSubmittedAt())
                         .build())
+
                 .collect(Collectors.toList());
     }
 }

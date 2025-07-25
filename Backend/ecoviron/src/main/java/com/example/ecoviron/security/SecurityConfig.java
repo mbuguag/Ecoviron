@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/contact/**").permitAll()
                         .requestMatchers("/api/blogs/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/api/quote/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll() // Allow only POST for quote requests
+                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
                         .requestMatchers("/api/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
@@ -64,7 +64,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
                         .requestMatchers("/api/contact/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/quotes/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/quote-requests/**").hasRole("ADMIN")
+
+
 
                         // Catch-all
                         .anyRequest().authenticated()
