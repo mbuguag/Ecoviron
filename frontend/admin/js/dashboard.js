@@ -8,7 +8,7 @@ export const API_BASE = {
   orders: `${BACKEND_URL}/api/orders`,
   users: `${BACKEND_URL}/api/users`,
   contacts: `${BACKEND_URL}/api/contact/admin/messages`,
-  quotes: `${BACKEND_URL}/api/admin/quotes`,
+  quotes: `${BACKEND_URL}/api/admin/quote-requests`,
   blogImage: `${BACKEND_URL}/api/images/blog`,
 };
 
@@ -418,7 +418,7 @@ function loadContactMessages() {
           <td>${m.email}</td>
           <td>${m.phone}</td>
           <td>${m.message}</td>
-          <td>${new Date(m.date).toLocaleString()}</td>`;
+          <td>${new Date(m.submittedAt).toLocaleString()}</td>`;
         tbody.appendChild(row);
       });
     });
@@ -437,9 +437,9 @@ function loadQuotes() {
         div.classList.add("quote-entry");
         div.innerHTML = `
           <strong>${q.name}</strong> (${q.email})<br/>
-          <em>${q.company}</em><br/>
+          <p><strong>Service:</strong> ${q.service}</p>
           <p>${q.message}</p>
-          <small>${new Date(q.date).toLocaleString()}</small>
+          <small>${new Date(q.submittedAt).toLocaleString()}</small>
         `;
         container.appendChild(div);
       });
