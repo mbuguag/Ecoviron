@@ -70,7 +70,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     AOS.init();
 
-    initTasks.push(addChatFab());
+    // initTasks.push(addChatFab());
 
     await Promise.all(initTasks);
   } catch (error) {

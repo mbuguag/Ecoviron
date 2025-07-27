@@ -170,14 +170,14 @@ export async function initCarousel() {
       // return await res.json();
 
       return [
-        {
-          title: "First  Aid Kit Refill",
-          image: "assets/images/fak.jpg",
-        },
-        {
-          title: "Personal Protective Equipments",
-          image: "assets/images/safety-gear.png",
-        },
+        // {
+        //   title: "First  Aid Kit Refill",
+        //   image: "assets/images/fak.jpg",
+        // },
+        // {
+        //   title: "Personal Protective Equipments",
+        //   image: "assets/images/safety-gear.png",
+        // },
         {
           title: "Workplace  Hygiene Surveys",
           image: "assets/images/NEMA.jpg",

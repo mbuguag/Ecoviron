@@ -9,7 +9,7 @@ export const API_BASE = {
   users: `${BACKEND_URL}/api/users`,
   contacts: `${BACKEND_URL}/api/contact/admin/messages`,
   quotes: `${BACKEND_URL}/api/admin/quote-requests`,
-  blogImage: `${BACKEND_URL}/api/images/blog`,
+  blogImage: `${BACKEND_URL}/api/images/upload/blog`,
 };
 
 export function authFetch(url, options = {}) {
@@ -287,7 +287,7 @@ function saveBlog() {
 
   if (imageFile) {
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append("file", imageFile);
     authFetch(API_BASE.blogImage, { method: "POST", body: formData })
       .then((res) => res.text())
       .then(handleSave);

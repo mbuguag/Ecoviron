@@ -1,257 +1,190 @@
 import { loadLayoutComponents } from "../js/modules/components.js";
 import { fetchProductById, fetchAllProducts } from "./api.js";
 import { addToCart } from "./cart-actions.js";
-import { getQueryParam } from "./modules/Utils.js";
+import {
+  STATIC_BASE_URL,
+  getAssetPath,
+  getQueryParam,
+  formatPrice,
+  loadComponent,
+  API_BASE_URL,
+} from "./apiConfig.js";
 
-const API_BASE = "http://localhost:8080";
-const productDetailContainer = document.getElementById("product-detail");
-const breadcrumb = document.getElementById("breadcrumb");
-const relatedContainer = document.getElementById("related-products");
-const stickyBar = document.getElementById("mobile-cart-bar");
-const loadingSpinner = document.getElementById("loading-spinner");
-
-let currentProduct = null;
-
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadLayoutComponents();
-  await loadProductDetail();
+document.addEventListener("DOMContentLoaded", () => {
+  loadProductDetail();
 });
 
-async function loadProductDetail() {
-  const productId = getQueryParam("id");
-  if (!productId) return renderNotFound();
+// Get product ID from URL
+function getProductIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
+}
 
-  showLoading(true);
+async function loadProductDetail() {
+  const productId = getProductIdFromURL();
+  if (!productId) {
+    renderError("No product ID found in the URL.");
+    return;
+  }
 
   try {
-    const product = await fetchProductById(productId);
-    currentProduct = product;
-
+    showLoading(true);
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+    if (!response.ok) throw new Error("Product not found");
+    const product = await response.json();
     renderProductDetail(product);
-    updateBreadcrumb(product.name);
-    await loadRelatedProducts(product);
+    loadRelatedProducts(product.category.id, product.id);
   } catch (err) {
     console.error("Error loading product:", err);
-    renderError();
+    renderError("Unable to load product details.");
   } finally {
     showLoading(false);
   }
 }
 
 function renderProductDetail(product) {
-  const gallery = [product.imageUrl, ...(product.galleryImages || [])].map(
-    (img) => (img.startsWith("http") ? img : `${API_BASE}/${img}`)
+  renderBreadcrumb(product);
+
+  // Textual Info
+  document.getElementById("product-name").textContent = product.name;
+  document.getElementById("product-description").textContent =
+    product.description;
+  document.getElementById("product-category").textContent =
+    product.category.name;
+  document.getElementById(
+    "product-price"
+  ).textContent = `KES ${product.price.toLocaleString()}`;
+  document.getElementById("product-rating").textContent = getStars(
+    product.rating || 4
   );
 
-  const rating = product.rating || 4;
+  // Main Image
+  const mainImage = document.getElementById("main-product-image");
+  mainImage.src = `${STATIC_BASE_URL}${product.imageUrl}`;
+  mainImage.alt = product.name;
 
-  productDetailContainer.innerHTML = `
-    <div class="product-detail-card">
-      <div class="gallery-wrapper">
-        <img id="main-product-image" src="${gallery[0]}" alt="${
-    product.name
-  }" class="product-image main" />
-        <div class="thumbnail-row">
-          ${gallery
-            .map(
-              (img, i) =>
-                `<img src="${img}" class="thumbnail ${
-                  i === 0 ? "active" : ""
-                }" alt="thumb-${i}" />`
-            )
-            .join("")}
-        </div>
-      </div>
+  // Gallery Thumbnails
+  const thumbnailsContainer = document.getElementById("gallery-thumbnails");
+  thumbnailsContainer.innerHTML = "";
+  const images = [product.imageUrl, ...(product.galleryImages || [])];
 
-      <div class="product-info">
-        <h2>${product.name}</h2>
-        <p class="product-price">${formatPrice(product.price)}</p>
-        <div class="rating">${renderStars(rating)}</div>
-        <button id="wishlist-btn" class="wishlist-icon" title="Add to Wishlist">
-          <i class="fa fa-heart"></i>
-        </button>
-        <p>${product.description}</p>
-        <button class="btn" id="add-to-cart-btn">Add to Cart</button>
-      </div>
-    </div>
-  `;
+  images.forEach((img, index) => {
+    if (!img) return;
+    const thumb = document.createElement("img");
+    thumb.src = `${STATIC_BASE_URL}${img}`;
+    thumb.className = "thumbnail";
+    thumb.alt = `Image ${index + 1}`;
+    thumb.addEventListener("click", () => {
+      mainImage.src = thumb.src;
+    });
+    thumbnailsContainer.appendChild(thumb);
+  });
 
-  setupThumbnailEvents();
-  setupStickyBar(product);
+  // Eco Features
+  const ecoFeatures = document.getElementById("eco-features");
+  ecoFeatures.innerHTML = "";
+  if (product.ecoFriendly) {
+    ecoFeatures.innerHTML += `<li><i class="fa fa-leaf"></i> Eco-Friendly</li>`;
+  }
+  if (product.recyclable) {
+    ecoFeatures.innerHTML += `<li><i class="fa fa-recycle"></i> Recyclable</li>`;
+  }
 
+  // Wishlist (placeholder)
+  document.getElementById("wishlist-btn").addEventListener("click", () => {
+    alert("Added to wishlist (placeholder)");
+  });
+
+  // Add to Cart
+  document.getElementById("add-to-cart-btn").addEventListener("click", () => {
+    addToCart(product);
+    updateStickyBar(product);
+  });
+
+  // Sticky Cart (Mobile)
+  document.getElementById(
+    "sticky-price"
+  ).textContent = `KES ${product.price.toLocaleString()}`;
   document
-    .getElementById("add-to-cart-btn")
-    ?.addEventListener("click", () => handleAddToCart(product));
-  document
-    .getElementById("wishlist-btn")
-    ?.addEventListener("click", () => handleWishlistToggle(product));
-}
-
-function setupStickyBar(product) {
-  if (!stickyBar) return;
-
-  stickyBar.innerHTML = `
-    <span>${product.name}</span>
-    <button class="btn" id="mobile-cart-btn">Add to Cart</button>
-  `;
-
-  document
-    .getElementById("mobile-cart-btn")
-    ?.addEventListener("click", () => handleAddToCart(product));
-}
-
-async function handleWishlistToggle(product) {
-  const token = localStorage.getItem("jwtToken");
-  const btn = document.getElementById("wishlist-btn");
-  const isActive = btn.classList.toggle("active");
-
-  if (!token) return toggleGuestWishlist(product, isActive);
-
-  try {
-    const url = `${API_BASE}/wishlist/${isActive ? "add" : "remove"}/${
-      product.id
-    }`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+    .getElementById("sticky-add-to-cart")
+    .addEventListener("click", () => {
+      addToCart(product);
     });
 
-    if (!res.ok) throw new Error("Wishlist operation failed");
-
-    showToast(isActive ? "Added to wishlist" : "Removed from wishlist");
-  } catch (err) {
-    console.error(err);
-    showToast("Error syncing wishlist");
+  if (window.innerWidth <= 768) {
+    document.getElementById("mobile-sticky-bar").style.display = "flex";
   }
 }
 
-function toggleGuestWishlist(product, isActive) {
-  let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-
-  if (isActive) {
-    if (!wishlist.some((item) => item.id === product.id)) {
-      wishlist.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-      });
-    }
-  } else {
-    wishlist = wishlist.filter((item) => item.id !== product.id);
-  }
-
-  localStorage.setItem("wishlist", JSON.stringify(wishlist));
-  showToast(isActive ? "Saved to wishlist (guest)" : "Removed from wishlist");
+// Generate star rating visually
+function getStars(rating) {
+  const full = "★".repeat(Math.floor(rating));
+  const empty = "☆".repeat(5 - Math.floor(rating));
+  return full + empty;
 }
 
-async function handleAddToCart(product) {
+// Display error message
+function renderError(message) {
+  const container = document.querySelector(".product-detail-modern");
+  container.innerHTML = `<div class="error-message"><p>${message}</p></div>`;
+}
+
+// Loading spinner visibility
+function showLoading(isLoading) {
+  const spinner = document.getElementById("loading-spinner");
+  if (spinner) {
+    spinner.style.display = isLoading ? "flex" : "none";
+  }
+}
+
+// Fetch and render related products
+async function loadRelatedProducts(categoryId, excludeProductId) {
   try {
-    await addToCart(product, 1);
-    showToast("Product added to cart!");
-  } catch (err) {
-    console.error(err);
-    showToast("Failed to add to cart.");
-  }
-}
+    const res = await fetch(`${API_BASE_URL}/products/category/${categoryId}`);
+    if (!res.ok) return;
 
-async function loadRelatedProducts(currentProduct) {
-  try {
-    const allProducts = await fetchAllProducts();
-    const related = allProducts
-      .filter(
-        (p) =>
-          p.id !== currentProduct.id &&
-          p.category?.name === currentProduct.category?.name
-      )
-      .slice(0, 4);
-
+    const products = await res.json();
+    const related = products.filter((p) => p.id !== parseInt(excludeProductId));
     renderRelatedProducts(related);
   } catch (err) {
     console.warn("Failed to load related products:", err);
   }
 }
 
+// Render related product cards
 function renderRelatedProducts(products) {
-  if (!relatedContainer) return;
+  const container = document.getElementById("related-products");
+  if (!container) return;
 
-  relatedContainer.innerHTML = products
-    .map(
-      (p) => `
-      <div class="product-card">
-        <a href="product-details.html?id=${p.id}">
-          <img src="${
-            p.imageUrl.startsWith("http")
-              ? p.imageUrl
-              : `${API_BASE}/${p.imageUrl}`
-          }" alt="${p.name}" class="product-image" />
-        </a>
-        <h4>${p.name}</h4>
-        <p class="product-price">${formatPrice(p.price)}</p>
-      </div>
-    `
-    )
-    .join("");
-}
+  container.innerHTML = "";
+  if (products.length === 0) {
+    container.innerHTML = "<p>No related products found.</p>";
+    return;
+  }
 
-function setupThumbnailEvents() {
-  const thumbs = document.querySelectorAll(".thumbnail");
-  const mainImage = document.getElementById("main-product-image");
-
-  thumbs.forEach((thumb) => {
-    thumb.addEventListener("click", () => {
-      thumbs.forEach((t) => t.classList.remove("active"));
-      thumb.classList.add("active");
-      mainImage.src = thumb.src;
-    });
+  products.forEach((product) => {
+    const card = document.createElement("div");
+    card.className = "related-card";
+    card.innerHTML = `
+      <img src="${STATIC_BASE_URL}${product.imageUrl}" alt="${product.name}" />
+      <h4>${product.name}</h4>
+      <span class="price">KES ${product.price.toLocaleString()}</span>
+      <a href="product-details.html?id=${
+        product.id
+      }" class="btn btn-sm">View</a>
+    `;
+    container.appendChild(card);
   });
 }
 
-function updateBreadcrumb(name) {
-  if (!breadcrumb) return;
+// Render breadcrumb navigation
+function renderBreadcrumb(product) {
+  const breadcrumb = document.getElementById("breadcrumb");
+  if (!breadcrumb || !product) return;
 
-  breadcrumb.innerHTML = `
-    <a href="/">Home</a> &gt;
-    <a href="/frontend/ecommerce/product-grid.html">Shop</a> &gt;
-    <span>${name}</span>
-  `;
-}
+  const homeLink = `<a href="../index.html">Home</a>`;
+  const categoryLink = `<a href="product-grid.html?category=${product.category.id}">${product.category.name}</a>`;
+  const current = `<span class="current">${product.name}</span>`;
 
-function renderStars(rating) {
-  const full = Math.floor(rating);
-  return "★".repeat(full) + "☆".repeat(5 - full);
-}
-
-function renderNotFound() {
-  productDetailContainer.innerHTML = `
-    <div class="not-found">
-      <p>Sorry, the product you're looking for was not found.</p>
-      <a href="/frontend/ecommerce/product-grid.html" class="btn">Return to Shop</a>
-    </div>
-  `;
-}
-
-function renderError() {
-  productDetailContainer.innerHTML = `
-    <div class="error">
-      <p>Failed to load product details. Please try again later.</p>
-    </div>
-  `;
-}
-
-function formatPrice(price) {
-  return `KES ${parseInt(price).toLocaleString()}`;
-}
-
-function showLoading(show) {
-  if (loadingSpinner) {
-    loadingSpinner.style.display = show ? "flex" : "none";
-  }
-}
-
-function showToast(msg) {
-  const toast = document.createElement("div");
-  toast.className = "toast-notification";
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  breadcrumb.innerHTML = `${homeLink} / ${categoryLink} / ${current}`;
 }
