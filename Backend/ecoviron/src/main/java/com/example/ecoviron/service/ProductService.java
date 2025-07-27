@@ -15,6 +15,7 @@ public interface ProductService {
     public List<Product> getFeaturedProducts();
     Product saveProductWithImage(Product product, MultipartFile image, Long categoryId);
     Product updateProductWithImage(Long id, ProductUploadDto dto);
+    List<Product> getProductsByCategory(Long categoryId);
 
 
 }

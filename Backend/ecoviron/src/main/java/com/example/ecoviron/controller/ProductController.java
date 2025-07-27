@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"})
 public class ProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -30,10 +30,13 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable Long id) {
+        logger.info("👉 Received GET request for product id: {}", id);
         Product product = productService.getProductById(id);
         if (product == null) {
+            logger.warn("Product with ID {} not found", id);
             return ResponseEntity.notFound().build();
         }
+        logger.info("Fetched product: {}", product.getName());
         return ResponseEntity.ok(product);
     }
 
@@ -45,6 +48,12 @@ public class ProductController {
     @GetMapping("/featured")
     public ResponseEntity<List<Product>> getFeaturedProducts() {
         return ResponseEntity.ok(productService.getFeaturedProducts());
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+        List<Product> products = productService.getProductsByCategory(categoryId);
+        return ResponseEntity.ok(products);
     }
 
 

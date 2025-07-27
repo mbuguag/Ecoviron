@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
 
@@ -31,48 +32,51 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/newsletter/**").permitAll()
-                        .requestMatchers("/api/payment/callback").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers("/api/about/**").permitAll()
-                        .requestMatchers("/api/services", "/api/services/**").permitAll()
-                        .requestMatchers("/api/cart/**").permitAll()
-                        .requestMatchers("/api/contact/**").permitAll()
-                        .requestMatchers("/api/blogs/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/quote/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
-                        .requestMatchers("/api/images/**", "/uploads/**").permitAll()
+
+                        // ✅ Serve images and static files without security
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+
+                        // Public API endpoints
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/users/**",
+                                "/api/newsletter/**",
+                                "/api/payment/callback",
+                                "/api/about/**",
+                                "/api/services",
+                                "/api/services/**",
+                                "/api/cart/**",
+                                "/api/contact/**",
+                                "/api/blogs/**",
+                                "/api/images/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/quote/**").permitAll()
 
 
-                        // Authenticated-only
-                        .requestMatchers("/api/orders", "/api/orders/**").authenticated()
-                        .requestMatchers("/api/payment/**").authenticated()
 
+                        // Authenticated user endpoints
+                        .requestMatchers(
+                                "/api/orders", "/api/orders/**",
+                                "/api/payment/**"
+                        ).authenticated()
 
-
-                        // Admin-only
-                        .requestMatchers("/api/categories/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/admin/products/**").hasRole("ADMIN")
+                        // Admin-only endpoints
+                        .requestMatchers(
+                                "/api/categories/**",
+                                "/api/admin/**",
+                                "/api/contact/admin/**",
+                                "/api/admin/quote-requests/**"
+                        ).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
-                        .requestMatchers("/api/contact/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/quote-requests/**").hasRole("ADMIN")
 
-
-
-                        // Catch-all
+                        // Any other request must be authenticated
                         .anyRequest().authenticated()
                 )
-
-
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -9,5 +9,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     // Add custom queries if needed (e.g., findByCategory, search by keyword, etc.)
     List<Product> findByFeaturedTrue();
+    List<Product> findByCategoryId(Long categoryId);
 
 }
