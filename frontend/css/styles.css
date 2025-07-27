@@ -2828,18 +2828,109 @@ a:hover {
   gap: 1rem;
 }
 
+
+.product-marquee-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
+.product-marquee-track {
+  display: flex;
+  gap: 1rem;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+  padding-block: 1rem;
+}
+
 .product-card {
-  background: #f5f5f5;
-  border-radius: 8px;
-  padding: 1rem;
+  flex: 0 0 auto;
+  width: 220px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: white;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+.product-image {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  object-fit: cover;
+}
+
+.price {
+  font-weight: bold;
+  color: #3a7f3c;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* loop point depends on duplication */
+}
+
+/* Optional pause on hover */
+.product-marquee-wrapper:hover .product-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Make container scroll horizontally */
+.carousel-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 1rem 0;
+}
+
+/* Hide scrollbar for cleaner look */
+.carousel-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Product card sizing */
+.product-card {
+  flex: 0 0 auto;
+  width: 220px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+/* Product image style */
+.product-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Text and pricing */
+.product-card h4 {
+  font-size: 1rem;
+  margin: 0.5rem;
+  font-weight: 600;
   text-align: center;
 }
 
-.product-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
+.product-card .price {
+  text-align: center;
+  color: #3a7f3c;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
+
+
 
 /* Toast Notifications */
 .toast-notification {

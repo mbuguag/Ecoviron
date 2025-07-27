@@ -12,7 +12,7 @@ export async function initFeaturedProducts() {
     const featuredProducts = await response.json();
     const baseUrl = API_BASE_URL.replace("/api", "");
 
-    container.innerHTML = featuredProducts
+    const cardsHtml = featuredProducts
       .map((product) => {
         const imageUrl = product.imageUrl.startsWith("http")
           ? product.imageUrl
@@ -28,8 +28,7 @@ export async function initFeaturedProducts() {
                 alt="${product.name}" 
                 class="product-image"
                 loading="lazy"
-                onerror="this.onerror=null;this.src='http://127.0.0.1:5500/frontend/assets/images/fallback.jpg'"
-
+                onerror="this.onerror=null;this.src='/assets/images/fallback.jpg'"
               />
               <h4 class="animated-text">${product.name}</h4>
               <p class="price">${formatPrice(product.price)}</p>
@@ -39,12 +38,14 @@ export async function initFeaturedProducts() {
       })
       .join("");
 
-    setupFeaturedCarousel();
+    // Duplicate the cards to enable seamless scroll
+    container.innerHTML = cardsHtml + cardsHtml;
   } catch (error) {
     console.error("Error loading featured products:", error);
     container.innerHTML = `<p class="error-message">Unable to load featured products at the moment.</p>`;
   }
 }
+
 
 // === Carousel Scroll Buttons ===
 function setupFeaturedCarousel() {
