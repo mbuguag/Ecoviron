@@ -158,7 +158,7 @@ public class EmailService {
 
             helper.setTo(user.getEmail());
             helper.setFrom(sender);
-            helper.setSubject("🧾 Your Ecoviron Order Receipt - " + order.getOrderReference());
+            helper.setSubject("🧾 Your Bionix Order Receipt - " + order.getOrderReference());
 
             StringBuilder html = new StringBuilder();
             html.append("<!DOCTYPE html><html><body style='font-family: Arial, sans-serif;'>");
