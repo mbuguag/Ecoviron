@@ -87,7 +87,12 @@ export async function setupCartInteractions() {
 
 export function requireAuthForCheckout() {
   if (!isLoggedIn()) {
-    sessionStorage.setItem("redirectAfterLogin", "checkout.html");
+    // Store the full correct path to checkout
+    sessionStorage.setItem(
+      "redirectAfterLogin",
+      "/frontend/ecommerce/checkout.html" // Full correct path
+    );
+    // Redirect to login
     window.location.href = "/frontend/auth/login.html";
   }
 }

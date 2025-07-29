@@ -38,16 +38,15 @@ export async function initFeaturedProducts() {
       })
       .join("");
 
-    // Duplicate the cards to enable seamless scroll
-    container.innerHTML = cardsHtml + cardsHtml;
+    container.innerHTML = cardsHtml + cardsHtml; // Duplicate for seamless scroll
+    setupFeaturedCarousel();
+    setupAutoScroll();
   } catch (error) {
     console.error("Error loading featured products:", error);
     container.innerHTML = `<p class="error-message">Unable to load featured products at the moment.</p>`;
   }
 }
 
-
-// === Carousel Scroll Buttons ===
 function setupFeaturedCarousel() {
   const container = document.getElementById("featured-products-grid");
   const leftBtn = document.getElementById("carouselLeft");
@@ -55,13 +54,70 @@ function setupFeaturedCarousel() {
 
   if (!container || !leftBtn || !rightBtn) return;
 
-  const scrollAmount = 150;
+  const scrollAmount = 200; // Matches card width + gap
 
   leftBtn.addEventListener("click", () => {
     container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    resetAutoScroll();
   });
 
   rightBtn.addEventListener("click", () => {
     container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    resetAutoScroll();
   });
+
+  // Hide buttons when at scroll extremes
+  const checkScrollPosition = () => {
+    leftBtn.style.visibility = container.scrollLeft > 0 ? "visible" : "hidden";
+    rightBtn.style.visibility =
+      container.scrollLeft < container.scrollWidth - container.clientWidth - 1
+        ? "visible"
+        : "hidden";
+  };
+
+  container.addEventListener("scroll", checkScrollPosition);
+  checkScrollPosition();
+}
+
+let autoScrollInterval;
+const SCROLL_DELAY = 3000; // 3 seconds between scrolls
+
+function setupAutoScroll() {
+  const container = document.getElementById("featured-products-grid");
+  if (!container) return;
+
+  // Reset any existing interval
+  if (autoScrollInterval) clearInterval(autoScrollInterval);
+
+  autoScrollInterval = setInterval(() => {
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    if (container.scrollLeft >= maxScroll - 1) {
+      // If at end, smoothly scroll back to start
+      container.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+    } else {
+      // Otherwise scroll right
+      container.scrollBy({
+        left: 3,
+        behavior: "smooth",
+      });
+    }
+  }, SCROLL_DELAY);
+
+  // Pause auto-scroll on hover
+  container.addEventListener("mouseenter", () => {
+    clearInterval(autoScrollInterval);
+  });
+
+  container.addEventListener("mouseleave", () => {
+    setupAutoScroll();
+  });
+}
+
+function resetAutoScroll() {
+  clearInterval(autoScrollInterval);
+  setupAutoScroll();
 }

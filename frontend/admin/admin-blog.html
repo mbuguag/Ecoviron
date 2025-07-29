@@ -7,6 +7,36 @@
   
   <!-- Core Styles -->
   <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    /* Custom editor toolbar styles */
+    .ql-toolbar {
+      border-radius: 8px 8px 0 0;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+    
+    .ql-container {
+      border-radius: 0 0 8px 8px;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      height: 300px;
+      font-family: inherit;
+    }
+    
+    .ql-toolbar button {
+      width: 32px;
+      height: 32px;
+      margin: 2px;
+    }
+    
+    .font-size-dropdown {
+      width: 100px !important;
+    }
+    
+    .font-family-dropdown {
+      width: 150px !important;
+    }
+  </style>
 
   <!-- Quill WYSIWYG Styles -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
@@ -48,7 +78,7 @@
 
             <div class="form-group">
               <label for="content">Content <span>*</span></label>
-              <div id="editor" style="height: 200px;"></div>
+              <div id="editor"></div>
               <input type="hidden" id="content" name="content" />
             </div>
 
@@ -76,6 +106,7 @@
                 <tr>
                   <th>Title</th>
                   <th>Snippet</th>
+                  <th>Content Preview</th>
                   <th>Image</th>
                   <th>Actions</th>
                 </tr>

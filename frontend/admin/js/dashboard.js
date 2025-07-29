@@ -187,7 +187,7 @@ function saveProduct() {
     : API_BASE.uploadProduct;
   
 
-  // ✅ Let the browser set the Content-Type for FormData
+  // Let the browser set the Content-Type for FormData
   authFetch(url, {
     method,
     body: formData,

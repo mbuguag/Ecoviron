@@ -5,7 +5,22 @@ import { updateMiniCartCount } from "./cart-actions.js";
 function getPostLoginRedirect() {
   const redirect = sessionStorage.getItem("redirectAfterLogin");
   sessionStorage.removeItem("redirectAfterLogin");
-  return redirect || "../index.html";
+
+  // Validate the redirect URL for security
+  if (redirect) {
+    try {
+      // Ensure the redirect stays within our domain
+      const url = new URL(redirect, window.location.origin);
+      if (url.origin === window.location.origin) {
+        return redirect;
+      }
+    } catch (e) {
+      console.warn("Invalid redirect URL:", redirect);
+    }
+  }
+
+  // Default fallback
+  return "/frontend/index.html"; // Adjusted to your main page
 }
 
 // Login Handler

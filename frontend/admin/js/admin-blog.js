@@ -1,13 +1,11 @@
-
 const blogForm = document.getElementById("blogForm");
 const imageInput = document.getElementById("imageInput");
 const statusMsg = document.getElementById("statusMsg");
 const blogList = document.getElementById("blogList");
 const searchInput = document.getElementById("searchInput");
-const blogIdInput = document.createElement("input");
-blogIdInput.type = "hidden";
-blogIdInput.id = "blogId";
-blogForm.appendChild(blogIdInput);
+const blogIdInput = document.getElementById("blogId");
+const previewImage = document.getElementById("previewImage");
+const cancelEdit = document.getElementById("cancelEdit");
 
 const BASE_URL = "http://localhost:8080/api/blogs";
 const IMAGE_UPLOAD_URL = "http://localhost:8080/api/images/blog";
@@ -19,27 +17,111 @@ let quill;
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize Quill editor
+  // Initialize Quill editor with enhanced toolbar
+  const Font = Quill.import("formats/font");
+  Font.whitelist = [
+    "sans-serif",
+    "serif",
+    "monospace",
+    "arial",
+    "georgia",
+    "courier",
+  ];
+  Quill.register(Font, true);
+
+  const Size = Quill.import("attributors/style/size");
+  Size.whitelist = [
+    "10px",
+    "12px",
+    "14px",
+    "16px",
+    "18px",
+    "20px",
+    "24px",
+    "32px",
+  ];
+  Quill.register(Size, true);
+
   quill = new Quill("#editor", {
     theme: "snow",
     placeholder: "Write blog content here...",
     modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link", "image"],
-        ["clean"],
-      ],
+      toolbar: {
+        container: [
+          [{ font: Font.whitelist }, { size: Size.whitelist }],
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline", "strike"],
+          [{ color: [] }, { background: [] }],
+          [{ script: "sub" }, { script: "super" }],
+          [
+            { list: "ordered" },
+            { list: "bullet" },
+            { indent: "-1" },
+            { indent: "+1" },
+          ],
+          [{ direction: "rtl" }, { align: [] }],
+          ["link", "image", "video", "code-block"],
+          ["clean"],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
     },
+  });
+
+  // Image preview handler
+  imageInput.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        previewImage.src = event.target.result;
+        previewImage.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
   });
 
   fetchBlogs();
 });
 
+// Custom image handler for Quill
+function imageHandler() {
+  const input = document.createElement("input");
+  input.setAttribute("type", "file");
+  input.setAttribute("accept", "image/*");
+  input.click();
+
+  input.onchange = async function () {
+    const file = input.files[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch(IMAGE_UPLOAD_URL, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Image upload failed");
+      const imageUrl = await res.text();
+
+      const range = quill.getSelection();
+      quill.insertEmbed(range.index, "image", imageUrl);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      alert("Failed to upload image");
+    }
+  };
+}
+
 blogForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   statusMsg.textContent = "Processing...";
+  statusMsg.style.color = "#333";
 
   const id = blogIdInput.value;
   const title = blogForm.title.value.trim();
@@ -50,6 +132,7 @@ blogForm.addEventListener("submit", async (e) => {
 
   if (!title || !snippet || !content) {
     statusMsg.textContent = "Title, snippet, and content are required!";
+    statusMsg.style.color = "#dc3545";
     return;
   }
 
@@ -88,17 +171,29 @@ blogForm.addEventListener("submit", async (e) => {
 
     if (!blogRes.ok) throw new Error("Blog submission failed");
 
-    statusMsg.textContent = id ? "Blog updated." : "Blog published.";
-    blogForm.reset();
-    quill.setContents([]);
-    blogIdInput.value = "";
-    imageInput.dataset.existingUrl = "";
+    statusMsg.textContent = id
+      ? "Blog updated successfully!"
+      : "Blog published successfully!";
+    statusMsg.style.color = "#28a745";
+    resetForm();
     await fetchBlogs();
   } catch (err) {
     statusMsg.textContent = "Error: " + err.message;
+    statusMsg.style.color = "#dc3545";
     console.error(err);
   }
 });
+
+function resetForm() {
+  blogForm.reset();
+  quill.setContents([]);
+  blogIdInput.value = "";
+  imageInput.dataset.existingUrl = "";
+  previewImage.style.display = "none";
+  cancelEdit.style.display = "none";
+}
+
+cancelEdit.addEventListener("click", resetForm);
 
 async function fetchBlogs() {
   try {
@@ -122,25 +217,27 @@ function renderBlogs() {
   blogList.innerHTML = paginated
     .map(
       (blog) => `
-      <tr>
-        <td>${blog.title}</td>
-        <td>${blog.snippet}</td>
-        <td>${
-          blog.content.length > 50
-            ? blog.content.substring(0, 50) + "..."
-            : blog.content
-        }</td>
-        <td><img src="${blog.imageUrl}" width="60" height="40" /></td>
-        <td>
-          <button onclick="editBlog('${
-            blog.id
-          }')" class="btn-outline">Edit</button>
-          <button onclick="deleteBlog('${
-            blog.id
-          }')" class="btn-outline danger">Delete</button>
-        </td>
-      </tr>
-    `
+          <tr>
+            <td>${blog.title}</td>
+            <td>${blog.snippet}</td>
+            <td>${
+              blog.content.length > 50
+                ? blog.content.substring(0, 50) + "..."
+                : blog.content
+            }</td>
+            <td><img src="${
+              blog.imageUrl
+            }" width="60" height="40" style="object-fit: cover;" /></td>
+            <td class="actions-cell">
+              <button onclick="editBlog('${
+                blog.id
+              }')" class="btn-outline">Edit</button>
+              <button onclick="deleteBlog('${
+                blog.id
+              }')" class="btn-outline danger">Delete</button>
+            </td>
+          </tr>
+        `
     )
     .join("");
 
@@ -159,7 +256,20 @@ window.editBlog = async (id) => {
   quill.setContents(quill.clipboard.convert(blog.content));
   blogIdInput.value = blog.id;
   imageInput.dataset.existingUrl = blog.imageUrl;
-  statusMsg.textContent = "Editing blog post... Scroll down to view changes.";
+
+  if (blog.imageUrl) {
+    previewImage.src = blog.imageUrl;
+    previewImage.style.display = "block";
+  }
+
+  cancelEdit.style.display = "inline-block";
+  statusMsg.textContent = "Editing blog post...";
+  statusMsg.style.color = "#333";
+
+  // Scroll to form
+  document
+    .querySelector(".admin-form-card")
+    .scrollIntoView({ behavior: "smooth" });
 };
 
 window.deleteBlog = async (id) => {
@@ -170,8 +280,10 @@ window.deleteBlog = async (id) => {
     if (!res.ok) throw new Error("Failed to delete");
     await fetchBlogs();
     statusMsg.textContent = "Blog post deleted successfully.";
+    statusMsg.style.color = "#28a745";
   } catch (err) {
     statusMsg.textContent = "Delete error: " + err.message;
+    statusMsg.style.color = "#dc3545";
   }
 };
 
