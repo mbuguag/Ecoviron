@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile | Ecoviron</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/profile.css" />
+<body>
+  <div id="header-container"></div>
+
+  <main class="profile-page section-padding">
+    <div class="container profile-layout">
+      <aside class="profile-sidebar">
+        <ul>
+          <li><a href="#profile-info" class="active">Profile</a></li>
+          <li><a href="#orders">Order History</a></li>
+          <li><a href="#wishlist">Wishlist</a></li>
+          <li><a href="#security">Change Password</a></li>
+          <li><button id="logout-btn" class="btn logout">Logout</button></li>
+        </ul>
+      </aside>
+
+      <section class="profile-content">
+        <!-- Profile Info -->
+        <div id="profile-info" class="profile-section">
+          <h2>My Profile</h2>
+          <form id="profile-form">
+            <div class="profile-pic-upload">
+              <img id="profile-picture-preview" src="../assets/default-avatar.png" alt="Profile Picture" />
+              <input type="file" id="profile-picture" name="profile-picture" />
+            </div>
+            <div class="form-group">
+              <label for="full-name">Full Name</label>
+              <input type="text" id="full-name" name="fullName" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required disabled />
+            </div>
+            <button type="submit" class="btn primary">Update Profile</button>
+          </form>
+        </div>
+
+        <!-- Orders -->
+        <div id="orders" class="profile-section">
+          <h2>Order History</h2>
+          <div id="order-list"></div>
+        </div>
+
+        <!-- Wishlist -->
+        <div id="wishlist" class="profile-section">
+          <h2>Wishlist</h2>
+          <div id="wishlist-items"></div>
+        </div>
+
+        <!-- Change Password -->
+        <div id="security" class="profile-section">
+          <h2>Change Password</h2>
+          <form id="password-form">
+            <div class="form-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" name="currentPassword" required />
+            </div>
+            <div class="form-group">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" name="newPassword" required />
+            </div>
+            <button type="submit" class="btn primary">Update Password</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="footer-container"></footer>
+  <script type="module" src="/js/main.js"></script>
+  <script type="module" src="/js/profile.js"></script>
+</head>
+</body>
+</html>

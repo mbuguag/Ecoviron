@@ -23,6 +23,10 @@ public class StorageService {
     @Value("${upload.product-path}")
     private String productPath;
 
+    public String saveBlogImage(MultipartFile file) throws IOException {
+        return saveFile(file, "blog-images");
+    }
+
     public String saveFile(MultipartFile file, String subDir) throws IOException {
         String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         Path dirPath = Paths.get(basePath, subDir).toAbsolutePath();

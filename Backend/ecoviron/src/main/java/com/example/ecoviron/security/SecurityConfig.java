@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ Serve images and static files without security
+                        //  Serve images and static files without security
                         .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
 
                         // Public API endpoints
@@ -47,8 +47,11 @@ public class SecurityConfig {
                                 "/api/services/**",
                                 "/api/cart/**",
                                 "/api/contact/**",
-                                "/api/blogs/**",
-                                "/api/images/**"
+                                "/api/public-blogs/**",
+                                "/api/images/**",
+                                "/api/public-blogs/tags",
+                                "/api/public-blogs/public{id}",
+                                "/api/public-blogs/public{id}/views"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
@@ -73,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
+                        .requestMatchers( "/api/admin-blogs/**").hasRole("ADMIN")
 
                         // Any other request must be authenticated
                         .anyRequest().authenticated()

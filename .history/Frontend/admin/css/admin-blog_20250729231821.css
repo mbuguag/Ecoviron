@@ -1,0 +1,490 @@
+/* Main Admin Layout */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f7fa;
+  color: #333;
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: #2ecc71;
+  color: white;
+  padding: 1.5rem 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  padding: 0 1rem;
+}
+
+.sidebar a {
+  display: block;
+  padding: 0.8rem 1.5rem;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s;
+  border-left: 4px solid transparent;
+}
+
+.sidebar a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid white;
+}
+
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-left: 4px solid white;
+  font-weight: 600;
+}
+
+.sidebar a i {
+  margin-right: 0.5rem;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Admin Header */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: #2ecc71;
+  font-size: 1.8rem;
+}
+
+/* Toolbar */
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  min-width: 250px;
+  font-family: inherit;
+}
+
+.search-box button {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-box button:hover {
+  background: #27ae60;
+}
+
+.filter-controls select {
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+  min-width: 180px;
+}
+
+/* Posts Table */
+.posts-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.posts-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.posts-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #eee;
+}
+
+.posts-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.posts-table tr:last-child td {
+  border-bottom: none;
+}
+
+.posts-table tr:hover {
+  background: #f9f9f9;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.draft {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.published {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.archived {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #555;
+}
+
+.btn-icon:hover {
+  background: #f0f0f0;
+}
+
+.btn-icon.edit-btn:hover {
+  color: #2ecc71;
+}
+
+.btn-icon.delete-btn:hover {
+  color: #e74c3c;
+}
+
+/* Pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination-controls button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.pagination-controls button:hover {
+  background: #f0f0f0;
+}
+
+.pagination-controls button.active {
+  background: #2ecc71;
+  color: white;
+  border-color: #2ecc71;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  margin: 2rem auto;
+  max-width: 800px;
+  width: 90%;
+  border-radius: 8px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #2ecc71;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #777;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: border 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #2ecc71;
+  outline: none;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* Image Upload */
+.image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: none;
+  border: 1px dashed #ddd;
+  padding: 1rem;
+}
+
+#image-preview[src] {
+  display: block;
+}
+
+.image-upload label {
+  display: inline-block;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background: #27ae60;
+}
+
+.btn-outline {
+  background: white;
+  color: #2ecc71;
+  border: 1px solid #2ecc71;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-outline:hover {
+  background: #f0fdf4;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+/* Quill Editor Styles */
+.ql-toolbar {
+  border-radius: 4px 4px 0 0 !important;
+  border-color: #ddd !important;
+}
+
+.ql-container {
+  border-radius: 0 0 4px 4px !important;
+  border-color: #ddd !important;
+  min-height: 200px;
+  font-family: inherit !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    padding: 1rem 0;
+  }
+  
+  .sidebar a {
+    padding: 0.6rem 1rem;
+    display: inline-block;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .sidebar a:hover,
+  .sidebar a.active {
+    border-left: none;
+    border-bottom: 3px solid white;
+  }
+  
+  .admin-content {
+    padding: 1.5rem;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .posts-table {
+    overflow-x: auto;
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-toolbar {
+    flex-direction: column;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+  
+  .search-box input {
+    min-width: auto;
+    flex: 1;
+  }
+  
+  .filter-controls {
+    width: 100%;
+  }
+  
+  .filter-controls select {
+    width: 100%;
+  }
+}

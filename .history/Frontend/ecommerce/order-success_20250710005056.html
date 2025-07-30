@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Success | Ecoviron Shop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <link rel="stylesheet" href="../css/order-success.css"/>
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main>
+    <div class="success-container">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 class="success-title">Thank You for Your Order!</h2>
+      <p class="success-message">Your order has been received and is being processed.</p>
+
+      <!-- Dynamic Order Info -->
+      <div id="order-details"></div>
+
+      <div class="action-buttons">
+  <a href="../index.html" class="btn-return-home">Back to Home</a>
+  <a href="./auth/profile.html#orders" class="btn-view-orders" id="view-orders-btn" style="display: none;">View My Orders</a>
+</div>
+
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/order-success.js"></script>
+</body>
+</html>

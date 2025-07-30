@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile | Ecoviron</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    .profile-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: #1f2937;
+      color: #fff;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+    .sidebar .profile-picture-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .sidebar button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      background: #10b981;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .profile-nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    .profile-nav li {
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    .profile-nav li.active {
+      font-weight: bold;
+      color: #10b981;
+    }
+    .profile-content {
+      flex: 1;
+      padding: 30px;
+      background: #fff;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .profile-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 20px;
+      }
+      .profile-nav ul {
+        display: flex;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="profile-container">
+  <aside class="sidebar">
+    <div class="profile-picture-container">
+      <img id="profile-picture" src="../images/default-avatar.png" alt="Profile Picture" />
+      <input type="file" id="upload-picture" hidden />
+      <button id="change-picture-btn">Change Picture</button>
+    </div>
+    <nav class="profile-nav">
+      <ul>
+        <li data-section="info" class="active">Profile Info</li>
+        <li data-section="orders">Order History</li>
+        <li data-section="wishlist">Wishlist</li>
+        <li data-section="security">Security Settings</li>
+        <li><button id="logout-btn">Logout</button></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="profile-content">
+    <section id="info-section" class="section active">
+      <h2>Profile Info</h2>
+      <form id="profile-form">
+        <div class="form-group">
+          <label for="full-name">Full Name</label>
+          <input type="text" id="full-name" name="fullName" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <button type="submit" class="btn">Update Profile</button>
+      </form>
+    </section>
+
+    <section id="orders-section" class="section">
+      <h2>Order History</h2>
+      <p>Loading your orders...</p>
+      <div id="order-history"></div>
+    </section>
+
+    <section id="wishlist-section" class="section">
+      <h2>Wishlist</h2>
+      <p>Loading wishlist items...</p>
+      <div id="wishlist-items"></div>
+    </section>
+
+    <section id="security-section" class="section">
+      <h2>Security Settings</h2>
+      <form id="password-form">
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" required />
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" required />
+        </div>
+        <button type="submit" class="btn">Change Password</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Section tab switch
+  document.querySelectorAll(".profile-nav li[data-section]").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".section").forEach((section) => section.classList.remove("active"));
+      document.querySelectorAll(".profile-nav li").forEach((li) => li.classList.remove("active"));
+      document.getElementById(tab.dataset.section + "-section").classList.add("active");
+      tab.classList.add("active");
+    });
+  });
+
+  // Change profile picture
+  const changeBtn = document.getElementById("change-picture-btn");
+  const fileInput = document.getElementById("upload-picture");
+  changeBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (file) {
+      const img = document.getElementById("profile-picture");
+      img.src = URL.createObjectURL(file);
+      // TODO: Upload to server
+    }
+  });
+
+  // Logout handler
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("jwtToken");
+    window.location.href = "/frontend/index.html";
+  });
+
+  // TODO: Populate fields with real data using fetch API
+</script>
+
+</body>
+</html>
