@@ -166,18 +166,8 @@ export async function initCarousel() {
   async function fetchServices() {
     // Replace with live API if needed
     try {
-      // const res = await fetch("http://localhost:8080/api/services");
-      // return await res.json();
 
       return [
-        // {
-        //   title: "First  Aid Kit Refill",
-        //   image: "assets/images/fak.jpg",
-        // },
-        // {
-        //   title: "Personal Protective Equipments",
-        //   image: "assets/images/safety-gear.png",
-        // },
         {
           title: "Workplace  Hygiene Surveys",
           image: "assets/images/NEMA.jpg",

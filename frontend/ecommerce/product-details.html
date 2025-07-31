@@ -5,21 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Details | Ecoviron Shop</title>
 
-  <!-- FontAwesome & Styles -->
+  
+<meta property="og:type" content="product" />
+<meta property="og:title" content="Eco-Friendly Gloves | Bionix-ESH Solutions" />
+<meta property="og:description" content="Durable, sustainable gloves made from recycled materials." />
+<meta property="og:image" content="https://www.bionix-hse.co.ke/images/products/gloves-main.jpg" />
+<meta property="og:url" content="https://www.bionix-hse.co.ke/ecommerce/product-details.html?id=123" />
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Eco-Friendly Gloves | Bionix-ESH Solutions" />
+<meta name="twitter:description" content="Durable, sustainable gloves made from recycled materials." />
+<meta name="twitter:image" content="https://www.bionix-hse.co.ke/images/products/gloves-main.jpg" />
+
+    <!-- Favicon Configuration -->
+  <link rel="icon" type="image/png" href="/frontend/assets/icons/favicons/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="/frontend/assets/icons/favicons/favicon.svg" />
+<link rel="shortcut icon" href="/frontend/assets/icons/favicons/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/frontend/assets/icons/favicons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Bionix-ehs Consultancy Limited." />
+<link rel="manifest" href="/frontend/assets/icons/favicons/site.webmanifest" />
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#2ecc71">
+  <meta name="msapplication-TileColor" content="#2ecc71">
+  <meta name="theme-color" content="#2ecc71">
+
+  <!-- Font Preload -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet';">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/styles.css"/>
 
-  <!-- AOS CSS -->
+  
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 </head>
 <body>
 
-  <!-- Header Placeholder -->
+  
   <div id="header-container"></div>
   
 
-  <!-- Breadcrumb Navigation -->
+  
+  
   <nav id="breadcrumb" class="breadcrumb-nav">
     <!-- Filled dynamically -->
   </nav>
@@ -63,12 +90,7 @@
         </ul>
 
         <button class="btn btn-primary" id="add-to-cart-btn">Add to Cart</button>
-
-        <!-- Trust Badges -->
-        <!-- <div class="trust-badges">
-          <img src="../assets/icons/secure-payment.png" alt="Secure Payment">
-          <img src="../assets/icons/eco-friendly.png" alt="Eco Guarantee">
-        </div> -->
+       
       </div>
     </div>
   </section>
@@ -100,10 +122,35 @@
   <!-- Footer Placeholder -->
   <footer id="footer-container"></footer>
 
-  <!-- JavaScript Modules -->
+  
   <script type="module" src="../js/main.js"></script>
   <script type="module" src="../js/product-details.js"></script>
   <script type="module" src="../js/cart-actions.js"></script>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Eco-Friendly Gloves",
+  "image": [
+    "https://www.bionix-hse.co.ke/images/products/gloves-main.jpg"
+  ],
+  "description": "Durable, eco-friendly gloves made from recycled materials.",
+  "sku": "ECO-GLOVES-001",
+  "brand": {
+    "@type": "Brand",
+    "name": "GreenEarth"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://www.bionix-hse.co.ke/ecommerce/product-details.html?id=123",
+    "priceCurrency": "KES",
+    "price": "799.00",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
 
 </body>
 </html>

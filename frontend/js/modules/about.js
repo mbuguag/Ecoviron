@@ -15,7 +15,7 @@ export function initAboutSection() {
           return item ? item.content : "Not available.";
         };
 
-        // 🧹 No keyword highlighting
+        // No keyword highlighting
         const rawAbout = getContent("About Us");
         const paragraphs = rawAbout.split(/(?<=\.)\s+(?=[A-Z])/);
 

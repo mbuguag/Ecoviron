@@ -87,6 +87,8 @@ function renderProductGrid(products) {
     .join("");
 
   setupCartInteractions();
+  injectSchemaForProducts(products);
+
 }
 
 function renderStars(rating) {
@@ -161,4 +163,43 @@ function applyFiltersAndSort({
 
 function formatPrice(price) {
   return `KES ${Number(price).toLocaleString()}`;
+}
+
+function injectSchemaForProducts(products) {
+  const head = document.head;
+
+  // Remove any previous injected schema
+  document
+    .querySelectorAll('script[type="application/ld+json"]')
+    .forEach((el) => {
+      if (el.dataset.schemaType === "product") el.remove();
+    });
+
+  products.forEach((product) => {
+    const schema = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      name: product.name,
+      image: `${BACKEND_URL}${product.imageUrl}`,
+      description: product.description || product.name,
+      sku: `SKU-${product.id}`,
+      brand: {
+        "@type": "Brand",
+        name: "Bionix Solutions",
+      },
+      offers: {
+        "@type": "Offer",
+        url: `https://www.bionix-hse.co.ke/product-details.html?id=${product.id}`,
+        priceCurrency: "KES",
+        price: product.price.toFixed(2),
+        availability: "https://schema.org/InStock",
+      },
+    };
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.dataset.schemaType = "product";
+    script.textContent = JSON.stringify(schema, null, 2);
+    head.appendChild(script);
+  });
 }

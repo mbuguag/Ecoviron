@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         post.imageUrl ||
         "https://www.bionix-hse.co.ke/images/twitter-default.jpg";
 
-    // Update structured data
+    
     const ldJson = document.querySelector('script[type="application/ld+json"]');
     if (ldJson) {
       const structuredData = {
