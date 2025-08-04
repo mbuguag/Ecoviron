@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AboutDTO {
+public class  AboutDTO {
     private Long id;
     private String section;
     private String content;

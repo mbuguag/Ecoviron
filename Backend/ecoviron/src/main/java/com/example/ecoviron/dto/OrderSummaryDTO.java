@@ -1,5 +1,12 @@
 package com.example.ecoviron.dto;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@Data
 public class OrderSummaryDTO {
     private long pending;
     private long delivered;
@@ -9,19 +16,4 @@ public class OrderSummaryDTO {
         this.delivered = delivered;
     }
 
-    public long getPending() {
-        return pending;
-    }
-
-    public void setPending(long pending) {
-        this.pending = pending;
-    }
-
-    public long getDelivered() {
-        return delivered;
-    }
-
-    public void setDelivered(long delivered) {
-        this.delivered = delivered;
-    }
 }

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class QuoteRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

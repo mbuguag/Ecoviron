@@ -1,12 +1,14 @@
 package com.example.ecoviron.dto;
 
 import com.example.ecoviron.entity.Order;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 @Getter
 @Setter
+@Data
 public class OrderResponseDto {
     private Long id;
     private String orderReference;

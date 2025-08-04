@@ -7,8 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
+ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,6 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
+@Data
 public class BlogPost {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
