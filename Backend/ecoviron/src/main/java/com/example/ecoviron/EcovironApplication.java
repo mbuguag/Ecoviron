@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-@SpringBootApplication(scanBasePackages = "com.example.ecoviron")
+@SpringBootApplication
 public class EcovironApplication {
 
 	public static void main(String[] args) {
