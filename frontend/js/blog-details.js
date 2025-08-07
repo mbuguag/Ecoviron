@@ -159,7 +159,7 @@ function renderRelatedPosts(posts) {
 
       container.appendChild(card);
     });
-  }
+  
 
   function setMetaTags(post) {
     // Update meta tags for SEO
