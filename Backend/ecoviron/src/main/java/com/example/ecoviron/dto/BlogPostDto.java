@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Set;
+import com.example.ecoviron.entity.BlogPost.PostStatus;
+
+
 
 @Data
 public class BlogPostDto {
@@ -35,7 +38,7 @@ public class BlogPostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime publishedAt;
-    private String status;
+    private PostStatus status;
     private AuthorDto author;
 
     @Data

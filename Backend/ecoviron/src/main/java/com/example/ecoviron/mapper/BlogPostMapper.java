@@ -2,13 +2,22 @@ package com.example.ecoviron.mapper;
 
 import com.example.ecoviron.dto.BlogPostDto;
 import com.example.ecoviron.entity.BlogPost;
-import com.example.ecoviron.entity.User;
+import com.example.ecoviron.repository.UserRepository;
 import org.springframework.stereotype.Component;
+
 
 import java.util.Optional;
 
 @Component
 public class BlogPostMapper {
+
+
+    private  final UserRepository userRepository;
+
+    public BlogPostMapper(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
 
     public BlogPostDto toDto(BlogPost post) {
         if (post == null) {
@@ -31,7 +40,7 @@ public class BlogPostMapper {
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         dto.setPublishedAt(post.getPublishedAt());
-        dto.setStatus(post.getStatus().toString());
+        dto.setStatus(post.getStatus());
 
         // Map author information with exact field name matching
         Optional.ofNullable(post.getAuthor())
@@ -48,11 +57,14 @@ public class BlogPostMapper {
     }
 
     public BlogPost toEntity(BlogPostDto dto) {
-        if (dto == null) {
-            return null;
-        }
+        if (dto == null) return null;
 
         BlogPost post = new BlogPost();
+        mapDtoToEntity(dto, post);
+        return post;
+    }
+
+    public void mapDtoToEntity(BlogPostDto dto, BlogPost post) {
         post.setTitle(dto.getTitle());
         post.setSlug(dto.getSlug());
         post.setSnippet(dto.getSnippet());
@@ -66,9 +78,12 @@ public class BlogPostMapper {
         post.setTags(dto.getTags());
 
         if (dto.getStatus() != null) {
-            post.setStatus(BlogPost.PostStatus.valueOf(dto.getStatus().toUpperCase()));
+            post.setStatus(dto.getStatus());
         }
 
-        return post;
+        if (dto.getAuthor() != null && dto.getAuthor().getId() != null) {
+            userRepository.findById(dto.getAuthor().getId()).ifPresent(post::setAuthor);
+        }
     }
+
 }
