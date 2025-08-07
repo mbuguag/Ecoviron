@@ -175,3 +175,67 @@ main.service-detail {
     margin-bottom: 0.3rem;
   }
 }
+
+
+.breadcrumb-nav {
+  background-color: #f8f9fa;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.breadcrumb-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+  content: "/";
+  margin: 0 0.5rem;
+  color: #6c757d;
+}
+
+.breadcrumb-link {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.breadcrumb-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: #6c757d;
+}
+
+/* CTA Container */
+.cta-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Audit Steps */
+.audit-steps li {
+  position: relative;
+  padding-left: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.step-icon {
+  position: absolute;
+  left: 0;
+  top: 0.2rem;
+  font-size: 1.5rem;
+  color: #2ecc71;
+}

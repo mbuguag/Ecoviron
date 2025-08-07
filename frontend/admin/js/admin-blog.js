@@ -40,8 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const responseText = await response.text();
-      console.log("Raw response:", responseText);
-
       const data = responseText ? JSON.parse(responseText) : null;
       if (!data) {
         throw new Error("Server returned empty response");
@@ -72,29 +70,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentStatus = post.status || "DRAFT";
 
       row.innerHTML = `
-      <td>${post.title || "Untitled"}</td>
-      <td>${post.author?.fullName || "Unknown"}</td>
-      <td>
-        <span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span>
-      </td>
-      <td>${
-        post.publishedAt ? formatDate(post.publishedAt) : "Not published"
-      }</td>
-      <td>${post.viewCount || 0}</td>
-      <td class="actions">
-        <button class="btn-icon edit-btn" data-id="${postId}">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn-icon delete-btn" data-id="${postId}">
-          <i class="fas fa-trash"></i>
-        </button>
-        <button class="btn-icon status-toggle-btn" data-id="${postId}" data-status="${currentStatus}">
-          <i class="fas fa-toggle-on"></i> ${
-            currentStatus === "DRAFT" ? "Publish" : "Unpublish"
-          }
-        </button>
-      </td>
-    `;
+        <td>${post.title || "Untitled"}</td>
+        <td>${post.author?.fullName || "Unknown"}</td>
+        <td>
+          <span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span>
+        </td>
+        <td>${
+          post.publishedAt ? formatDate(post.publishedAt) : "Not published"
+        }</td>
+        <td>${post.viewCount || 0}</td>
+        <td class="actions">
+          <button class="btn-icon edit-btn" data-id="${postId}">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon delete-btn" data-id="${postId}">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="btn-icon status-toggle-btn" data-id="${postId}" data-status="${currentStatus}">
+            <i class="fas fa-toggle-on"></i> ${
+              currentStatus === "DRAFT" ? "Publish" : "Unpublish"
+            }
+          </button>
+        </td>
+      `;
 
       postsList.appendChild(row);
     });
@@ -114,15 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   async function togglePostStatus(postId, currentStatus) {
     const newStatus = currentStatus === "DRAFT" ? "PUBLISHED" : "DRAFT";
     try {
       const response = await authFetch(
         `${API_BASE.blogs}/${postId}/status?status=${newStatus}`,
-        {
-          method: "PUT",
-        }
+        { method: "PUT" }
       );
 
       if (!response.ok) {
@@ -137,10 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   function renderPagination(totalPages, current) {
     pagination.innerHTML = "";
-
     if (totalPages <= 1) return;
 
     if (current > 1) {
@@ -225,64 +218,63 @@ document.addEventListener("DOMContentLoaded", () => {
     editorModal.style.display = "none";
   }
 
-async function savePost(event) {
-  event.preventDefault();
+  async function savePost(event) {
+    event.preventDefault();
 
-  try {
-    const postId = document.getElementById("post-id").value;
-    const isEdit = postId !== "";
-    const formData = new FormData();
+    try {
+      const postId = document.getElementById("post-id").value;
+      const isEdit = postId !== "";
+      const formData = new FormData();
 
-    const postData = {
-      title: document.getElementById("post-title").value,
-      slug: document.getElementById("post-slug").value,
-      status: document.getElementById("post-status").value,
-      snippet: document.getElementById("post-snippet").value,
-      content: editor.root.innerHTML,
-      metaDescription: document.getElementById("meta-description").value,
-      tags: document
-        .getElementById("post-tags")
-        .value.split(",")
-        .map((tag) => tag.trim()),
-      publishedAt: document.getElementById("publish-date").value
-        ? new Date(document.getElementById("publish-date").value).toISOString()
-        : null,
-    };
+      const postData = {
+        title: document.getElementById("post-title").value,
+        slug: document.getElementById("post-slug").value,
+        status: document.getElementById("post-status").value,
+        snippet: document.getElementById("post-snippet").value,
+        content: editor.root.innerHTML,
+        metaDescription: document.getElementById("meta-description").value,
+        tags: document
+          .getElementById("post-tags")
+          .value.split(",")
+          .map((tag) => tag.trim()),
+        publishedAt: document.getElementById("publish-date").value
+          ? new Date(
+              document.getElementById("publish-date").value
+            ).toISOString()
+          : null,
+      };
 
-    // ✅ Append the JSON payload as a Blob (correct MIME type)
-    formData.append(
-      "post",
-      new Blob([JSON.stringify(postData)], { type: "application/json" }),
-      "post.json"
-    );
+      formData.append(
+        "post",
+        new Blob([JSON.stringify(postData)], { type: "application/json" }),
+        "post.json"
+      );
 
-    const imageFile = document.getElementById("image-upload").files[0];
-    if (imageFile) {
-      formData.append("image", imageFile);
+      const imageFile = document.getElementById("image-upload").files[0];
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      const url = isEdit ? `${API_BASE.blogs}/${postId}` : API_BASE.blogs;
+      const method = isEdit ? "PUT" : "POST";
+
+      const response = await authFetch(url, {
+        method,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
+
+      closeEditor();
+      loadPosts();
+    } catch (error) {
+      console.error("Error saving post:", error);
+      showError(`Save failed: ${error.message}`);
     }
-
-    const url = isEdit ? `${API_BASE.blogs}/${postId}` : API_BASE.blogs;
-    const method = isEdit ? "PUT" : "POST";
-
-    const response = await authFetch(url, {
-      method,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errorText}`);
-    }
-
-    closeEditor();
-    loadPosts();
-  } catch (error) {
-    console.error("Error saving post:", error);
-    showError(`Save failed: ${error.message}`);
   }
-}
-
-
 
   async function confirmDelete(postId) {
     if (confirm("Are you sure you want to delete this post?")) {
@@ -374,6 +366,7 @@ async function savePost(event) {
       day: "numeric",
     });
   }
+  
 
   function showLoading() {
     postsList.innerHTML = `
