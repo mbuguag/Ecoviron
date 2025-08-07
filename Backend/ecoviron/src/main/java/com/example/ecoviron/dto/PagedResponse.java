@@ -1,10 +1,10 @@
 package com.example.ecoviron.dto;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Data
 @Setter

@@ -194,3 +194,29 @@
   background-color: #219150;
   transform: translateY(-2px);
 }
+
+.breadcrumb {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.breadcrumb ol {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb li {
+  margin-right: 0.5rem;
+}
+
+.breadcrumb li:not(:last-child)::after {
+  content: "›";
+  margin-left: 0.5rem;
+}
+
+.breadcrumb [aria-current="page"] {
+  color: var(--primary-color);
+  font-weight: 600;
+}

@@ -1,5 +1,3 @@
-import { layoutLoaded } from "./main.js";
-
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const postId = params.get("id");
@@ -10,42 +8,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    // Load post data
-    const postResponse = await fetch(
-      `http://localhost:8080/api/public-blogs/public/${postId}`
-    );
-
-    if (!postResponse.ok) throw new Error("Post not found");
-
-    const post = await postResponse.json();
-
-    // Check if view has already been counted this session
     const viewedKey = `viewed_post_${postId}`;
+
+    // First fetch the post
+    let post = await fetchPost(postId);
+
+    // Update view count once per session
     if (!sessionStorage.getItem(viewedKey)) {
-      try {
-        await fetch(
-          `http://localhost:8080/api/public-blogs/public/${postId}/views`,
-          {
-            method: "PUT",
-          }
-        );
-        sessionStorage.setItem(viewedKey, "true");
-      } catch (error) {
-        console.error("Failed to update view count:", error);
-      }
+      await incrementViewCount(postId);
+      post = await fetchPost(postId);
+      sessionStorage.setItem(viewedKey, "true");
     }
 
-    // Render post
     renderPost(post);
-
-    // Load related posts
     loadRelatedPosts(post.tags, post.id);
-
-    // Set SEO meta tags
     setMetaTags(post);
   } catch (error) {
-    console.error("Error:", error);
-    document.getElementById("blog-post").innerHTML = `
+    console.error("Error loading post:", error);
+    document.getElementById("post-content").innerHTML = `
       <div class="error-message">
         <h2>Post Not Found</h2>
         <p>The requested article could not be found.</p>
@@ -53,88 +33,111 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
   }
+});
 
-  function renderPost(post) {
-    // Update page title
-    document.title = `${post.title} | BionixEHS Blog`;
+async function fetchPost(postId) {
+  const response = await fetch(`http://localhost:8080/api/public-blogs/public/${postId}`);
+  if (!response.ok) throw new Error("Post not found");
+  return await response.json();
+}
 
-    // Set main content
-    document.getElementById("post-title").textContent = post.title;
-    document.getElementById("post-meta").innerHTML = `
-      <div class="author-info">
-        <img src="${
-          post.author?.profilePicture || "../images/avatar-default.png"
-        }" 
-             alt="${post.author?.fullName || "Author"}">
-        <div>
-          <span class="author-name">${
-            post.author?.fullName || "BionixEHS Team"
-          }</span>
-          <span class="post-date">${formatDate(post.publishedAt)}</span>
-        </div>
+async function incrementViewCount(postId) {
+  try {
+    const response = await fetch(`http://localhost:8080/api/public-blogs/public/${postId}/views`, {
+      method: "PUT",
+    });
+    if (!response.ok) throw new Error("Failed to increment view count");
+  } catch (err) {
+    console.warn("View count error:", err);
+  }
+}
+
+function renderPost(post) {
+  // Update page title
+  document.title = `${post.title} | BionixEHS Blog`;
+
+  // Meta section
+  const metaHTML = `
+    <div class="author-info">
+      <img src="${post.author?.profilePicture || "../assets/images/blog.jpg"}" alt="${post.author?.fullName || "Author"}">
+      <div>
+        <span class="author-name">${post.author?.fullName || "BionixEHS Team"}</span>
+        <span class="post-date">${formatDate(post.publishedAt)}</span>
       </div>
-    `;
+    </div>
+  `;
+  document.getElementById("post-meta").innerHTML = metaHTML;
 
-    document.getElementById("post-content").innerHTML = `
-      <div class="featured-image">
-        <img src="${post.imageUrl || "../images/blog-default.jpg"}" 
-             alt="${post.imageAlt || post.title}">
-        ${
-          post.imageCaption
-            ? `<p class="image-caption">${post.imageCaption}</p>`
-            : ""
-        }
-      </div>
-      <div class="post-body">
-        ${post.content || "<p>No content available.</p>"}
-      </div>
-    `;
+  // Main content
+  const contentHTML = `
+    <div class="featured-image">
+      <img src="${post.imageUrl || "../assets/images/blog.jpg"}" alt="${post.imageAlt || post.title}">
+      ${post.imageCaption ? `<p class="image-caption">${post.imageCaption}</p>` : ""}
+    </div>
+    <div class="post-body">
+      ${post.content || "<p>No content available.</p>"}
+    </div>
+  `;
+  document.getElementById("post-content").innerHTML = contentHTML;
 
-    document.getElementById("views-counter").textContent = post.viewCount || 0;
+  // View count
+  document.getElementById("view-count").textContent = `${post.viewCount || 0} views`;
 
-    // Render tags
-    if (post.tags && post.tags.length > 0) {
-      const tagsContainer = document.getElementById("post-tags");
-      post.tags.forEach((tag) => {
-        const tagEl = document.createElement("a");
-        tagEl.href = `blog.html?tag=${encodeURIComponent(tag)}`;
-        tagEl.className = "post-tag";
-        tagEl.textContent = tag;
-        tagsContainer.appendChild(tagEl);
-      });
-    }
-
-    // Set up social sharing
-    setupSocialSharing(post);
+  // Tags
+  const tagsContainer = document.getElementById("post-tags");
+  if (post.tags?.length > 0 && tagsContainer) {
+    post.tags.forEach(tag => {
+      const tagEl = document.createElement("a");
+      tagEl.href = `blog.html?tag=${encodeURIComponent(tag)}`;
+      tagEl.className = "post-tag";
+      tagEl.textContent = tag;
+      tagsContainer.appendChild(tagEl);
+    });
   }
 
-  async function loadRelatedPosts(tags, excludeId) {
-    if (!tags || tags.length === 0) return;
+  // Sharing
+  setupSocialSharing(post);
+}
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/blogs/public/related?tags=${tags.join(
-          ","
-        )}&exclude=${excludeId}&limit=3`
-      );
+async function loadRelatedPosts(tags, excludeId) {
+  if (!tags || tags.length === 0) return;
 
-      if (response.ok) {
-        const relatedPosts = await response.json();
-        renderRelatedPosts(relatedPosts);
-      }
-    } catch (error) {
-      console.error("Error loading related posts:", error);
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/blogs/public/related?tags=${tags.join(",")}&exclude=${excludeId}&limit=3`
+    );
+    if (response.ok) {
+      const posts = await response.json();
+      renderRelatedPosts(posts);
     }
+  } catch (error) {
+    console.error("Error loading related posts:", error);
+  }
+}
+
+function renderRelatedPosts(posts) {
+  const container = document.getElementById("related-posts");
+  if (!posts || posts.length === 0) {
+    container.innerHTML = "<p>No related articles found.</p>";
+    return;
   }
 
-  function renderRelatedPosts(posts) {
-    const container = document.getElementById("related-posts");
-
-    if (!posts || posts.length === 0) {
-      container.innerHTML = "<p>No related articles found.</p>";
-      return;
-    }
-
+  posts.forEach(post => {
+    const card = document.createElement("article");
+    card.className = "blog-card";
+    card.innerHTML = `
+      <div class="card-image">
+        <img src="${post.imageUrl || "../images/blog-default.jpg"}" alt="${post.imageAlt || post.title}" loading="lazy">
+      </div>
+      <div class="card-body">
+        <h3>${post.title}</h3>
+        <p>${post.snippet || "Read more about this topic..."}</p>
+        <a href="blog-details.html?id=${post.id}" class="btn-outline">Read More</a>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
     posts.forEach((post) => {
       const card = document.createElement("article");
       card.className = "blog-card";
@@ -212,43 +215,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function setupSocialSharing(post) {
-    const shareUrl = encodeURIComponent(window.location.href);
-    const shareTitle = encodeURIComponent(post.title);
-    const shareText = encodeURIComponent(post.snippet || "");
-    const shareImage = encodeURIComponent(post.imageUrl || "");
+function setupSocialSharing(post) {
+  const shareUrl = encodeURIComponent(window.location.href);
+  const shareTitle = encodeURIComponent(post.title);
+  const shareText = encodeURIComponent(post.snippet || "");
 
-    document
-      .querySelector(".share-btn.facebook")
-      .addEventListener("click", () => {
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
-          "_blank"
-        );
-      });
+  document.querySelector(".share-btn.facebook")?.addEventListener("click", () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, "_blank");
+  });
 
-    document
-      .querySelector(".share-btn.twitter")
-      .addEventListener("click", () => {
-        window.open(
-          `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`,
-          "_blank"
-        );
-      });
+  document.querySelector(".share-btn.twitter")?.addEventListener("click", () => {
+    window.open(`https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`, "_blank");
+  });
 
-    document
-      .querySelector(".share-btn.linkedin")
-      .addEventListener("click", () => {
-        window.open(
-          `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}&summary=${shareText}`,
-          "_blank"
-        );
-      });
-  }
+  document.querySelector(".share-btn.linkedin")?.addEventListener("click", () => {
+    window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}&summary=${shareText}`, "_blank");
+  });
+}
 
-  function formatDate(dateString) {
-    if (!dateString) return "";
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString("en-US", options);
-  }
-});
+function setMetaTags(post) {
+  const setContent = (selector, content) => {
+    const el = document.querySelector(selector);
+    if (el) el.content = content;
+  };
+
+  const title = post.title;
+  const description = post.metaDescription || post.snippet || post.title;
+  const imageUrl = post.imageUrl || "https://www.bionix-hse.co.ke/images/og-default.jpg";
+
+  setContent('meta[name="description"]', description);
+  setContent('meta[property="og:title"]', title);
+  setContent('meta[property="og:description"]', description);
+  setContent('meta[property="og:image"]', imageUrl);
+  setContent('meta[property="og:url"]', window.location.href);
+  setContent('meta[name="twitter:title"]', title);
+  setContent('meta[name="twitter:description"]', description);
+  setContent('meta[name="twitter:image"]', imageUrl);
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(dateString).toLocaleDateString("en-US", options);
+}

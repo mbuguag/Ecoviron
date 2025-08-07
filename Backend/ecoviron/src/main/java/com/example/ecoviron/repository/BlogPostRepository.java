@@ -59,8 +59,9 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
 
     // View count increment (example of modifying query)
     @Modifying
-    @Query("UPDATE BlogPost p SET p.viewCount = p.viewCount + 1 WHERE p.id = :id")
+    @Query("UPDATE BlogPost b SET b.viewCount = b.viewCount + 1 WHERE b.id = :id")
     void incrementViewCount(@Param("id") Long id);
+
 
     // Recent posts query
     @Query("SELECT p FROM BlogPost p WHERE p.status = 'PUBLISHED' ORDER BY p.publishedAt DESC")

@@ -22,9 +22,10 @@ public class NewsletterSubscriber {
 
     private boolean confirmed;
 
+
     private boolean unsubscribed;
 
     private String confirmationToken;
 
-    private LocalDateTime subscribedAt = LocalDateTime.now();
+    private LocalDateTime subscribedAt;
 }
