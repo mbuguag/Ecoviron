@@ -2,12 +2,9 @@ package com.example.ecoviron.service.Impl;
 
 import com.example.ecoviron.entity.BlogPost;
 import com.example.ecoviron.entity.BlogPost.PostStatus;
-import com.example.ecoviron.entity.User;
 import com.example.ecoviron.exception.ResourceNotFoundException;
 import com.example.ecoviron.repository.BlogPostRepository;
-import com.example.ecoviron.repository.UserRepository;
 import com.example.ecoviron.service.BlogService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,12 +22,10 @@ import java.util.Set;
 public class BlogServiceImpl implements BlogService {
 
     private final BlogPostRepository blogPostRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public BlogServiceImpl(BlogPostRepository blogPostRepository, UserRepository userRepository) {
+    public BlogServiceImpl(BlogPostRepository blogPostRepository) {
         this.blogPostRepository = blogPostRepository;
-        this.userRepository = userRepository;
     }
 
     // Paginated methods for controller
@@ -115,19 +110,8 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     public BlogPost createPost(BlogPost blogPost) {
         validatePostForCreation(blogPost);
-
-        if (blogPost.getAuthor() != null && blogPost.getAuthor().getId() != null) {
-            Long authorId = blogPost.getAuthor().getId();
-            User author = userRepository.findById(authorId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Author not found with ID: " + authorId));
-            blogPost.setAuthor(author);
-        } else {
-            throw new IllegalArgumentException("Author is required for blog post creation");
-        }
-
         return blogPostRepository.save(blogPost);
     }
-
 
     @Override
     @Transactional
@@ -187,15 +171,9 @@ public class BlogServiceImpl implements BlogService {
     // Analytics
     @Override
     @Transactional
-    public Integer incrementViewCount(Long id) {
+    public void incrementViewCount(Long id) {
         blogPostRepository.incrementViewCount(id);
-        // Fetch the new view count to return
-        return blogPostRepository.findById(id)
-                .map(BlogPost::getViewCount)
-                .orElseThrow(() -> new EntityNotFoundException("Blog post not found"));
     }
-
-
 
 
 

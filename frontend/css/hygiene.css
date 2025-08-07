@@ -217,66 +217,56 @@ main.service-detail {
   }
 }
 
-
-.breadcrumb-nav {
-  background-color: #f8f9fa;
+/* ========= Breadcrumb Navigation ========= */
+.breadcrumb {
   padding: 1rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e0f7ec;
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
   font-size: 0.9rem;
 }
 
-.breadcrumb-list {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex-wrap: wrap;
-}
-
-.breadcrumb-item {
+.breadcrumb li {
   display: flex;
   align-items: center;
 }
 
-.breadcrumb-item:not(:last-child)::after {
+.breadcrumb li:not(:last-child)::after {
   content: "/";
-  margin: 0 0.5rem;
-  color: #6c757d;
+  margin: 0 0.75rem;
+  color: #7f8c8d;
 }
 
-.breadcrumb-link {
-  color: #007bff;
+.breadcrumb a {
+  color: #1f7a52;
   text-decoration: none;
-  transition: color 0.3s;
+  transition: color 0.3s ease;
 }
 
-.breadcrumb-link:hover {
-  color: #0056b3;
+.breadcrumb a:hover {
+  color: #155e3d;
   text-decoration: underline;
 }
 
-.breadcrumb-item.active {
-  color: #6c757d;
+.breadcrumb [aria-current="page"] {
+  color: #555;
+  font-weight: 600;
 }
 
-/* CTA Container */
-.cta-container {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-/* Audit Steps */
-.audit-steps li {
-  position: relative;
-  padding-left: 3rem;
-  margin-bottom: 1.5rem;
-}
-
-.step-icon {
-  position: absolute;
-  left: 0;
-  top: 0.2rem;
-  font-size: 1.5rem;
-  color: #2ecc71;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .breadcrumb {
+    padding: 0.75rem 0;
+  }
+  
+  .breadcrumb li:not(:last-child)::after {
+    margin: 0 0.5rem;
+  }
 }

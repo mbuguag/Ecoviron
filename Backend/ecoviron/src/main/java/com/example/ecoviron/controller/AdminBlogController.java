@@ -2,9 +2,7 @@ package com.example.ecoviron.controller;
 
 import com.example.ecoviron.dto.BlogPostDto;
 import com.example.ecoviron.entity.BlogPost;
-import com.example.ecoviron.entity.User;
 import com.example.ecoviron.mapper.BlogPostMapper;
-import com.example.ecoviron.repository.UserRepository;
 import com.example.ecoviron.service.BlogService;
 import com.example.ecoviron.service.StorageService;
 import jakarta.validation.Valid;
@@ -17,13 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/admin-blogs")
@@ -36,25 +29,15 @@ public class AdminBlogController {
     private final BlogService blogService;
     private final BlogPostMapper blogPostMapper;
     private final StorageService storageService;
-    private final UserRepository userRepository;
 
     @Autowired
     public AdminBlogController(BlogService blogService,
                                BlogPostMapper blogPostMapper,
-                               StorageService storageService, UserRepository userRepository) {
+                               StorageService storageService) {
         this.blogService = blogService;
         this.blogPostMapper = blogPostMapper;
         this.storageService = storageService;
-        this.userRepository = userRepository;
     }
-
-    private User getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // assuming email is username
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-    }
-
 
     @GetMapping
     public ResponseEntity<Page<BlogPostDto>> getAllPosts(
@@ -82,35 +65,21 @@ public class AdminBlogController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
 
         log.info("Creating post with title: {}", postDto.getTitle());
-
         try {
-
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageUrl = storageService.saveBlogImage(imageFile);
                 postDto.setImageUrl(imageUrl);
+                log.info("Image uploaded: {}", imageFile.getOriginalFilename());
             }
 
             BlogPost blogPost = blogPostMapper.toEntity(postDto);
-
-            // set author and timestamps
-            blogPost.setAuthor(getCurrentUser());
-            blogPost.setCreatedAt(LocalDateTime.now());
-            blogPost.setUpdatedAt(LocalDateTime.now());
-
-            if (blogPost.getStatus() == BlogPost.PostStatus.PUBLISHED) { }
-            {
-                blogPost.setPublishedAt(LocalDateTime.now());
-            }
-
             BlogPost saved = blogService.createPost(blogPost);
             return ResponseEntity.ok(blogPostMapper.toDto(saved));
-
         } catch (Exception e) {
             log.error("Error creating post", e);
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BlogPostDto> updatePost(
@@ -119,38 +88,18 @@ public class AdminBlogController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
 
         try {
-            BlogPost existing = blogService.getPostById(id);
-            if (existing == null) {
-                return ResponseEntity.notFound().build();
-            }
-
             if (imageFile != null && !imageFile.isEmpty()) {
+                // Use storageService instead of imageUploadController
                 String imageUrl = storageService.saveBlogImage(imageFile);
                 postDto.setImageUrl(imageUrl);
             }
 
-            BlogPost updatedPost = blogPostMapper.toEntity(postDto);
-            updatedPost.setId(id);
-            updatedPost.setAuthor(existing.getAuthor()); // preserve original author
-            updatedPost.setCreatedAt(existing.getCreatedAt()); // preserve original creation time
-            updatedPost.setUpdatedAt(LocalDateTime.now());
-
-            if (updatedPost.getStatus() == BlogPost.PostStatus.PUBLISHED && existing.getPublishedAt() == null)
-            {
-                updatedPost.setPublishedAt(LocalDateTime.now());
-            } else {
-                updatedPost.setPublishedAt(existing.getPublishedAt()); // preserve if already set
-            }
-
-            BlogPost updated = blogService.updatePost(id, updatedPost);
+            BlogPost updated = blogService.updatePost(id, blogPostMapper.toEntity(postDto));
             return ResponseEntity.ok(blogPostMapper.toDto(updated));
-
         } catch (Exception e) {
-            log.error("Error updating post", e);
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @PutMapping("/{id}/status")
     public ResponseEntity<String> updatePostStatus(

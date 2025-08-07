@@ -42,7 +42,7 @@ public interface BlogService {
     Set<String> getAllUniqueTags();
 
     // Analytics
-    Integer incrementViewCount(Long id);
+    void incrementViewCount(Long id);
 
     List<String> getAllTags();
 

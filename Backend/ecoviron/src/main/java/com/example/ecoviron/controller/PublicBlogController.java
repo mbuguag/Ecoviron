@@ -79,12 +79,10 @@ public class PublicBlogController {
     }
 
     @PutMapping("/public/{id}/views")
-    public ResponseEntity<Integer> incrementViews(@PathVariable Long id) {
-        int updatedViewCount = blogService.incrementViewCount(id);
-        return ResponseEntity.ok(updatedViewCount);
+    public ResponseEntity<Void> incrementViews(@PathVariable Long id) {
+        blogService.incrementViewCount(id);
+        return ResponseEntity.noContent().build();
     }
-
-
 
     @GetMapping("/tags")
     public ResponseEntity<Set<String>> getPublishedTags() {

@@ -42,7 +42,7 @@ public class BlogPost {
     private String slug;  // For SEO-friendly URLs
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    @Size(min = 10)
+    @Size(min = 100)
     private String content;
 
     @Column(name = "meta_description", length = 300)
