@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="post-title">Blog Post | BionixEHS</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" as="style"
+    onload="this.onload=null;this.rel='stylesheet';">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  </noscript>
 
   <!-- Dynamic SEO Meta Tags will be set by JavaScript -->
   <link rel="stylesheet" href="../css/styles.css" />
   <link rel="stylesheet" href="../css/blog.css" />
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 </head>
 <body>
   <div id="header-container"></div>
@@ -43,8 +49,12 @@
   <footer id="footer-container"></footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script type="module" src="js/main.js"></script>
+<script type="module" src="../js/main.js"></script>
 
   <script type="module" src="../js/blog-details.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+  </script>
 </body>
 </html>

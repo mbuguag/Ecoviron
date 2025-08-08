@@ -81,7 +81,7 @@ function renderPost(post) {
   document.getElementById("post-content").innerHTML = contentHTML;
 
   // View count
-  document.getElementById("view-count").textContent = `${post.viewCount || 0} views`;
+  document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;
 
   // Tags
   const tagsContainer = document.getElementById("post-tags");
