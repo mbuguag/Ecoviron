@@ -28,21 +28,23 @@ public class BlogServiceImpl implements BlogService {
         this.blogPostRepository = blogPostRepository;
     }
 
-    // Paginated methods for controller
-    @Override
-    @Transactional(readOnly = true)
-    public Page<BlogPost> getPostsByStatus(String status, Pageable pageable) {
-        PostStatus postStatus = PostStatus.valueOf(status.toUpperCase());
-        return blogPostRepository.findByStatus(postStatus, pageable);
-    }
+    // --- Paginated fetch methods ---
 
     @Override
     @Transactional(readOnly = true)
     public Page<BlogPost> getAllPosts(Pageable pageable) {
-        return blogPostRepository.findAll(pageable);
+        return blogPostRepository.findAllWithTags(pageable);
     }
 
-    // Legacy methods (keep for backward compatibility)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BlogPost> getPostsByStatus(String status, Pageable pageable) {
+        PostStatus postStatus = parseStatus(status);
+        return blogPostRepository.findByStatusWithTags(postStatus, pageable);
+    }
+
+
+
     @Override
     @Transactional(readOnly = true)
     @Deprecated
@@ -57,14 +59,14 @@ public class BlogServiceImpl implements BlogService {
         return blogPostRepository.findByStatus(status);
     }
 
-    // Published posts with pagination
     @Override
     @Transactional(readOnly = true)
     public Page<BlogPost> getPublishedPosts(Pageable pageable) {
         return blogPostRepository.findByStatus(PostStatus.PUBLISHED, pageable);
     }
 
-    // Single post operations
+    // --- Single post fetchers ---
+
     @Override
     @Transactional(readOnly = true)
     public BlogPost getPostById(Long id) {
@@ -80,36 +82,20 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<String> getAllTags() {
-        return blogPostRepository.findAllTags();
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public BlogPost getPublishedPostById(Long id) {
         return blogPostRepository.findByIdAndStatus(id, PostStatus.PUBLISHED)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found or not published"));
+                .orElseThrow(() -> new ResourceNotFoundException("Published post not found with ID: " + id));
     }
 
+    // --- CRUD and Status ---
 
-    @Override
-    @Transactional
-    public void updatePostStatus(Long postId, BlogPost.PostStatus status) {
-        BlogPost post = blogPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-        post.setStatus(status);
-
-        if (status == BlogPost.PostStatus.PUBLISHED && post.getPublishedAt() == null) {
-            post.setPublishedAt(LocalDateTime.now());
-        }
-
-        blogPostRepository.save(post);
-    }
-
-    // CRUD operations
     @Override
     @Transactional
     public BlogPost createPost(BlogPost blogPost) {
         validatePostForCreation(blogPost);
+        blogPost.setCreatedAt(LocalDateTime.now());
+        blogPost.setUpdatedAt(LocalDateTime.now());
         return blogPostRepository.save(blogPost);
     }
 
@@ -118,7 +104,28 @@ public class BlogServiceImpl implements BlogService {
     public BlogPost updatePost(Long id, BlogPost updatedPost) {
         BlogPost existingPost = getPostById(id);
         validatePostForUpdate(existingPost, updatedPost);
-        return blogPostRepository.save(updatedPost);
+
+        // Update allowed fields only
+        existingPost.setTitle(updatedPost.getTitle());
+        existingPost.setSlug(updatedPost.getSlug());
+        existingPost.setSnippet(updatedPost.getSnippet());
+        existingPost.setImageUrl(updatedPost.getImageUrl());
+        existingPost.setImageAlt(updatedPost.getImageAlt());
+        existingPost.setImageCaption(updatedPost.getImageCaption());
+        existingPost.setContent(updatedPost.getContent());
+        existingPost.setMetaDescription(updatedPost.getMetaDescription());
+        existingPost.setKeywords(updatedPost.getKeywords());
+        existingPost.setLink(updatedPost.getLink());
+        existingPost.setTags(updatedPost.getTags());
+        existingPost.setStatus(updatedPost.getStatus());
+
+        // Set publishedAt if publishing newly
+        if (existingPost.getStatus() == PostStatus.PUBLISHED && existingPost.getPublishedAt() == null) {
+            existingPost.setPublishedAt(LocalDateTime.now());
+        }
+
+        existingPost.setUpdatedAt(LocalDateTime.now());
+        return blogPostRepository.save(existingPost);
     }
 
     @Override
@@ -128,16 +135,31 @@ public class BlogServiceImpl implements BlogService {
         BlogPost post = getPostById(id);
         String imageUrl = storeImageAndGetUrl(file);
         post.setImageUrl(imageUrl);
+        post.setUpdatedAt(LocalDateTime.now());
         return blogPostRepository.save(post);
     }
 
-    // Status management
+    @Override
+    @Transactional
+    public void updatePostStatus(Long postId, PostStatus status) {
+        BlogPost post = getPostById(postId);
+        post.setStatus(status);
+        if (status == PostStatus.PUBLISHED && post.getPublishedAt() == null) {
+            post.setPublishedAt(LocalDateTime.now());
+        }
+        post.setUpdatedAt(LocalDateTime.now());
+        blogPostRepository.save(post);
+    }
+
     @Override
     @Transactional
     public BlogPost publishPost(Long id) {
         BlogPost post = getPostById(id);
         post.setStatus(PostStatus.PUBLISHED);
-        post.setPublishedAt(LocalDateTime.now());
+        if (post.getPublishedAt() == null) {
+            post.setPublishedAt(LocalDateTime.now());
+        }
+        post.setUpdatedAt(LocalDateTime.now());
         return blogPostRepository.save(post);
     }
 
@@ -146,10 +168,12 @@ public class BlogServiceImpl implements BlogService {
     public void deletePost(Long id) {
         BlogPost post = getPostById(id);
         post.setStatus(PostStatus.ARCHIVED);
+        post.setUpdatedAt(LocalDateTime.now());
         blogPostRepository.save(post);
     }
 
-    // Search and filtering
+    // --- Search and Tags ---
+
     @Override
     @Transactional(readOnly = true)
     public Page<BlogPost> searchPosts(String query, Pageable pageable) {
@@ -168,16 +192,30 @@ public class BlogServiceImpl implements BlogService {
         return blogPostRepository.findAllPublishedUniqueTags();
     }
 
-    // Analytics
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getAllTags() {
+        return blogPostRepository.findAllTags();
+    }
+
+    // --- Analytics ---
+
     @Override
     @Transactional
     public void incrementViewCount(Long id) {
         blogPostRepository.incrementViewCount(id);
     }
 
+    // --- Helper methods ---
 
+    private PostStatus parseStatus(String status) {
+        try {
+            return PostStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid post status: " + status);
+        }
+    }
 
-    // Helper methods
     private void validatePostForCreation(BlogPost blogPost) {
         if (blogPost.getTitle() == null || blogPost.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Title is required");
@@ -201,19 +239,9 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private void validatePostForUpdate(BlogPost existingPost, BlogPost updatedPost) {
-        updatedPost.setId(existingPost.getId());
-        updatedPost.setCreatedAt(existingPost.getCreatedAt());
-        updatedPost.setAuthor(existingPost.getAuthor());
-        updatedPost.setViewCount(existingPost.getViewCount());
-
         if (!existingPost.getSlug().equals(updatedPost.getSlug()) &&
                 blogPostRepository.existsBySlug(updatedPost.getSlug())) {
             throw new IllegalArgumentException("Slug already exists: " + updatedPost.getSlug());
-        }
-
-        if (updatedPost.getStatus() != existingPost.getStatus()
-                && updatedPost.getStatus() == PostStatus.PUBLISHED) {
-            updatedPost.setPublishedAt(LocalDateTime.now());
         }
     }
 
@@ -227,7 +255,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private String storeImageAndGetUrl(MultipartFile file) {
-        // Implement your actual image storage logic here
+        // Replace this with your real storage logic
         return "https://your-storage.com/" + file.getOriginalFilename();
     }
 

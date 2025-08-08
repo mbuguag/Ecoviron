@@ -31,9 +31,8 @@ public class BlogPostMapper {
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         dto.setPublishedAt(post.getPublishedAt());
-        dto.setStatus(post.getStatus().toString());
+        dto.setStatus(post.getStatus() != null ? post.getStatus().name() : null);
 
-        // Map author information with exact field name matching
         Optional.ofNullable(post.getAuthor())
                 .ifPresent(author -> {
                     BlogPostDto.AuthorDto authorDto = new BlogPostDto.AuthorDto();
@@ -66,7 +65,11 @@ public class BlogPostMapper {
         post.setTags(dto.getTags());
 
         if (dto.getStatus() != null) {
-            post.setStatus(BlogPost.PostStatus.valueOf(dto.getStatus().toUpperCase()));
+            try {
+                post.setStatus(BlogPost.PostStatus.valueOf(dto.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                post.setStatus(null); // or default to DRAFT
+            }
         }
 
         return post;

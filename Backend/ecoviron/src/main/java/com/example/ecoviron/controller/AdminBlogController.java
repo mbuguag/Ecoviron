@@ -46,7 +46,7 @@ public class AdminBlogController {
             @RequestParam(required = false) String status) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<BlogPost> postsPage = status != null && !status.isEmpty()
+        Page<BlogPost> postsPage = (status != null && !status.isEmpty())
                 ? blogService.getPostsByStatus(status, pageable)
                 : blogService.getAllPosts(pageable);
 
@@ -89,7 +89,6 @@ public class AdminBlogController {
 
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
-                // Use storageService instead of imageUploadController
                 String imageUrl = storageService.saveBlogImage(imageFile);
                 postDto.setImageUrl(imageUrl);
             }
@@ -97,6 +96,7 @@ public class AdminBlogController {
             BlogPost updated = blogService.updatePost(id, blogPostMapper.toEntity(postDto));
             return ResponseEntity.ok(blogPostMapper.toDto(updated));
         } catch (Exception e) {
+            log.error("Error updating post with id {}: {}", id, e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -104,8 +104,7 @@ public class AdminBlogController {
     @PutMapping("/{id}/status")
     public ResponseEntity<String> updatePostStatus(
             @PathVariable Long id,
-            @RequestParam BlogPost.PostStatus status
-    ) {
+            @RequestParam BlogPost.PostStatus status) {
         blogService.updatePostStatus(id, status);
         return ResponseEntity.ok("Status updated to " + status.name());
     }
