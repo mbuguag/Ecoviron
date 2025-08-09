@@ -13,6 +13,91 @@
   display: flex;
 }
 
+/* Blog Content Styling */
+#post-content {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.7;
+  color: #2d3748;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+#post-content h1,
+#post-content h2,
+#post-content h3,
+#post-content h4 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 1.5em 0 0.75em;
+}
+
+#post-content h1 {
+  font-size: 2rem;
+}
+
+#post-content h2 {
+  font-size: 1.75rem;
+}
+
+#post-content h3 {
+  font-size: 1.5rem;
+}
+
+#post-content h4 {
+  font-size: 1.25rem;
+}
+
+#post-content p {
+  margin-bottom: 1.25rem;
+  font-size: 1.05rem;
+}
+
+#post-content a {
+  color: #3182ce;
+  text-decoration: underline;
+}
+
+#post-content ul,
+#post-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+#post-content li {
+  margin-bottom: 0.5rem;
+}
+
+#post-content blockquote {
+  border-left: 4px solid #3182ce;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #4a5568;
+  font-style: italic;
+}
+
+#post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 768px) {
+  #post-content h1 {
+    font-size: 1.75rem;
+  }
+
+  #post-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .social-share {
+    justify-content: center;
+    margin: 1rem 0;
+  }
+}
+
 #blog-search {
   flex: 1;
   padding: 0.75rem 1rem;
@@ -201,6 +286,12 @@
   margin-bottom: 2rem;
 }
 
+#post-meta {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
 .author-info {
   display: flex;
   align-items: center;
@@ -354,3 +445,57 @@
   }
 }
 
+
+.social-share {
+  display: flex;
+  gap: 12px;
+  margin: 1.5rem 0;
+  align-items: center;
+}
+
+.share-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f7fa;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.share-btn.facebook:hover {
+  background: #3b5998;
+  color: white;
+}
+
+.share-btn.twitter:hover {
+  background: #1da1f2;
+  color: white;
+}
+
+.share-btn.linkedin:hover {
+  background: #0077b5;
+  color: white;
+}
+
+.share-label {
+  font-weight: 600;
+  color: #4a5568;
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.share-btn.share-native:hover {
+  background: #4a5568;
+  color: white;
+}
