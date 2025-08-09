@@ -7,23 +7,23 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    // Path to uploads directory, configurable from application.properties
-    @Value("${file.upload-dir:uploads}")
+    @Value("${file.upload-dir}")
     private String uploadDir;
 
-    // CORS Configuration for frontend access
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*") // for local frontend dev
+                        .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
@@ -31,17 +31,12 @@ public class WebConfig implements WebMvcConfigurer {
         };
     }
 
-    // Static resource handler for uploaded files
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Resolve uploads directory as absolute filesystem path
-        String uploadPath = Paths.get("uploads").toAbsolutePath().toString();
-        String resourceLocation = "file:" + uploadPath + "/";
-
+        String uploadPath = Paths.get(uploadDir).toAbsolutePath().toString();
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
-
-        System.out.println("✅ Serving /uploads/** from: " + resourceLocation);
+                .addResourceLocations("file:" + uploadPath + "/")
+                .setCachePeriod(3600);
     }
 
 }
