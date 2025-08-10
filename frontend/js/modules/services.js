@@ -13,11 +13,6 @@ export async function initServices() {
       .map(
         (service) => `
       <div class="service-card">
-        <img src="${API_BASE_URL.replace("/api", "")}${
-          service.imageUrl
-        }" alt="${service.title}" class="service-image"
-          onerror="this.style.display='none'"
- />
         <h3>${service.title}</h3>
         <p>${service.description}</p>
         <a href="${service.link}" class="btn-primary">Learn More</a>
