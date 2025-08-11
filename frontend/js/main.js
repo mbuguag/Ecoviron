@@ -10,6 +10,7 @@ import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
+import { BASE_PATH } from "./apiConfig.js";
 
 // Sticky Header Functionality
 function initStickyHeader() {
@@ -137,3 +138,7 @@ if (window.location.pathname.includes("checkout")) {
     .then(() => console.log(" checkout.js dynamically loaded"))
     .catch((err) => console.error(" Failed to load checkout.js", err));
 }
+
+
+// console.log("Base path:", BASE_PATH);
+// console.log("Component path:", resolvePath("components/header.html"));

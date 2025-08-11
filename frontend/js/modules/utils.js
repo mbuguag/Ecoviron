@@ -10,6 +10,7 @@ export function formatPrice(amount) {
   return `KES ${amount.toLocaleString()}`;
 }
 
+
 /**
  * Loads a component (like header/footer) into the specified container by ID.
  */
