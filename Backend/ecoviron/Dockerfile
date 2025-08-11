@@ -1,19 +1,23 @@
-#FROM ubuntu:latest
-#LABEL authors="Admin"
-#
-#ENTRYPOINT ["top", "-b"]
+# Build stage
+FROM maven:3.9.8-eclipse-temurin-21 AS builder
+WORKDIR /app
 
-FROM eclipse-temurin:21-jdk
+# Copy only pom.xml first (so dependencies are cached)
+COPY pom.xml ./
+RUN mvn dependency:resolve dependency:resolve-plugins
+
+# Now copy source code
+COPY src ./src
+
+# Package the app
+RUN mvn clean package spring-boot:repackage -DskipTests
+
+# Runtime stage
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
 
-RUN ./mvnw package -DskipTests
-
-COPY target/*.jar app.jar
-
-VOLUME /app/uploads
-
-ENTRYPOINT ["java","-jar","app.jar"]
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

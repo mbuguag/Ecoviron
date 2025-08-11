@@ -36,7 +36,7 @@ public class EmailService {
      */
     public void sendAdminNotification(ContactMessage message) {
         SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo("admin@example.com"); // Replace with actual admin
+        mail.setTo("mbuguajoseph481@gmail.com");
         mail.setFrom(sender);
         mail.setSubject("New Contact Message from " + message.getName());
         mail.setText(

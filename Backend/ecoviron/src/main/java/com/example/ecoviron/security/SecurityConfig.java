@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/api/images/**",
                                 "/api/public-blogs/tags",
                                 "/api/public-blogs/public{id}",
-                                "/api/public-blogs/public{id}/views"
+                                "/api/public-blogs/public{id}/views",
+                                "/actuator/health"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
