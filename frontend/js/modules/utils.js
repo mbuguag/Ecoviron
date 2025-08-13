@@ -79,3 +79,11 @@ export function scrollToElement(element, offset = 0) {
     behavior: 'smooth'
   });
 }
+
+
+export function validatePath(path) {
+  if (!path.startsWith(BASE_PATH)) {
+    console.warn(`Path ${path} doesn't start with BASE_PATH ${BASE_PATH}`);
+  }
+  return path;
+}

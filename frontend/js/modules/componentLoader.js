@@ -10,46 +10,30 @@ import {
 const componentCache = new Map();
 const LOAD_TIMEOUT = 5000; 
 
-export async function loadComponent(componentPath, containerId, options = {}) {
-  const { useCache = true, retries = 2 } = options;
-  const cacheKey = `${componentPath}|${containerId}`;
-
-  // Check cache first
-  if (useCache && COMPONENT_CACHE.has(cacheKey)) {
-    return _injectComponent(COMPONENT_CACHE.get(cacheKey), containerId);
-  }
-
+export async function loadComponent(relativePath, containerId) {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), LOAD_TIMEOUT);
-
-    const url = `${resolvePath(componentPath)}${isLocalDev ? `?t=${Date.now()}` : `?v=${APP_VERSION}`}`;
+    // Resolve path first
+    let url = resolvePath(relativePath);
     
-    const response = await fetch(url, { 
-      signal: controller.signal,
-      credentials: 'same-origin'
-    });
+    // Add cache buster for development
+    const cacheBuster = isLocalDev ? `?t=${Date.now()}` : '';
     
-    clearTimeout(timeoutId);
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const res = await fetch(`${url}${cacheBuster}`);
+    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
     
-    let html = await response.text();
-    html = _processTemplate(html);
+    let html = await res.text();
+    const container = document.getElementById(containerId);
     
-    if (useCache) COMPONENT_CACHE.set(cacheKey, html);
-    
-    return _injectComponent(html, containerId);
-    
-  } catch (error) {
-    console.error(`Component load error (${componentPath}):`, error);
-    
-    if (retries > 0) {
-      console.log(`Retrying ${componentPath}... (${retries} attempts left)`);
-      return loadComponent(componentPath, containerId, { ...options, retries: retries - 1 });
+    if (container) {
+      // Process BASE_PATH template literals
+      html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
+      container.innerHTML = html;
     }
     
-    return _loadFallback(componentPath, containerId);
+    return !!container;
+  } catch (err) {
+    console.error(`Error loading ${relativePath} into #${containerId}:`, err);
+    return false;
   }
 }
 

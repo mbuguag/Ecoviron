@@ -1,3 +1,4 @@
+
 const isLocalDev =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
@@ -26,24 +27,15 @@ export function formatPrice(amount) {
  * Resolves a relative component path into a fully qualified URL using BASE_PATH.
  */
 export function resolvePath(relativePath) {
-  if (relativePath.startsWith("/") || relativePath.startsWith("http")) {
-    return relativePath;
-  }
-  // Clean up double slashes
-  const path = (BASE_PATH + relativePath).replace(/\/+/g, '/');
-  return path;
+  if (relativePath.startsWith("http") || relativePath.startsWith("/")) return relativePath;
+  return (BASE_PATH + relativePath).replace(/\/+/g, '/');
 }
 
 /**
- * Resolves a static asset path (images, icons, etc.) to its full path using BASE_PATH.
+ * Resolve assets like images/icons
  */
 export function getAssetPath(relativePath) {
-  relativePath = relativePath.replace(/\\/g, "/").replace(/^\//, "");
-  if (relativePath.startsWith("http")) {
-    return relativePath;
-  }
-  const path = (BASE_PATH + relativePath).replace(/\/+/g, '/');
-  return path;
+  return resolvePath(relativePath.replace(/^\/+/, ""));
 }
 
 /**
@@ -58,32 +50,32 @@ export function getQueryParam(key) {
  * Dynamically loads a component (e.g. header, footer) into a container by ID.
  */
 export async function loadComponent(relativePath, containerId) {
-  const url = resolvePath(relativePath);
   try {
-    const cacheBuster = isLocalDev ? `?t=${new Date().getTime()}` : "";
-    const fullUrl = `${url}${cacheBuster}`;
+    // Resolve path first
+    let url = resolvePath(relativePath);
     
-    console.log(`🔍 Attempting to load: ${fullUrl}`);
+    // Add cache buster for development
+    const cacheBuster = isLocalDev ? `?t=${Date.now()}` : '';
     
-    const res = await fetch(fullUrl);
-    if (!res.ok) {
-      throw new Error(`Failed to load ${url}: ${res.status} ${res.statusText}`);
-    }
+    const res = await fetch(`${url}${cacheBuster}`);
+    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
     
-    const html = await res.text();
+    let html = await res.text();
     const container = document.getElementById(containerId);
     
     if (container) {
+      // Process BASE_PATH template literals
+      html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
       container.innerHTML = html;
-      console.log(`✅ Successfully loaded ${relativePath} into #${containerId}`);
-      return true;
     }
     
-    console.warn(`⚠️ Container #${containerId} not found`);
-    return false;
-    
+    return !!container;
   } catch (err) {
-    console.error(`❌ Error loading ${url} into #${containerId}:`, err);
+    console.error(`Error loading ${relativePath} into #${containerId}:`, err);
     return false;
   }
 }
+
+// Add this to your main.js or component loader
+console.log('Current BASE_PATH:', BASE_PATH);
+console.log('Resolved blog path:', resolvePath('blog/blog.html'));
