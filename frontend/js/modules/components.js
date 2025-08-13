@@ -1,102 +1,264 @@
 import { loadComponent, BASE_PATH } from '../apiConfig.js';
+
 export async function loadLayoutComponents() {
+  console.log('Starting layout component loading...');
+  console.log('BASE_PATH:', BASE_PATH);
+  
   try {
-    // Use BASE_PATH from Utils.js for consistent path resolution
-    const componentsBasePath = `${BASE_PATH}components/`;
-    
-    const [headerLoaded, footerLoaded] = await Promise.all([
-      loadComponent(`${componentsBasePath}header.html`, "header-container"),
-      loadComponent(`${componentsBasePath}footer.html`, "footer-container")
+    // Load components with better error handling
+    const [headerResult, footerResult] = await Promise.allSettled([
+      loadComponent('components/header.html', 'header-container'),
+      loadComponent('components/footer.html', 'footer-container')
     ]);
 
-    if (!headerLoaded || !footerLoaded) {
-      throw new Error("Failed to load layout components");
+    // Check results and provide detailed logging
+    const headerLoaded = headerResult.status === 'fulfilled' && headerResult.value;
+    const footerLoaded = footerResult.status === 'fulfilled' && footerResult.value;
+    
+    console.log('Header loaded:', headerLoaded);
+    console.log('Footer loaded:', footerLoaded);
+    
+    if (headerResult.status === 'rejected') {
+      console.error('Header loading failed:', headerResult.reason);
+    }
+    if (footerResult.status === 'rejected') {
+      console.error('Footer loading failed:', footerResult.reason);
     }
 
-    // Initialize component-specific functionality
-    initMobileMenu();
-    updateCopyrightYear();
+    // Load fallback for failed components
+    if (!headerLoaded) {
+      console.log('Loading fallback header...');
+      loadFallbackHeader();
+    }
     
-    return true;
+    if (!footerLoaded) {
+      console.log('Loading fallback footer...');
+      loadFallbackFooter();
+    }
+
+    // Initialize component-specific functionality after DOM is ready
+    // Use setTimeout to ensure DOM is fully processed
+    setTimeout(() => {
+      initMobileMenu();
+      updateCopyrightYear();
+    }, 100);
+    
+    return headerLoaded || footerLoaded; // Success if at least one loaded
   } catch (error) {
-    console.error("Component loading error:", error);
+    console.error('Unexpected error during component loading:', error);
     loadFallbackLayout();
     return false;
   }
 }
 
 function initMobileMenu() {
+  console.log('Initializing mobile menu...');
+  
   const menuToggle = document.querySelector('.mobile-menu-toggle');
-  if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-      const navMenu = document.querySelector('.nav-menu');
-      if (navMenu) {
-        navMenu.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-      }
-    });
+  const navMenu = document.querySelector('.nav-menu');
+  
+  console.log('Menu toggle found:', !!menuToggle);
+  console.log('Nav menu found:', !!navMenu);
+  
+  if (menuToggle && navMenu) {
+    // Remove any existing listeners to prevent duplicates
+    menuToggle.removeEventListener('click', handleMenuToggle);
+    menuToggle.addEventListener('click', handleMenuToggle);
     
     // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-menu-toggle')) {
-        document.querySelector('.nav-menu')?.classList.remove('active');
-        document.body.classList.remove('menu-open');
-      }
-    });
+    document.removeEventListener('click', handleOutsideClick);
+    document.addEventListener('click', handleOutsideClick);
+    
+    console.log('Mobile menu initialized successfully');
+  } else {
+    console.warn('Mobile menu elements not found - skipping initialization');
+  }
+}
+
+function handleMenuToggle(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const navMenu = document.querySelector('.nav-menu');
+  if (navMenu) {
+    const isActive = navMenu.classList.contains('active');
+    navMenu.classList.toggle('active');
+    document.body.classList.toggle('menu-open');
+    
+    console.log('Menu toggled:', !isActive);
+  }
+}
+
+function handleOutsideClick(e) {
+  if (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-menu-toggle')) {
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu && navMenu.classList.contains('active')) {
+      navMenu.classList.remove('active');
+      document.body.classList.remove('menu-open');
+      console.log('Menu closed by outside click');
+    }
   }
 }
 
 function updateCopyrightYear() {
   const yearElements = document.querySelectorAll('[data-current-year]');
   const currentYear = new Date().getFullYear();
+  
+  console.log(`Updating ${yearElements.length} copyright year elements to ${currentYear}`);
+  
   yearElements.forEach(el => {
     el.textContent = currentYear;
   });
 }
 
-function loadFallbackLayout() {
+function loadFallbackHeader() {
   const headerContainer = document.getElementById('header-container');
+  
+  if (headerContainer) {
+    headerContainer.innerHTML = `
+      <header class="default-header" style="
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      ">
+        <div class="container" style="
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+          <a href="${BASE_PATH}" class="logo" style="
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c5aa0;
+            text-decoration: none;
+          ">Ecoviron</a>
+          
+          <button class="mobile-menu-toggle" style="
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+          " aria-label="Toggle menu">☰</button>
+          
+          <nav class="nav-menu" style="
+            display: flex;
+            gap: 2rem;
+          ">
+            <a href="${BASE_PATH}" style="color: #333; text-decoration: none; padding: 0.5rem;">Home</a>
+            <a href="${BASE_PATH}services/" style="color: #333; text-decoration: none; padding: 0.5rem;">Services</a>
+            <a href="${BASE_PATH}products/" style="color: #333; text-decoration: none; padding: 0.5rem;">Products</a>
+            <a href="${BASE_PATH}about.html" style="color: #333; text-decoration: none; padding: 0.5rem;">About</a>
+            <a href="${BASE_PATH}contact.html" style="color: #333; text-decoration: none; padding: 0.5rem;">Contact</a>
+          </nav>
+        </div>
+      </header>
+      
+      <style>
+        @media (max-width: 768px) {
+          .mobile-menu-toggle {
+            display: block !important;
+          }
+          
+          .nav-menu {
+            display: none !important;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-direction: column;
+            padding: 1rem;
+          }
+          
+          .nav-menu.active {
+            display: flex !important;
+          }
+          
+          .nav-menu a {
+            padding: 0.75rem !important;
+            border-bottom: 1px solid #eee;
+          }
+        }
+      </style>
+    `;
+    
+    console.log('Fallback header loaded');
+  }
+}
+
+function loadFallbackFooter() {
   const footerContainer = document.getElementById('footer-container');
   
-  // Only load fallback if containers exist and are empty
-  if (headerContainer && !headerContainer.innerHTML.trim()) {
-    headerContainer.innerHTML = `
-      <header class="default-header">
-        <a href="${BASE_PATH}" class="logo">Ecoviron</a>
-        <button class="mobile-menu-toggle">☰</button>
-        <nav class="nav-menu">
-          <a href="${BASE_PATH}">Home</a>
-          <a href="${BASE_PATH}services">Services</a>
-          <a href="${BASE_PATH}products">Products</a>
-          <a href="${BASE_PATH}about">About</a>
-          <a href="${BASE_PATH}contact">Contact</a>
-        </nav>
-      </header>
-    `;
-  }
-
-  if (footerContainer && !footerContainer.innerHTML.trim()) {
+  if (footerContainer) {
     footerContainer.innerHTML = `
-      <footer class="default-footer">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h3>Quick Links</h3>
-            <a href="${BASE_PATH}">Home</a>
-            <a href="${BASE_PATH}services">Services</a>
-            <a href="${BASE_PATH}products">Products</a>
+      <footer class="default-footer" style="
+        background: #333;
+        color: #fff;
+        padding: 2rem 0 1rem;
+        margin-top: 2rem;
+      ">
+        <div class="container" style="
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        ">
+          <div class="footer-content" style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+          ">
+            <div class="footer-section">
+              <h3 style="margin-bottom: 1rem; color: #2c5aa0;">Quick Links</h3>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="${BASE_PATH}" style="color: #ccc; text-decoration: none;">Home</a>
+                <a href="${BASE_PATH}services/" style="color: #ccc; text-decoration: none;">Services</a>
+                <a href="${BASE_PATH}products/" style="color: #ccc; text-decoration: none;">Products</a>
+                <a href="${BASE_PATH}about.html" style="color: #ccc; text-decoration: none;">About</a>
+              </div>
+            </div>
+            <div class="footer-section">
+              <h3 style="margin-bottom: 1rem; color: #2c5aa0;">Contact Info</h3>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <p style="margin: 0; color: #ccc;">Email: info@ecoviron.co.ke</p>
+                <p style="margin: 0; color: #ccc;">Phone: +254 705 686 093</p>
+              </div>
+            </div>
           </div>
-          <div class="footer-section">
-            <h3>Legal</h3>
-            <a href="${BASE_PATH}privacy">Privacy Policy</a>
-            <a href="${BASE_PATH}terms">Terms of Service</a>
+          
+          <div style="
+            border-top: 1px solid #555;
+            padding-top: 1rem;
+            text-align: center;
+          ">
+            <p class="copyright" style="margin: 0; color: #ccc;">
+              © <span data-current-year>${new Date().getFullYear()}</span> Ecoviron. All rights reserved.
+            </p>
           </div>
         </div>
-        <p class="copyright">© <span data-current-year></span> Ecoviron. All rights reserved.</p>
       </footer>
     `;
-    updateCopyrightYear();
+    
+    console.log('Fallback footer loaded');
   }
+}
+
+function loadFallbackLayout() {
+  console.log('Loading complete fallback layout...');
+  loadFallbackHeader();
+  loadFallbackFooter();
   
-  // Initialize mobile menu for fallback UI
-  initMobileMenu();
+  // Initialize functionality for fallback components
+  setTimeout(() => {
+    initMobileMenu();
+    updateCopyrightYear();
+  }, 100);
 }
