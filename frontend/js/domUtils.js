@@ -1,4 +1,4 @@
-import { loadComponent, resolvePath, getAssetPath, formatPrice } from "./modules/Utils.js";
+import { loadComponent, resolvePath, getAssetPath, formatPrice } from "./modules/utils.js";
 
 export async function loadLayoutComponents() {
   try {
