@@ -10,6 +10,7 @@ import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
+import { BASE_PATH } from "./apiConfig.js";
 
 // Sticky Header Functionality
 function initStickyHeader() {
@@ -37,15 +38,19 @@ function initStickyHeader() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOM Content Loaded - Starting initialization...");
+  console.log("BASE_PATH:", BASE_PATH);
+  
   try {
+    console.log("Loading layout components...");
     await loadLayoutComponents();
+    console.log("Layout components loaded successfully");
 
     renderUserDropdown();
     const initTasks = [];
 
     // Initialize sticky header if header exists
     initTasks.push(initStickyHeader());
-
     initTasks.push(initBreadcrumbs());
 
     // Only load quote modal if the trigger exists
@@ -65,21 +70,24 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (document.getElementById("who-we-are-content"))
       initTasks.push(initAboutSection());
     if (document.getElementById("newsletter-form")) {
-  initTasks.push(initNewsletter());
+      initTasks.push(initNewsletter());
     }
     if (document.querySelector(".ppe-gallery-section")) {
       initTasks.push(initPPESlider());
     }
 
-
     // Always update cart badge count
     initTasks.push(updateMiniCartCount());
 
-    AOS.init();
+    // Initialize AOS if available
+    if (typeof AOS !== 'undefined') {
+      AOS.init();
+    }
 
-    // initTasks.push(addChatFab());
-
+    console.log(`Executing ${initTasks.length} initialization tasks...`);
     await Promise.all(initTasks);
+    console.log("All initialization tasks completed");
+    
   } catch (error) {
     console.error("Initialization error:", error);
 
@@ -88,11 +96,29 @@ window.addEventListener("DOMContentLoaded", async () => {
     const footer = document.getElementById("footer-container");
 
     if (header && header.innerHTML.trim() === "") {
-      header.innerHTML = `<header class="default-header"><a href="/">Bionix-EHS</a></header>`;
+      header.innerHTML = `<header class="default-header">
+        <div class="container">
+          <a href="${BASE_PATH}" class="logo">Ecoviron</a>
+          <nav class="nav-menu">
+            <a href="${BASE_PATH}">Home</a>
+            <a href="${BASE_PATH}about.html">About</a>
+            <a href="${BASE_PATH}contact.html">Contact</a>
+          </nav>
+        </div>
+      </header>`;
     }
 
     if (footer && footer.innerHTML.trim() === "") {
-      footer.innerHTML = `<footer class="default-footer"><p>© ${new Date().getFullYear()} Ecoviron</p></footer>`;
+      footer.innerHTML = `<footer class="default-footer">
+        <div class="container">
+          <p>© ${new Date().getFullYear()} Ecoviron - Environmental Solutions</p>
+          <div class="footer-links">
+            <a href="${BASE_PATH}">Home</a>
+            <a href="${BASE_PATH}about.html">About</a>
+            <a href="${BASE_PATH}contact.html">Contact</a>
+          </div>
+        </div>
+      </footer>`;
     }
   }
 });
@@ -107,37 +133,31 @@ window.initComponents = {
 
 // Export layout load check promise
 export const layoutLoaded = (async () => {
-  await loadLayoutComponents();
+  try {
+    await loadLayoutComponents();
 
-  const headerLoaded =
-    document.getElementById("header-container")?.innerHTML.trim().length > 0;
-  const footerLoaded =
-    document.getElementById("footer-container")?.innerHTML.trim().length > 0;
+    const headerLoaded =
+      document.getElementById("header-container")?.innerHTML.trim().length > 0;
+    const footerLoaded =
+      document.getElementById("footer-container")?.innerHTML.trim().length > 0;
 
-  if (!headerLoaded || !footerLoaded) {
-    throw new Error("Header or footer not loaded correctly");
+    if (!headerLoaded || !footerLoaded) {
+      console.warn("Header or footer not loaded correctly");
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Layout loading failed:", error);
+    return false;
   }
-
-  return true;
 })();
-
-// function addChatFab() {
-//   const fab = document.createElement("a");
-//   fab.href = "https://wa.me/254705686093";
-//   fab.target = "_blank";
-//   fab.className = "chat-fab";
-//   fab.innerHTML = `<img src="assets/icons/whatsapp.jpg" alt="Chat" />`;
-//   document.body.appendChild(fab);
-// }
-
 
 // Dynamically load checkout logic if on checkout page
 if (window.location.pathname.includes("checkout")) {
   import("./checkout.js")
-    .then(() => console.log(" checkout.js dynamically loaded"))
-    .catch((err) => console.error(" Failed to load checkout.js", err));
+    .then(() => console.log("checkout.js dynamically loaded"))
+    .catch((err) => console.error("Failed to load checkout.js", err));
 }
 
-
-// console.log("Base path:", BASE_PATH);
-// console.log("Component path:", resolvePath("components/header.html"));
+console.log("Main.js loaded - Base path:", BASE_PATH);

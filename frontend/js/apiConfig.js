@@ -12,7 +12,8 @@ export const STATIC_BASE_URL = isLocalDev
   ? "http://localhost:8080"
   : "https://ecoviron.vercel.app";
 
-export const BASE_PATH = isLocalDev ? "" : "/";
+// 👇 CRITICAL: Adjust based on your Vercel deployment structure
+export const BASE_PATH = isLocalDev ? "/frontend/" : "/";
 
 /**
  * Formats a number as KES currency.
@@ -28,7 +29,9 @@ export function resolvePath(relativePath) {
   if (relativePath.startsWith("/") || relativePath.startsWith("http")) {
     return relativePath;
   }
-  return BASE_PATH + relativePath;
+  // Clean up double slashes
+  const path = (BASE_PATH + relativePath).replace(/\/+/g, '/');
+  return path;
 }
 
 /**
@@ -39,7 +42,8 @@ export function getAssetPath(relativePath) {
   if (relativePath.startsWith("http")) {
     return relativePath;
   }
-  return BASE_PATH + relativePath;
+  const path = (BASE_PATH + relativePath).replace(/\/+/g, '/');
+  return path;
 }
 
 /**
@@ -58,18 +62,28 @@ export async function loadComponent(relativePath, containerId) {
   try {
     const cacheBuster = isLocalDev ? `?t=${new Date().getTime()}` : "";
     const fullUrl = `${url}${cacheBuster}`;
+    
+    console.log(`🔍 Attempting to load: ${fullUrl}`);
+    
     const res = await fetch(fullUrl);
-    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`Failed to load ${url}: ${res.status} ${res.statusText}`);
+    }
+    
     const html = await res.text();
     const container = document.getElementById(containerId);
+    
     if (container) {
       container.innerHTML = html;
+      console.log(`✅ Successfully loaded ${relativePath} into #${containerId}`);
       return true;
     }
-    console.warn(`Container #${containerId} not found`);
+    
+    console.warn(`⚠️ Container #${containerId} not found`);
     return false;
+    
   } catch (err) {
-    console.error(`Error loading ${url} into #${containerId}:`, err);
+    console.error(`❌ Error loading ${url} into #${containerId}:`, err);
     return false;
   }
 }
