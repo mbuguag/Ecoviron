@@ -1,0 +1,12 @@
+
+services:
+  frontend:
+    image: ecoviron-frontend
+    ports:
+      - "8081:80"
+    networks:
+      - ecoviron-net
+
+networks:
+  ecoviron-net:
+    external: true

@@ -1,0 +1,74 @@
+<header class="site-header">
+  <div class="container">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <a href="${BASE_PATH}" class="logo-link" aria-label="BIONIX-EHS Home">
+        <img src="${BASE_PATH}assets/icons/Bionix logo.jpg" alt="Bionix-HSE Logo" class="logo-img" width="65"
+          height="75" loading="lazy">
+        <h1 class="logo-text">BIONIX-EHS</h1>
+      </a>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"
+      aria-controls="primary-navigation">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="sr-only">Menu</span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="primary-navigation" aria-label="Primary navigation">
+      <ul class="nav-list">
+        <li><a href="${BASE_PATH}index.html" class="nav-link active" aria-current="page">Home</a></li>
+        <li><a href="${BASE_PATH}about.html" class="nav-link">About</a></li>
+        <li><a href="${BASE_PATH}services/services.html" class="nav-link">Services</a></li>
+        <li><a href="${BASE_PATH}blog/blog.html" class="nav-link">Blog</a></li>
+        <li><a href="${BASE_PATH}contact.html" class="nav-link">Contact</a></li>
+
+        <li class="dropdown" aria-haspopup="true">
+          <a href="${BASE_PATH}ecommerce/product-details.html" class="nav-link dropdown-toggle">
+            Products
+            <span class="dropdown-icon" aria-hidden="true">⌄</span>
+          </a>
+          <ul class="dropdown-content" aria-label="Products submenu">
+            <li><a href="${BASE_PATH}ecommerce/product-grid.html" class="dropdown-link">Shop</a></li>
+            <li><a href="${BASE_PATH}ecommerce/cart.html" class="dropdown-link">Cart</a></li>
+          </ul>
+        </li>
+
+        <li class="cart-item">
+          <a href="${BASE_PATH}ecommerce/cart.html" class="cart-icon-link" aria-label="Shopping cart">
+            <svg class="cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span id="mini-cart-count" class="cart-count-badge" aria-live="polite">0</span>
+          </a>
+        </li>
+
+        <li id="authArea" class="auth-area">
+          <!-- Dynamic auth content will be inserted here -->
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- For screen readers -->
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
