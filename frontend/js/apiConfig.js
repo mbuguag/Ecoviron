@@ -5,14 +5,14 @@ const isLocalDev =
 // 👇 Base URL for API endpoints (used for /api/* routes)
 export const API_BASE_URL = isLocalDev
   ? "http://localhost:8080/api"
-  : "https://www.bionix-hse.co.ke/api";
+  : "https://ecoviron.vercel.app/api";
 
 // 👇 Base URL for serving static content like /uploads/**
 export const STATIC_BASE_URL = isLocalDev
   ? "http://localhost:8080"
-  : "https://your-live-api.com";
+  : "https://ecoviron.vercel.app";
 
-export const BASE_PATH = isLocalDev ? "/frontend/" : "/";
+export const BASE_PATH = isLocalDev ? "" : "/";
 
 /**
  * Formats a number as KES currency.
