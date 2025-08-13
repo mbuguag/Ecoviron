@@ -1,4 +1,4 @@
-import { formatPrice } from "./Utils.js";
+import { formatPrice } from "./utils.js";
 import { API_BASE_URL } from "../apiConfig.js";
 
 export async function initFeaturedProducts() {
