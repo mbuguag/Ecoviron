@@ -1,6 +1,13 @@
 import { loadComponent, BASE_PATH } from '../apiConfig.js';
 
+let componentsLoaded = false;
+
 export async function loadLayoutComponents() {
+  if (componentsLoaded) {
+    console.log('Components already loaded, skipping...');
+    return true;
+  }
+  
   console.log('Starting layout component loading...');
   console.log('BASE_PATH:', BASE_PATH);
   
@@ -43,6 +50,7 @@ export async function loadLayoutComponents() {
       updateCopyrightYear();
     }, 100);
     
+    componentsLoaded = true;
     return headerLoaded || footerLoaded; // Success if at least one loaded
   } catch (error) {
     console.error('Unexpected error during component loading:', error);
