@@ -39,15 +39,16 @@ export const ENV_CONFIG = {
     preview: "/",
     production: "/"
   }
+  }
 };
 
 /**
  * Get environment-specific base URL for API endpoints
  */
-export const BASE_PATH = (() => {
-  if (isLocalDev) return ENV_CONFIG.basePath.local;
-  if (isPreviewEnv) return ENV_CONFIG.basePath.preview;
-  return ENV_CONFIG.basePath.production;
+export const API_BASE_URL = (() => {
+  if (isLocalDev) return ENV_CONFIG.api.local;
+  if (isPreviewEnv) return ENV_CONFIG.api.preview;
+  return ENV_CONFIG.api.production;
 })();
 
 /**
