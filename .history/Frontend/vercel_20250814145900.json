@@ -44,10 +44,6 @@
   ],
   "routes": [
     {
-      "src": "/components/(.*)",
-      "dest": "/components/$1"
-    },
-    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },
