@@ -9,9 +9,7 @@ const isLocalDev =
 const isPreviewEnv = window.location.hostname.includes('vercel.app') && 
   !window.location.hostname.startsWith('ecoviron-git-master');
 
-const COMPONENT_BASE = isProduction 
-  ? 'https://ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app/components/'
-  : '/components/';
+const isProduction = window.location.hostname === 'ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app';
 
 // Base URLs configuration
 export const ENV_CONFIG = {

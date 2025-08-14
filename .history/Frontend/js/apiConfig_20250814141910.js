@@ -6,12 +6,9 @@ const isLocalDev =
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.endsWith('.local');
 
-const isPreviewEnv = window.location.hostname.includes('vercel.app') && 
-  !window.location.hostname.startsWith('ecoviron-git-master');
-
-const COMPONENT_BASE = isProduction 
-  ? 'https://ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app/components/'
-  : '/components/';
+const isPreviewEnv = 
+  window.location.hostname.includes('vercel.app') && 
+  !window.location.hostname.startsWith('ecoviron');
 
 // Base URLs configuration
 export const ENV_CONFIG = {
@@ -24,7 +21,8 @@ export const ENV_CONFIG = {
     local: "http://localhost:8080",
     preview: "https://ecoviron-git-*.vercel.app",
     production: "https://ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app"
-  },
+  }
+};
   basePath: {
     local: "/frontend/",
     preview: "/",
@@ -170,7 +168,6 @@ export async function loadComponent(relativePath, containerId, retries = 3) {
     return false;
   }
 }
-
 
 // Environment logging
 console.log('Environment:', {
