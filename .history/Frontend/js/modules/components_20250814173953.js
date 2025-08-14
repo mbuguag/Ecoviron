@@ -1,15 +1,22 @@
-import { loadComponent, BASE_PATH, getAssetPath, resolvePath } from '../apiConfig.js';
+import { BASE_URL, getAssetPath, loadComponent } from '../apiConfig.js';
 
-// State management
+const CONFIG = {
+  maxRetries: 3,
+  retryDelay: 1000,
+  debounceTime: 150,
+  lazyLoadSelectors: '[data-src], [data-srcset]',
+  mobileMenuActiveClass: 'active',
+  bodyMenuOpenClass: 'menu-open'
+};
+
 const layoutState = {
   componentsLoaded: false,
   headerLoaded: false,
   footerLoaded: false,
   retryCount: 0,
-  maxRetries: 2
+  observers: []
 };
 
-// Cache DOM elements
 const domCache = {
   headerContainer: null,
   footerContainer: null,
@@ -17,17 +24,22 @@ const domCache = {
   navMenu: null
 };
 
+/**
+ * Main Layout Loader
+ */
 export async function loadLayoutComponents() {
   if (layoutState.componentsLoaded) return true;
   
   console.log('Initializing layout component loading...');
   initializeDOMElements();
+  showLoadingStates();
 
   try {
     await loadComponentsWithRetry();
     initializeLayoutFeatures();
     layoutState.componentsLoaded = true;
-    return layoutState.headerLoaded || layoutState.footerLoaded;
+    console.log('Layout components loaded successfully');
+    return true;
   } catch (error) {
     console.error('Critical error loading layout components:', error);
     loadFallbackLayout();
@@ -38,12 +50,21 @@ export async function loadLayoutComponents() {
 /** -----------------------------
  * Core Loading Functions
  * ----------------------------- */
+
 async function loadComponentsWithRetry() {
-  while (layoutState.retryCount <= layoutState.maxRetries) {
+  while (layoutState.retryCount <= CONFIG.maxRetries) {
     try {
       const [headerResult, footerResult] = await Promise.allSettled([
-        loadComponent('components/header.html', 'header-container'),
-        loadComponent('components/footer.html', 'footer-container')
+        loadComponent('header.html', 'header-container', {
+          retries: 1,
+          cacheBust: isLocalDev,
+          fallback: false // We'll handle fallback at higher level
+        }),
+        loadComponent('footer.html', 'footer-container', {
+          retries: 1,
+          cacheBust: isLocalDev,
+          fallback: false
+        })
       ]);
 
       layoutState.headerLoaded = handleComponentResult(headerResult, 'header');
@@ -57,16 +78,16 @@ async function loadComponentsWithRetry() {
     }
 
     layoutState.retryCount++;
-    if (layoutState.retryCount <= layoutState.maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, 1000 * layoutState.retryCount));
+    if (layoutState.retryCount <= CONFIG.maxRetries) {
+      await new Promise(r => setTimeout(r, CONFIG.retryDelay * layoutState.retryCount));
     }
   }
 
-  throw new Error(`Failed to load components after ${layoutState.maxRetries} retries`);
+  throw new Error(`Failed to load components after ${CONFIG.maxRetries} retries`);
 }
 
 function handleComponentResult(result, componentType) {
-  if (result.status === 'fulfilled' && result.value) {
+  if (result.status === 'fulfilled' && result.value && isValidComponent(result.value)) {
     return true;
   }
   
@@ -79,9 +100,17 @@ function handleComponentResult(result, componentType) {
   return false;
 }
 
+function isValidComponent(html) {
+  if (!html) return false;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.children.length > 0;
+}
+
 /** -----------------------------
  * DOM Initialization
  * ----------------------------- */
+
 function initializeDOMElements() {
   domCache.headerContainer = document.getElementById('header-container');
   domCache.footerContainer = document.getElementById('footer-container');
@@ -89,30 +118,56 @@ function initializeDOMElements() {
   domCache.navMenu = document.querySelector('.nav-menu');
 }
 
+function showLoadingStates() {
+  showLoadingState('header-container');
+  showLoadingState('footer-container');
+}
+
+function showLoadingState(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = `
+      <div class="component-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading ${containerId.replace('-container', '')}...</p>
+      </div>
+    `;
+  }
+}
+
 function initializeLayoutFeatures() {
-  // Debounce to ensure DOM is ready
+  cleanupEventListeners();
+  
   const initTimeout = setTimeout(() => {
     initMobileMenu();
     updateCopyrightYear();
     setupIntersectionObserver();
     clearTimeout(initTimeout);
-  }, 150);
+  }, CONFIG.debounceTime);
+}
+
+function cleanupEventListeners() {
+  if (domCache.menuToggle) {
+    domCache.menuToggle.removeEventListener('click', handleMenuToggle);
+  }
+  document.removeEventListener('click', handleOutsideClick);
+  document.removeEventListener('keydown', handleEscapeKey);
 }
 
 /** -----------------------------
- * Mobile Menu & Dynamic Features
+ * Mobile Menu Functionality
  * ----------------------------- */
+
 function initMobileMenu() {
-  if (!domCache.menuToggle || !domCache.navMenu) return;
+  if (!domCache.menuToggle || !domCache.navMenu) {
+    console.warn('Mobile menu elements not found');
+    return;
+  }
 
-  // Clean up existing listeners
-  domCache.menuToggle.replaceWith(domCache.menuToggle.cloneNode(true));
-  document.removeEventListener('click', handleOutsideClick);
-  document.removeEventListener('keydown', handleEscapeKey);
-
-  // Initialize new listeners
-  domCache.menuToggle = document.querySelector('.mobile-menu-toggle');
-  domCache.navMenu = document.querySelector('.nav-menu');
+  // Clone to remove existing listeners
+  const newToggle = domCache.menuToggle.cloneNode(true);
+  domCache.menuToggle.replaceWith(newToggle);
+  domCache.menuToggle = newToggle;
 
   domCache.menuToggle.addEventListener('click', handleMenuToggle);
   document.addEventListener('click', handleOutsideClick);
@@ -122,11 +177,11 @@ function initMobileMenu() {
 function handleMenuToggle(e) {
   e.preventDefault();
   e.stopPropagation();
-  domCache.navMenu.classList.toggle('active');
-  document.body.classList.toggle('menu-open');
+  domCache.navMenu.classList.toggle(CONFIG.mobileMenuActiveClass);
+  document.body.classList.toggle(CONFIG.bodyMenuOpenClass);
   domCache.menuToggle.setAttribute(
     'aria-expanded', 
-    domCache.navMenu.classList.contains('active')
+    domCache.navMenu.classList.contains(CONFIG.mobileMenuActiveClass)
   );
 }
 
@@ -143,9 +198,9 @@ function handleEscapeKey(e) {
 }
 
 function closeMobileMenu() {
-  if (domCache.navMenu?.classList.contains('active')) {
-    domCache.navMenu.classList.remove('active');
-    document.body.classList.remove('menu-open');
+  if (domCache.navMenu?.classList.contains(CONFIG.mobileMenuActiveClass)) {
+    domCache.navMenu.classList.remove(CONFIG.mobileMenuActiveClass);
+    document.body.classList.remove(CONFIG.bodyMenuOpenClass);
     domCache.menuToggle?.setAttribute('aria-expanded', 'false');
   }
 }
@@ -153,32 +208,37 @@ function closeMobileMenu() {
 /** -----------------------------
  * Performance Optimizations
  * ----------------------------- */
-function setupIntersectionObserver() {
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const lazyElement = entry.target;
-          if (lazyElement.dataset.src) {
-            lazyElement.src = lazyElement.dataset.src;
-          }
-          if (lazyElement.dataset.srcset) {
-            lazyElement.srcset = lazyElement.dataset.srcset;
-          }
-          observer.unobserve(lazyElement);
-        }
-      });
-    });
 
-    document.querySelectorAll('[data-src], [data-srcset]').forEach(el => {
-      observer.observe(el);
+function setupIntersectionObserver() {
+  if (!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const lazyElement = entry.target;
+        if (lazyElement.dataset.src) {
+          lazyElement.src = lazyElement.dataset.src;
+        }
+        if (lazyElement.dataset.srcset) {
+          lazyElement.srcset = lazyElement.dataset.srcset;
+        }
+        observer.unobserve(lazyElement);
+      }
     });
-  }
+  });
+
+  document.querySelectorAll(CONFIG.lazyLoadSelectors).forEach(el => {
+    observer.observe(el);
+  });
+
+  // Store for potential cleanup
+  layoutState.observers.push(observer);
 }
 
 /** -----------------------------
  * Fallback Components
  * ----------------------------- */
+
 function loadFallbackHeader() {
   if (!domCache.headerContainer) return;
 
@@ -225,6 +285,8 @@ function loadFallbackHeader() {
 function loadFallbackFooter() {
   if (!domCache.footerContainer) return;
 
+  const currentYear = new Date().getFullYear();
+  
   domCache.footerContainer.innerHTML = `
     <footer class="site-footer fallback">
       <div class="container">
@@ -247,7 +309,7 @@ function loadFallbackFooter() {
           </div>
         </div>
         <div class="footer-bottom">
-          <p>© <span data-current-year></span> BIONIX-EHS. All rights reserved.</p>
+          <p>© <span data-current-year>${currentYear}</span> BIONIX-EHS. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -310,6 +372,29 @@ function injectFallbackStyles() {
       color: white;
       text-decoration: none;
     }
+
+    .component-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      color: #666;
+    }
+    
+    .loading-spinner {
+      border: 3px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      border-top: 3px solid #046d04;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
     
     @media (min-width: 769px) {
       .site-header.fallback .nav-menu {
@@ -332,6 +417,10 @@ function injectFallbackStyles() {
   document.head.appendChild(style);
 }
 
+/** -----------------------------
+ * Utility Functions
+ * ----------------------------- */
+
 function updateCopyrightYear() {
   const yearElements = document.querySelectorAll('[data-current-year]');
   const currentYear = new Date().getFullYear();
@@ -346,4 +435,16 @@ function loadFallbackLayout() {
   loadFallbackHeader();
   loadFallbackFooter();
   initializeLayoutFeatures();
+}
+
+/** -----------------------------
+ * Cleanup Function (optional)
+ * ----------------------------- */
+
+export function cleanupLayoutComponents() {
+  cleanupEventListeners();
+  layoutState.observers.forEach(observer => {
+    observer.disconnect();
+  });
+  layoutState.observers = [];
 }

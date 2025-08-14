@@ -15,13 +15,13 @@ export const ENV_CONFIG = {
   api: {
     local: "http://localhost:8080/api",
     preview: "https://ecoviron-git-*.vercel.app/api",
-    production: "https://ecoviron.vercel.app/api"
+    production: "https://ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app/api"
   },
   static: {
     local: "http://localhost:8080",
     preview: "https://ecoviron-git-*.vercel.app",
-    production: "https://ecoviron.vercel.app"
-  },
+    production: "https://ecoviron-git-master-joseph-mbuguas-projects-d22cf105.vercel.app"
+  }
   basePath: {
     local: "/frontend/",
     preview: "/",
