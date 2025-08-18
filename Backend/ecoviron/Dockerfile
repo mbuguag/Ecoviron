@@ -1,23 +1,18 @@
-# Build stage
-FROM maven:3.9.8-eclipse-temurin-21 AS builder
+# ===== BUILD STAGE =====
+FROM maven:3.9.8-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy only pom.xml first (so dependencies are cached)
-COPY pom.xml ./
-RUN mvn dependency:resolve dependency:resolve-plugins
-
-# Now copy source code
-COPY src ./src
-
-# Package the app
-RUN mvn clean package spring-boot:repackage -DskipTests
-
-# Runtime stage
-FROM eclipse-temurin:21-jre-jammy
-
+# ===== RUN STAGE =====
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
+COPY --from=build /app/target/ecoviron-0.0.1-SNAPSHOT.jar app.jar
 
-COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
+# Set environment variables (adjust values as needed)
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://host:5432/ecoviron_pos
+ENV SPRING_DATASOURCE_USERNAME=ecoviron_pos_user
+ENV SPRING_DATASOURCE_PASSWORD=hqYSJJSGtT9w66A7Ee4Gl3RPEYSUjpIO
 
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 10000
+CMD ["sh", "-c", "java -Dserver.port=10000 -jar app.jar"]
