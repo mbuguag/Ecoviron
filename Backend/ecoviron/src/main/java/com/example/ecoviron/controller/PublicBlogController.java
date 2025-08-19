@@ -13,10 +13,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/public-blogs")
-@CrossOrigin(
-        origins = {"http://127.0.0.1:5500", "http://localhost:5500"},
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT}
-)
+
 
 public class PublicBlogController {
 

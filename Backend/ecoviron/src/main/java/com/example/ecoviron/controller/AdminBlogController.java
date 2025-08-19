@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/admin-blogs")
 @PreAuthorize("hasRole('ADMIN')")
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"})
 public class AdminBlogController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminBlogController.class);

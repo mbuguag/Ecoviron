@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/quotes")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AdminQuoteController {
 
     private final QuoteRequestService quoteRequestService;

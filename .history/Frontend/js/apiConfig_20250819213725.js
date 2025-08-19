@@ -19,8 +19,8 @@ export const ENV_CONFIG = {
   },
   static: {
     local: "http://localhost:8080",
-    preview: "https://www.bionix-hse.co.ke/",
-    production: "https://www.bionix-hse.co.ke/"
+    preview: "https://ecoviron-git-*.vercel.app",
+    production: "https://ecoviron.vercel.app"
   },
   basePath: {
     local: "/frontend/",

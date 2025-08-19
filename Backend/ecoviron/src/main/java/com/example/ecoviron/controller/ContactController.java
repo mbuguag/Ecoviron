@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/contact")
-@CrossOrigin
 @RequiredArgsConstructor
 public class ContactController {
 

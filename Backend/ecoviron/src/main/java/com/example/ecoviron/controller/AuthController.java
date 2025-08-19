@@ -27,7 +27,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin
 public class AuthController {
     @Autowired
     private final UserRepository userRepository;

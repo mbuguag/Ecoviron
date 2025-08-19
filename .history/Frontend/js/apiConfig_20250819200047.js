@@ -14,13 +14,13 @@ const isPreviewEnv =
 export const ENV_CONFIG = {
   api: {
     local: "http://localhost:8080/api",
-    preview: "https://www.bionix-hse.co.ke/",
-    production: "/api"
+    preview: "https://ecoviron-git-*.vercel.app/api",
+    production: "/"
   },
   static: {
     local: "http://localhost:8080",
-    preview: "https://www.bionix-hse.co.ke/",
-    production: "https://www.bionix-hse.co.ke/"
+    preview: "https://ecoviron-git-*.vercel.app",
+    production: "https://ecoviron.vercel.app"
   },
   basePath: {
     local: "/frontend/",
