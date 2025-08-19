@@ -1,4 +1,4 @@
-import { loadComponent, resolvePath, getAssetPath, formatPrice } from "./apiConfig.js"res
+import { loadComponent, resolvePath, getAssetPath, formatPrice } from "modules/ut";
 
 export async function loadLayoutComponents() {
   try {
