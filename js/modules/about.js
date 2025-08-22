@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../apiConfig.js";
+import { BASE_PATH } from "../apiConfig.js";
 
 export function initAboutSection() {
-  return fetch(`${API_BASE_URL}/about`)
+  return fetch(`${BASE_PATH}/about`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch about content: ${response.status}`);

@@ -3,7 +3,8 @@ import { fetchAllProducts } from "./api.js";
 import { setupCartInteractions } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
 
-const BACKEND_URL = "http://localhost:8080";
+
+const BACKEND_URL = "https://api.bionix-hse.co.ke";
 let originalProducts = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
