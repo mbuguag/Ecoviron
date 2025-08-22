@@ -1,12 +1,12 @@
 import { formatPrice } from "./utils.js";
-import { API_BASE_URL } from "../apiConfig.js";
+import { BASE_PATH } from "../apiConfig.js";
 
 export async function initFeaturedProducts() {
   const container = document.getElementById("featured-products-grid");
   if (!container) return;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/products/featured`);
+    const response = await fetch(`${BASE_PATH}/products/featured`);
     if (!response.ok) throw new Error("Failed to fetch featured products");
 
     const featuredProducts = await response.json();

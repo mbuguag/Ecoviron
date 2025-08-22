@@ -1,32 +1,66 @@
 /**
+ * apiConfig.js
+ * Centralized config for API and static asset paths
+ */
+
+/**
  * Environment Detection Utilities
  */
-const isLocalDev = 
+export const isLocalDev = 
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.endsWith('.local');
 
-const isPreviewEnv = 
+export const isPreviewEnv = 
   window.location.hostname.includes('vercel.app') && 
   !window.location.hostname.startsWith('ecoviron');
+
+// Auto-detect the correct base path for components
+function detectComponentsBasePath() {
+  // For local development with Live Server (VSCode) running from project root
+  if (isLocalDev) {
+    // Check if we're in a subdirectory structure
+    const currentPath = window.location.pathname;
+    
+    // If running from project root with frontend/ structure
+    if (currentPath.includes('/frontend/')) {
+      return '/frontend/components/';
+    }
+    
+    // Default for local development
+    return '/components/';
+  }
+  
+  // For production/preview, use absolute paths
+  if (isPreviewEnv) {
+    return "https://your-preview-domain.vercel.app/components/";
+  }
+  
+  return "https://bionix-hse.co.ke/components/";
+}
 
 // Base URLs configuration
 export const ENV_CONFIG = {
   api: {
     local: "http://localhost:8080/api",
-    preview: "https://ecoviron-git-*.vercel.app/api",
-    production: "https://ecoviron.vercel.app/api"
+    preview: "https://bionix-1.onrender.com/api",
+    production: "https://api.bionix-hse.co.ke/api"
   },
   static: {
-    local: "http://localhost:8080",
-    preview: "https://ecoviron-git-*.vercel.app",
-    production: "https://ecoviron.vercel.app"
+    local: "http://localhost:3000",
+    preview: "https://your-preview-domain.vercel.app",
+    production: "https://bionix-hse.co.ke"
   },
   basePath: {
-    local: "/frontend/",
+    local: "/",
     preview: "/",
     production: "/"
   }
+};
+
+// Create the config object that components.js is expecting
+export const config = {
+  COMPONENTS_BASE: detectComponentsBasePath()
 };
 
 /**
@@ -117,55 +151,138 @@ export function getQueryParam(key, defaultValue = null) {
 }
 
 /**
- * Advanced component loader with retry mechanism
+ * Advanced component loader with multiple fallback paths
  */
-export async function loadComponent(relativePath, containerId, retries = 3) {
-  try {
-    const url = getAssetPath(relativePath, isLocalDev);
-    const container = document.getElementById(containerId);
-
-    if (!container) {
-      throw new Error(`Container #${containerId} not found`);
-    }
-
-    const load = async (attempt) => {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.text();
-      } catch (err) {
-        if (attempt <= retries) {
-          console.warn(`Retry ${attempt} for ${url}`);
-          await new Promise(r => setTimeout(r, 1000 * attempt));
-          return load(attempt + 1);
-        }
-        throw err;
-      }
-    };
-
-    let html = await load(1);
-    html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
-    container.innerHTML = html;
-
-    return true;
-  } catch (err) {
-    console.error(`Failed to load ${relativePath}:`, err);
-    
-    // Fallback UI for production
-    if (!isLocalDev && containerId) {
-      const container = document.getElementById(containerId);
-      if (container) {
-        container.innerHTML = `
-          <div class="component-error">
-            <p>Component failed to load. Please refresh the page.</p>
-            <button onclick="window.location.reload()">Retry</button>
-          </div>
-        `;
-      }
-    }
-    
+export async function loadComponent(fileName, containerId, maxRetries = 3) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container #${containerId} not found for ${fileName}`);
     return false;
   }
+
+  // Priority-ordered candidate paths based on environment
+  const candidatePaths = [
+    // First try the configured base path
+    `${config.COMPONENTS_BASE}${fileName}`,
+    
+    // Then try absolute paths from root
+    `/components/${fileName}`,
+    `/frontend/components/${fileName}`,
+    
+    // Then try relative paths (for different directory structures)
+    `./components/${fileName}`,
+    `../components/${fileName}`,
+    `../../components/${fileName}`,
+    
+    // Then try origin-based paths
+    `${window.location.origin}/components/${fileName}`,
+    `${STATIC_BASE_URL}/components/${fileName}`
+  ];
+
+  console.log('Trying to load component from paths:', candidatePaths);
+
+  let lastError = null;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    for (const url of candidatePaths) {
+      try {
+        console.log(`Trying: ${url}`);
+        const response = await fetch(url, { 
+          cache: isLocalDev ? "no-store" : "default",
+          headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          }
+        });
+
+        if (!response.ok) {
+          console.warn(`[loadComponent] ${fileName} not found at ${url} (${response.status})`);
+          continue;
+        }
+
+        let html = await response.text();
+        
+        // Replace template variables
+        html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
+        html = html.replace(/\${STATIC_BASE_URL}/g, STATIC_BASE_URL);
+        
+        container.innerHTML = html;
+        console.log(`✅ Successfully loaded ${fileName} from ${url}`);
+        return true;
+
+      } catch (err) {
+        console.warn(`[loadComponent] Fetch failed for ${url}:`, err.message);
+        lastError = err;
+      }
+    }
+
+    retryCount++;
+    if (retryCount < maxRetries) {
+      const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 5000);
+      console.log(`Retrying ${fileName} in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  // All attempts failed
+  console.error(`❌ Failed to load ${fileName} after ${maxRetries} attempts. Last error:`, lastError);
+  
+  // Show user-friendly error message
+  if (!isLocalDev) {
+    container.innerHTML = `
+      <div class="component-error" style="
+        padding: 1rem;
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        border-radius: 4px;
+        color: #721c24;
+        text-align: center;
+        margin: 0.5rem 0;
+      ">
+        <p>⚠️ ${fileName.replace('.html', '')} component failed to load.</p>
+        <button onclick="window.location.reload()" style="
+          background: #dc3545;
+          color: white;
+          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          cursor: pointer;
+        ">Retry</button>
+      </div>
+    `;
+  }
+  
+  return false;
+}
+
+/**
+ * Batch component loader for multiple components
+ */
+export async function loadComponents(components) {
+  if (!Array.isArray(components) || components.length === 0) {
+    console.warn('loadComponents called with invalid components array');
+    return {};
+  }
+
+  const results = await Promise.allSettled(
+    components.map(({ fileName, containerId }) => 
+      loadComponent(fileName, containerId).then(success => ({ fileName, containerId, success }))
+    )
+  );
+
+  const summary = {};
+  results.forEach((result, index) => {
+    const { fileName } = components[index];
+    if (result.status === 'fulfilled') {
+      summary[fileName] = result.value.success;
+    } else {
+      summary[fileName] = false;
+      console.error(`Component loading promise rejected for ${fileName}:`, result.reason);
+    }
+  });
+
+  console.log('Batch component loading summary:', summary);
+  return summary;
 }
 
 // Environment logging
@@ -174,5 +291,6 @@ console.log('Environment:', {
   isPreviewEnv,
   BASE_PATH,
   API_BASE_URL,
-  STATIC_BASE_URL
+  STATIC_BASE_URL,
+  COMPONENTS_BASE: config.COMPONENTS_BASE
 });

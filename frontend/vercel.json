@@ -5,6 +5,10 @@
       "src": "/*.html",
       "use": "@vercel/static"
     },
+     {
+      "src": "/components/*.html",
+      "use": "@vercel/static"
+    },
     {
       "src": "/css/*.css",
       "use": "@vercel/static"
@@ -39,6 +43,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/components/(.*)",
+      "dest": "/components/$1"
+    },
     {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
