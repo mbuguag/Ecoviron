@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>My Wishlist | Ecoviron Shop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+    <div id="header-container"></div>
+
+<main class="section-padding">
+    <div class="container">
+      <h2>My Wishlist</h2>
+      <div id="wishlist-grid" class="grid-three-columns">
+        <!-- JS will inject saved items here -->
+      </div>
+      <div id="empty-message" class="empty-state" style="display: none;">
+        <p>Your wishlist is empty.</p>
+        <a href="product-grid.html" class="btn">Browse Products</a>
+      </div>
+    </div>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/wishlist-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-container">
+    <!-- Company Information -->
+    <div class="footer-brand">
+      <h2 class="footer-logo">BIONIX-EHS</h2>
+      <p class="footer-tagline">Environmental Consultancy Services</p>
+      <p class="footer-mission">Providing sustainable environmental solutions for a greener future</p>
+    </div>
+
+    <!-- Main Footer Content -->
+    <div class="footer-grid">
+      <!-- Navigation Links -->
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <h3 class="footer-heading">Quick Links</h3>
+        <ul class="footer-nav-list">
+          <li><a href="${BASE_PATH}index.html" class="footer-link">Home</a></li>
+          <li><a href="${BASE_PATH}about.html" class="footer-link">About Us</a></li>
+          <li><a href="${BASE_PATH}services/services.html" class="footer-link">Our Services</a></li>
+          <li><a href="${BASE_PATH}blog/blog.html" class="footer-link">Insights</a></li>
+          <li><a href="${BASE_PATH}contact.html" class="footer-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Contact Information -->
+      <div class="footer-contact">
+        <h3 class="footer-heading">Get In Touch</h3>
+        <address class="footer-address">
+          <p>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:info@bionixehs.co.ke" class="footer-link">info@bionixehs.co.ke</a>
+          </p>
+          <p>
+            <i class="fas fa-phone-alt"></i>
+            <a href="tel:+254117835225" class="footer-link">+254 117 835 225</a>
+          </p>
+          <p>
+            <i class="fas fa-clock"></i>
+            Mon-Fri: 8:00 AM - 5:00 PM
+          </p>
+        </address>
+      </div>
+
+      <!-- Social/Newsletter -->
+      <div class="footer-connect">
+        <h3 class="footer-heading">Connect With Us</h3>
+        <div class="footer-socials">
+          <a href="https://facebook.com/share/17AnuxSZix/" target="_blank" rel="noopener noreferrer"
+            class="footer-social-link" aria-label="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://linkedin.com/in/bionix-solutions-712282377" target="_blank" rel="noopener noreferrer"
+            class="footer-social-link" aria-label="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="https://wa.me/254117835225" target="_blank" rel="noopener noreferrer"
+            class="footer-social-link whatsapp-link" aria-label="Chat on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+        </div>
+
+        <div class="footer-newsletter">
+          <h4 class="footer-subheading">Stay Updated</h4>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Your email address" aria-label="Email for newsletter" required>
+            <button type="submit" class="footer-button">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal/Copyright -->
+    <div class="footer-legal">
+      <div class="footer-copyright">
+        &copy; <span data-current-year>2025</span> BIONIX-EHS Environmental Consultancy. All rights reserved.
+      </div>
+      <div class="footer-links-legal">
+        <a href="${BASE_PATH}privacy.html" class="footer-link">Privacy Policy</a>
+        <a href="${BASE_PATH}terms.html" class="footer-link">Terms of Service</a>
+        <a href="${BASE_PATH}sitemap.html" class="footer-link">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* ===== FOOTER STYLES ===== */
+  .site-footer {
+    --footer-bg-dark: #034f03;
+    --footer-bg-light: #046d04;
+    --footer-text: rgba(255, 255, 255, 0.9);
+    --footer-heading: #ffffff;
+    --footer-accent: #4CAF50;
+    --footer-link-hover: #ffffff;
+    --footer-border: rgba(255, 255, 255, 0.1);
+    --footer-social-bg: rgba(255, 255, 255, 0.1);
+    --footer-social-hover: #ffffff;
+    --footer-button-bg: #388E3C;
+    --footer-button-hover: #2E7D32;
+
+    background: linear-gradient(135deg, var(--footer-bg-dark) 0%, var(--footer-bg-light) 100%);
+    color: var(--footer-text);
+    padding: 3rem 0 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+
+  .footer-container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Brand Section */
+  .footer-brand {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--footer-border);
+  }
+
+  .footer-logo {
+    color: var(--footer-heading);
+    font-size: 1.8rem;
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+
+  .footer-tagline {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    font-weight: 500;
+  }
+
+  .footer-mission {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+  }
+
+  /* Footer Grid Layout */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Navigation Section */
+  .footer-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  /* Contact Section */
+  .footer-address {
+    font-style: normal;
+    margin: 0;
+  }
+
+  .footer-address p {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0 0 0.8rem;
+  }
+
+  .footer-address i {
+    width: 1rem;
+    text-align: center;
+  }
+
+  /* Connect Section */
+  .footer-socials {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .footer-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--footer-social-bg);
+    color: var(--footer-text);
+    transition: all 0.3s ease;
+  }
+
+  .footer-social-link:hover {
+    background: var(--footer-social-hover);
+    color: var(--footer-bg-dark);
+    transform: translateY(-3px);
+  }
+
+  .whatsapp-link {
+    background: #25D366;
+    color: white;
+  }
+
+  .whatsapp-link:hover {
+    background: #128C7E;
+    color: white;
+  }
+
+  /* Newsletter Form */
+  .newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  .footer-button {
+    background: var(--footer-button-bg);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0 1.2rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .footer-button:hover {
+    background: var(--footer-button-hover);
+  }
+
+  /* Legal Section */
+  .footer-legal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--footer-border);
+    font-size: 0.85rem;
+  }
+
+  .footer-links-legal {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Typography */
+  .footer-heading {
+    color: var(--footer-heading);
+    font-size: 1.2rem;
+    margin: 0 0 1.2rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .footer-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--footer-accent);
+  }
+
+  .footer-subheading {
+    font-size: 1rem;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--footer-heading);
+  }
+
+  .footer-link {
+    color: var(--footer-text);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--footer-link-hover);
+    text-decoration: underline;
+  }
+
+  /* Responsive Adjustments */
+  @media (min-width: 768px) {
+    .footer-legal {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .footer-links-legal {
+      margin-top: 0;
+    }
+
+    .footer-brand {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .footer-grid {
+      grid-template-columns: 2fr 1.5fr 2fr;
+    }
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .site-footer {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  [data-current-year] {
+    display: inline-block;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Update copyright year
+    const yearElements = document.querySelectorAll('[data-current-year]');
+    const currentYear = new Date().getFullYear();
+
+    yearElements.forEach(el => {
+      el.textContent = currentYear;
+    });
+
+    // Newsletter form handling
+    const newsletterForms = document.querySelectorAll('.newsletter-form');
+    newsletterForms.forEach(form => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const emailInput = this.querySelector('input[type="email"]');
+        // Here you would typically send the email to your server
+        console.log('Subscribed email:', emailInput.value);
+        emailInput.value = '';
+        alert('Thank you for subscribing!');
+      });
+    });
+  });
+</script>

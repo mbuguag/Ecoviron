@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>Admin Panel - Orders</title>
+        <script>
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "admin-login.html";
+            }
+        </script>
+        <link rel="stylesheet" href="css/admin-style.css" />
+    </head>
+
+    <body>
+        <div class="sidebar">
+            <h2>EcoAdmin</h2>
+            <ul>
+                <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="admin-products.html">Products</a></li>
+                <li><a href="admin-orders.html">Orders</a></li>
+                <li><a href="admin-users.html">Users</a></li>
+                <li><a href="logout.html">Logout</a></li>
+            </ul>
+        </div>
+        <div class="admin-container">
+            <h2>Orders</h2>
+            <table id="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <script>
+            fetch("/api/orders", {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token")
+                }
+            })
+                .then((res) => res.json())
+                .then((orders) => {
+                    const table = document.querySelector("#orders-table tbody");
+                    orders.forEach((order) => {
+                        const row = `
+            <tr>
+              <td>${order.id}</td>
+              <td>${order.user?.email}</td>
+              <td>${new Date(order.date).toLocaleString()}</td>
+              <td>KES ${order.totalAmount.toFixed(2)}</td>
+              <td>${order.status}</td>
+            </tr>
+          `;
+                        table.innerHTML += row;
+                    });
+                });
+        </script>
+    </body>
+
+</html>
