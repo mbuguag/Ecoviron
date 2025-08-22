@@ -14,21 +14,20 @@ const isPreviewEnv =
 export const ENV_CONFIG = {
   api: {
     local: "http://localhost:8080/api",
-    preview: "https://bionix-1.onrender.com/api",   // keep for vercel preview deploys
-    production: "https://api.bionix-hse.co.ke/api"  // use your custom domain
+    preview: "https://ecoviron-git-*.vercel.app/api",
+    production: "https://ecoviron.vercel.app/api"
   },
   static: {
-    local: "http://localhost:3000", // or wherever Vercel dev runs
-    preview: "https://your-preview-domain.vercel.app",
-    production: "https://bionix-hse.co.ke"
+    local: "http://localhost:8080",
+    preview: "https://ecoviron-git-*.vercel.app",
+    production: "https://ecoviron.vercel.app"
   },
   basePath: {
-    local: "/",
+    local: "/frontend/",
     preview: "/",
     production: "/"
   }
 };
-
 
 /**
  * Get environment-specific base URL for API endpoints
