@@ -2,12 +2,14 @@ import { mergeGuestCartWithServer } from "./modules/guestCartMerge.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 
 // Redirect after login based on context (checkout or normal)
-function getPostLoginRedirect(role = "USER") {
+function getPostLoginRedirect() {
   const redirect = sessionStorage.getItem("redirectAfterLogin");
   sessionStorage.removeItem("redirectAfterLogin");
 
+  // Validate the redirect URL for security
   if (redirect) {
     try {
+      // Ensure the redirect stays within our domain
       const url = new URL(redirect, window.location.origin);
       if (url.origin === window.location.origin) {
         return redirect;
@@ -17,14 +19,9 @@ function getPostLoginRedirect(role = "USER") {
     }
   }
 
-  // ✅ Role-based fallback
-  if (role === "ADMIN") {
-    return "/admin/admin-dashboard.html"; // works both locally & on Vercel
-  }
-
-  return "/"; // homepage for normal users
+  // Default fallback
+  return "/"; // Adjusted to your main page
 }
-
 
 // Login Handler
 export function handleLogin(formId, endpoint) {
