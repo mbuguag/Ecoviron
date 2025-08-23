@@ -24,7 +24,7 @@ function getPostLoginRedirect() {
   }
 
   // Default fallback
-  return "/index.html"; // Adjusted to your main page
+  return "/index"; // Adjusted to your main page
 }
 
 // Login Handler
