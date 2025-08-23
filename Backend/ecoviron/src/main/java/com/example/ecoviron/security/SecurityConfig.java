@@ -101,20 +101,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
+        config.setAllowedOriginPatterns(List.of(
                 "https://bionix-hse.co.ke",
                 "https://www.bionix-hse.co.ke",
-                "http://localhost:3000",     // local dev frontend (optional)
-                "http://127.0.0.1:3000"      // local dev frontend (optional)
+                "https://*.vercel.app",    // allow all preview deploys
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true); //works because origins are explicit
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
 
     @Bean
