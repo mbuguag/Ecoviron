@@ -19,12 +19,8 @@ function getPostLoginRedirect() {
     }
   }
 
-  if (role === "ADMIN") {
-    return "/admin/admin-dashboard.html"; // works both locally & on Vercel
-  }
-  
   // Default fallback
-  return "/"; // Adjusted to your main page
+  return "/frontend/index.html"; // Adjusted to your main page
 }
 
 // Login Handler
@@ -126,7 +122,7 @@ export function handleRegister(formId, endpoint) {
 // Token Refresh (optional)
 export async function refreshToken() {
   try {
-    const res = await fetch("https://api.bionix-hse.co.ke/api/auth/refresh", {
+    const res = await fetch("https://api.bionix-hse.co.ke/auth/refresh", {
       method: "POST",
       credentials: "include",
     });

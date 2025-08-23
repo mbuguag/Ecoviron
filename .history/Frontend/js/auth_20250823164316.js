@@ -19,12 +19,8 @@ function getPostLoginRedirect() {
     }
   }
 
-  if (role === "ADMIN") {
-    return "/admin/admin-dashboard.html"; // works both locally & on Vercel
-  }
-  
   // Default fallback
-  return "/"; // Adjusted to your main page
+  return "/frontend/index.html"; // Adjusted to your main page
 }
 
 // Login Handler
