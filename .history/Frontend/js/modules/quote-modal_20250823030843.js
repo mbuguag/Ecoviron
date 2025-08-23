@@ -12,15 +12,12 @@ export async function loadQuoteModal() {
     modalContainer.innerHTML = html;
     document.body.appendChild(modalContainer);
 
-    // Ensure single toast
-    let toast = document.getElementById("toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "toast";
-      toast.className = "toast hidden";
-      document.body.appendChild(toast);
-    }
+    // Toast setup
     let toastTimeout;
+    const toast = document.createElement("div");
+    toast.id = "toast";
+    toast.className = "toast hidden";
+    document.body.appendChild(toast);
 
     const modal = document.getElementById("quoteModal");
     const openBtn = document.querySelector('[data-toggle="quote-modal"]');
@@ -30,45 +27,32 @@ export async function loadQuoteModal() {
     if (!modal) return;
 
     // Open modal
-    function openModal() {
-      modal.style.display = "flex";
-      modal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden"; // lock scroll
-    }
-
-    // Close modal
-    function closeModal() {
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = ""; // unlock scroll
-    }
-
-    // Open button
     if (openBtn) {
       openBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        openModal();
+        modal.style.display = "flex";
+        modal.setAttribute("aria-hidden", "false");
       });
     }
 
-    // Close button
+    // Close modal
     if (closeBtn) {
-      closeBtn.addEventListener("click", closeModal);
+      closeBtn.addEventListener("click", () => {
+        closeModal();
+      });
     }
 
-    // Close on outside click
-    modal.addEventListener("click", (e) => {
-      if (e.target.classList.contains("modal-overlay")) {
+    // Close if clicked outside
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) {
         closeModal();
       }
     });
 
-    // Close on Escape key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && modal.style.display === "flex") {
-        closeModal();
-      }
-    });
+    function closeModal() {
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
 
     // Handle submission
     if (form) {

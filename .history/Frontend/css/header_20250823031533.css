@@ -3,12 +3,10 @@
     --primary-color: #2c5aa0;
     --primary-dark: #1e3d6f;
     --secondary-color: #00a651;
-    --header-green: #155215;
-    /* Exact green color from screenshot */
     --accent-color: #f39200;
     --text-dark: #333333;
     --text-light: #ffffff;
-    --bg-light: #f8faf8;
+    --bg-light: #f8f9fa;
     --border-color: #e0e0e0;
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -26,8 +24,7 @@
     top: 0;
     left: 0;
     right: 0;
-    background: var(--header-green);
-    /* Changed from white to green */
+    background: var(--text-light);
     border-bottom: 2px solid var(--primary-color);
     box-shadow: var(--shadow);
     z-index: 1000;
@@ -56,8 +53,7 @@
 
 .header-logo-link {
     text-decoration: none;
-    color: var(--text-light);
-    /* Changed to white for better contrast on green */
+    color: var(--primary-color);
     transition: var(--transition);
 }
 
@@ -70,9 +66,10 @@
     font-weight: 700;
     margin: 0;
     letter-spacing: -0.5px;
-    color: var(--text-light);
-    /* White text for better contrast */
-    /* Removed gradient background to use solid white text */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* Desktop Navigation */
@@ -91,8 +88,7 @@
 
 .header-nav-link {
     text-decoration: none;
-    color: var(--text-light);
-    /* Changed to white for visibility on green background */
+    color: var(--text-dark);
     font-weight: 500;
     font-size: 0.95rem;
     padding: 0.75rem 0;
@@ -104,8 +100,7 @@
 }
 
 .header-nav-link:hover {
-    color: var(--accent-color);
-    /* Changed hover color to accent orange */
+    color: var(--primary-color);
 }
 
 .header-nav-link::after {
@@ -115,7 +110,7 @@
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--accent-color), var(--text-light));
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     transition: width 0.3s ease;
 }
 
@@ -125,7 +120,7 @@
 }
 
 .header-nav-link[aria-current="page"] {
-    color: var(--accent-color);
+    color: var(--primary-color);
     font-weight: 600;
 }
 
@@ -194,14 +189,12 @@
     position: relative;
     padding: 0.75rem !important;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    /* Semi-transparent white background */
+    background: var(--bg-light);
     transition: var(--transition);
-    color: var(--text-light) !important;
 }
 
 .cart-icon-link:hover {
-    background: var(--accent-color);
+    background: var(--primary-color);
     color: var(--text-light) !important;
     transform: scale(1.1);
 }
@@ -256,14 +249,12 @@
 .user-dropdown .header-nav-link {
     padding: 0.75rem !important;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    /* Semi-transparent white background */
+    background: var(--bg-light);
     transition: var(--transition);
-    color: var(--text-light) !important;
 }
 
 .user-dropdown .header-nav-link:hover {
-    background: var(--accent-color);
+    background: var(--primary-color);
     color: var(--text-light) !important;
 }
 
@@ -276,8 +267,8 @@
     display: inline-block;
     width: 12px;
     height: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid var(--text-light);
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-left: 0.5rem;
@@ -310,14 +301,13 @@
 }
 
 .header-menu-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--bg-light);
 }
 
 .header-hamburger-line {
     width: 24px;
     height: 2px;
-    background: var(--text-light);
-    /* White hamburger lines for visibility */
+    background: var(--text-dark);
     margin: 2px 0;
     transition: var(--transition);
 }
@@ -513,8 +503,7 @@
 .cart-icon-link:focus,
 .header-menu-toggle:focus,
 .mobile-nav-close:focus {
-    outline: 2px solid var(--accent-color);
-    /* Changed to accent color for better visibility */
+    outline: 2px solid var(--primary-color);
     outline-offset: 2px;
 }
 

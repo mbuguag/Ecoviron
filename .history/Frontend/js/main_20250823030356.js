@@ -18,7 +18,7 @@ import { BASE_PATH } from "./apiConfig.js";
  * Sticky Header
  */
 function initStickyHeader() {
-  const headerEl = document.querySelector(".site-header");
+  const headerEl = document.querySelector(".");
   if (!headerEl) return;
 
   const stickyClass = "sticky";
