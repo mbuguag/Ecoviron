@@ -1,45 +1,30 @@
-/**
- * apiConfig.js
- * Centralized config for API and static asset paths
- */
+// Detect environment
+const isLocalDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const isPreviewEnv = window.location.hostname.includes("vercel.app");
 
 /**
- * Environment Detection Utilities
+ * Detect base path for loading components (header, footer, etc.)
  */
-export const isLocalDev = 
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname.endsWith('.local');
-
-export const isPreviewEnv = 
-  window.location.hostname.includes('vercel.app') && 
-  !window.location.hostname.startsWith('ecoviron');
-
-// Auto-detect the correct base path for components
 function detectComponentsBasePath() {
-  // For local development with Live Server (VSCode) running from project root
   if (isLocalDev) {
-    // Check if we're in a subdirectory structure
-    const currentPath = window.location.pathname;
-    
-    // If running from project root with frontend/ structure
-    if (currentPath.includes('/frontend/')) {
-      return '/frontend/components/';
+    // Local dev can be run either at /frontend/ or directly at root
+    if (window.location.pathname.includes("/frontend/")) {
+      return "/frontend/components/";
     }
-    
-    // Default for local development
-    return '/components/';
+    return "/components/";
   }
-  
-  // For production/preview, use absolute paths
+
   if (isPreviewEnv) {
     return "https://your-preview-domain.vercel.app/components/";
   }
-  
-  return "https://bionix-hse.co.ke/components/";
+
+  // ✅ Always use canonical www domain in production
+  return "https://www.bionix-hse.co.ke/components/";
 }
 
-// Base URLs configuration
+/**
+ * Environment config
+ */
 export const ENV_CONFIG = {
   api: {
     local: "http://localhost:8080/api",
@@ -49,7 +34,7 @@ export const ENV_CONFIG = {
   static: {
     local: "http://localhost:3000",
     preview: "https://your-preview-domain.vercel.app",
-    production: "https://bionix-hse.co.ke"
+    production: "https://www.bionix-hse.co.ke"
   },
   basePath: {
     local: "/",
@@ -58,100 +43,94 @@ export const ENV_CONFIG = {
   }
 };
 
-// Create the config object that components.js is expecting
+// Exported config
 export const config = {
   COMPONENTS_BASE: detectComponentsBasePath()
 };
 
 /**
- * Get environment-specific base URL for API endpoints
+ * Environment-specific URLs
  */
-export const API_BASE_URL = (() => {
-  if (isLocalDev) return ENV_CONFIG.api.local;
-  if (isPreviewEnv) return ENV_CONFIG.api.preview;
-  return ENV_CONFIG.api.production;
-})();
+export const API_BASE_URL = isLocalDev
+  ? ENV_CONFIG.api.local
+  : isPreviewEnv
+    ? ENV_CONFIG.api.preview
+    : ENV_CONFIG.api.production;
+
+export const STATIC_BASE_URL = isLocalDev
+  ? ENV_CONFIG.static.local
+  : isPreviewEnv
+    ? ENV_CONFIG.static.preview
+    : ENV_CONFIG.static.production;
+
+export const BASE_PATH = isLocalDev
+  ? ENV_CONFIG.basePath.local
+  : isPreviewEnv
+    ? ENV_CONFIG.basePath.preview
+    : ENV_CONFIG.basePath.production;
 
 /**
- * Get environment-specific base URL for static assets
+ * Format price with currency
  */
-export const STATIC_BASE_URL = (() => {
-  if (isLocalDev) return ENV_CONFIG.static.local;
-  if (isPreviewEnv) return ENV_CONFIG.static.preview;
-  return ENV_CONFIG.static.production;
-})();
-
-/**
- * Get environment-specific base path
- */
-export const BASE_PATH = (() => {
-  if (isLocalDev) return ENV_CONFIG.basePath.local;
-  if (isPreviewEnv) return ENV_CONFIG.basePath.preview;
-  return ENV_CONFIG.basePath.production;
-})();
-
-/**
- * Enhanced currency formatting
- */
-export function formatPrice(amount, currency = 'KES') {
+export function formatPrice(amount, currency = "KES") {
   if (isNaN(amount)) {
-    console.warn('Invalid amount provided to formatPrice:', amount);
-    return `${currency} 0`;
+    console.warn("Invalid amount for formatPrice:", amount);
+    return `${currency} 0.00`;
   }
-  return new Intl.NumberFormat('en-KE', {
-    style: 'currency',
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
     currency,
     minimumFractionDigits: 2
   }).format(amount);
 }
 
 /**
- * Robust path resolution with validation
+ * Resolve relative paths against base path
  */
 export function resolvePath(relativePath) {
-  if (!relativePath) {
-    console.error('resolvePath called with empty path');
-    return BASE_PATH;
-  }
+  if (!relativePath) return BASE_PATH;
 
-  if (relativePath.startsWith('http') || relativePath.startsWith('//')) {
+  if (relativePath.startsWith("http") || relativePath.startsWith("//")) {
     return relativePath;
   }
 
-  if (relativePath.startsWith('/')) {
-    return `${BASE_PATH}${relativePath.substring(1)}`.replace(/\/+/g, '/');
+  if (relativePath.startsWith("/")) {
+    return `${BASE_PATH}${relativePath.substring(1)}`.replace(/\/+/g, "/");
   }
 
-  return `${BASE_PATH}${relativePath}`.replace(/\/+/g, '/');
+  return `${BASE_PATH}${relativePath}`.replace(/\/+/g, "/");
 }
 
 /**
- * Asset path resolver with cache busting
+ * Asset resolver (with optional cache-busting)
  */
 export function getAssetPath(relativePath, bustCache = false) {
-  const cleanPath = relativePath.replace(/^\/+/, '');
+  const cleanPath = relativePath.replace(/^\/+/, "");
   const resolvedPath = resolvePath(cleanPath);
-  
-  return bustCache 
-    ? `${resolvedPath}${resolvedPath.includes('?') ? '&' : '?'}t=${Date.now()}`
+
+  return bustCache
+    ? `${resolvedPath}${resolvedPath.includes("?") ? "&" : "?"}t=${Date.now()}`
     : resolvedPath;
 }
 
 /**
- * Comprehensive query parameter handling
+ * Get query parameters safely
  */
 export function getQueryParam(key, defaultValue = null) {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(key) ?? defaultValue;
   } catch (err) {
-    console.error('Error parsing query params:', err);
+    console.error("Error parsing query params:", err);
     return defaultValue;
   }
 }
 
 /**
- * Advanced component loader with multiple fallback paths
+ * Load a single component into a container
+ */
+/**
+ * Load a single component into a container with localStorage cache
  */
 export async function loadComponent(fileName, containerId, maxRetries = 3) {
   const container = document.getElementById(containerId);
@@ -160,39 +139,37 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
     return false;
   }
 
-  // Priority-ordered candidate paths based on environment
+  const CACHE_KEY = `component_cache_${fileName}`;
+  const CACHE_EXPIRY = 1000 * 60 * 10; // 10 minutes
+
+  // 1️⃣ Try cached version first
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (cached && (Date.now() - cached.timestamp < CACHE_EXPIRY)) {
+      container.innerHTML = cached.html;
+    }
+  } catch (err) {
+    console.warn(`[cache] Parse error for ${fileName}:`, err);
+  }
+
+  // 2️⃣ Always attempt fresh fetch in background
   const candidatePaths = [
-    // First try the configured base path
-    `${config.COMPONENTS_BASE}${fileName}`,
-    
-    // Then try absolute paths from root
-    `/components/${fileName}`,
-    `/frontend/components/${fileName}`,
-    
-    // Then try relative paths (for different directory structures)
-    `./components/${fileName}`,
-    `../components/${fileName}`,
-    `../../components/${fileName}`,
-    
-    // Then try origin-based paths
-    `${window.location.origin}/components/${fileName}`,
-    `${STATIC_BASE_URL}/components/${fileName}`
+    `${config.COMPONENTS_BASE}${fileName}`,     // main path
+    `/frontend/components/${fileName}`,        // dev fallback
+    `./components/${fileName}`,                // relative fallback
+    `../components/${fileName}`,               // relative fallback
+    `${STATIC_BASE_URL}/components/${fileName}` // absolute static
   ];
 
-  console.log('Trying to load component from paths:', candidatePaths);
-
   let lastError = null;
-  let retryCount = 0;
 
-  while (retryCount < maxRetries) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     for (const url of candidatePaths) {
       try {
-        console.log(`Trying: ${url}`);
-        const response = await fetch(url, { 
+        console.log(`[loadComponent] Trying: ${url}`);
+        const response = await fetch(url, {
           cache: isLocalDev ? "no-store" : "default",
-          headers: {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-          }
+          headers: { Accept: "text/html" }
         });
 
         if (!response.ok) {
@@ -201,92 +178,75 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
         }
 
         let html = await response.text();
-        
-        // Replace template variables
         html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
         html = html.replace(/\${STATIC_BASE_URL}/g, STATIC_BASE_URL);
-        
-        container.innerHTML = html;
-        console.log(`✅ Successfully loaded ${fileName} from ${url}`);
-        return true;
 
+        // Update DOM (replaces cache if it was old)
+        container.innerHTML = html;
+
+        // Save to cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          html,
+          timestamp: Date.now()
+        }));
+
+        console.log(`✅ Loaded ${fileName} from ${url}`);
+        return true;
       } catch (err) {
         console.warn(`[loadComponent] Fetch failed for ${url}:`, err.message);
         lastError = err;
       }
     }
 
-    retryCount++;
-    if (retryCount < maxRetries) {
-      const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 5000);
-      console.log(`Retrying ${fileName} in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
+    // exponential backoff retry
+    if (attempt < maxRetries - 1) {
+      const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+      console.log(`Retrying ${fileName} in ${delay}ms (attempt ${attempt + 2}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 
-  // All attempts failed
-  console.error(`❌ Failed to load ${fileName} after ${maxRetries} attempts. Last error:`, lastError);
-  
-  // Show user-friendly error message
+  console.error(`❌ Failed to load ${fileName} after ${maxRetries} retries. Last error:`, lastError);
+
   if (!isLocalDev) {
     container.innerHTML = `
-      <div class="component-error" style="
-        padding: 1rem;
-        background: rgba(220, 53, 69, 0.1);
-        border: 1px solid rgba(220, 53, 69, 0.3);
-        border-radius: 4px;
-        color: #721c24;
-        text-align: center;
-        margin: 0.5rem 0;
-      ">
-        <p>⚠️ ${fileName.replace('.html', '')} component failed to load.</p>
-        <button onclick="window.location.reload()" style="
-          background: #dc3545;
-          color: white;
-          border: none;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          cursor: pointer;
-        ">Retry</button>
-      </div>
-    `;
+      <div class="component-error">
+        ⚠️ ${fileName.replace(".html", "")} failed to load.
+        <button onclick="window.location.reload()">Retry</button>
+      </div>`;
   }
-  
+
   return false;
 }
 
+
 /**
- * Batch component loader for multiple components
+ * Load multiple components at once
  */
 export async function loadComponents(components) {
-  if (!Array.isArray(components) || components.length === 0) {
-    console.warn('loadComponents called with invalid components array');
-    return {};
-  }
+  if (!Array.isArray(components) || components.length === 0) return {};
 
   const results = await Promise.allSettled(
-    components.map(({ fileName, containerId }) => 
-      loadComponent(fileName, containerId).then(success => ({ fileName, containerId, success }))
+    components.map(({ fileName, containerId }) =>
+      loadComponent(fileName, containerId).then(success => ({ fileName, success }))
     )
   );
 
   const summary = {};
-  results.forEach((result, index) => {
-    const { fileName } = components[index];
-    if (result.status === 'fulfilled') {
-      summary[fileName] = result.value.success;
-    } else {
-      summary[fileName] = false;
-      console.error(`Component loading promise rejected for ${fileName}:`, result.reason);
+  results.forEach((res, i) => {
+    const { fileName } = components[i];
+    summary[fileName] = res.status === "fulfilled" ? res.value.success : false;
+    if (res.status === "rejected") {
+      console.error(`[loadComponents] Failed for ${fileName}:`, res.reason);
     }
   });
 
-  console.log('Batch component loading summary:', summary);
+  console.log("Batch component load summary:", summary);
   return summary;
 }
 
-// Environment logging
-console.log('Environment:', {
+// Debug environment info
+console.log("Environment:", {
   isLocalDev,
   isPreviewEnv,
   BASE_PATH,
