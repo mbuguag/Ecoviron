@@ -30,7 +30,9 @@
   <script type="module">
     import { handleRegister } from "../js/auth.js";
     import { API_BASE_URL } from "../js/apiConfig.js";
-    handleRegister("registerForm", `${API_BASE_URL}/auth/register`);
+
+      handleLogin("loginForm", `${API_BASE_URL}/auth/login`);
+    handleRegister("registerForm", "http://api.bionix-hse.co.ke/api/auth/register");
   </script>
 </body>
 </html>
