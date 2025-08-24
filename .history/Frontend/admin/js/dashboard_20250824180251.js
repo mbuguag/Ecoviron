@@ -1,5 +1,5 @@
 // dashboard.js
-const BACKEND_URL = "https://api.bionix-hse.co.ke/api"
+const BACKEND_URL = "https://api.bionix-hse.co.ke/api"";
 export const API_BASE = {
   dashboard: `${BACKEND_URL}/api/admin/summary`,
   products: `${BACKEND_URL}/api/admin/products`,

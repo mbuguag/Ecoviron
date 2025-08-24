@@ -1,16 +1,20 @@
 // dashboard.js
-const BACKEND_URL = "https://api.bionix-hse.co.ke/api"
+import { API_BASE_URL } from "./apiConfig.js";
+
+// Define all API endpoints centrally
 export const API_BASE = {
-  dashboard: `${BACKEND_URL}/api/admin/summary`,
-  products: `${BACKEND_URL}/api/admin/products`,
-  uploadProduct: `${BACKEND_URL}/api/admin/products/upload`,
-  blogs: `${BACKEND_URL}/api/admin-blogs`,
-  orders: `${BACKEND_URL}/api/orders`,
-  users: `${BACKEND_URL}/api/users`,
-  contacts: `${BACKEND_URL}/api/contact/admin/messages`,
-  quotes: `${BACKEND_URL}/api/admin/quote-requests`,
-  blogImage: `${BACKEND_URL}/api/images/upload/blog`,
+  dashboard: `${API_BASE_URL}/admin/summary`,
+  products: `${API_BASE_URL}/admin/products`,
+  uploadProduct: `${API_BASE_URL}/admin/products/upload`,
+  blogs: `${API_BASE_URL}/admin-blogs`,
+  orders: `${API_BASE_URL}/orders`,
+  users: `${API_BASE_URL}/users`,
+  contacts: `${API_BASE_URL}/contact/admin/messages`,
+  quotes: `${API_BASE_URL}/admin/quote-requests`,
+  blogImage: `${API_BASE_URL}/images/upload/blog`,
 };
+
+// ========== Helpers ==========
 
 export function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
@@ -29,12 +33,10 @@ export function authFetch(url, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-  return fetch(url, {
-    ...options,
-    headers,
-  });
+  return fetch(url, { ...options, headers });
 }
 
+// ========== Init ==========
 
 let quill;
 
@@ -59,10 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBlog();
   });
 
-  document
-    .getElementById("cancelEdit")
-    ?.addEventListener("click", resetBlogForm);
+  document.getElementById("cancelEdit")?.addEventListener("click", resetBlogForm);
 });
+
+// ========== Section Switching ==========
 
 function showSection(sectionId) {
   document.querySelectorAll(".admin-section").forEach((sec) => {
@@ -70,43 +72,26 @@ function showSection(sectionId) {
   });
 
   switch (sectionId) {
-    case "dashboard":
-      loadDashboard();
-      break;
-    case "products":
-      loadProducts();
-      break;
-    case "orders":
-      loadOrders();
-      break;
-    case "users":
-      loadUsers();
-      break;
-    case "blogs":
-      loadBlogs();
-      break;
-    case "contacts":
-      loadContactMessages();
-      break;
-    case "quotes":
-      loadQuotes();
-      break;
+    case "dashboard": loadDashboard(); break;
+    case "products": loadProducts(); break;
+    case "orders": loadOrders(); break;
+    case "users": loadUsers(); break;
+    case "blogs": loadBlogs(); break;
+    case "contacts": loadContactMessages(); break;
+    case "quotes": loadQuotes(); break;
   }
 }
+window.showSection = showSection;
+
+// ========== Dashboard Summary ==========
 
 function loadDashboard() {
   authFetch(API_BASE.dashboard)
     .then((res) => res.json())
     .then((data) => {
-      document.getElementById(
-        "total-orders"
-      ).innerText = `Total Orders: ${data.totalOrders}`;
-      document.getElementById(
-        "total-users"
-      ).innerText = `Total Users: ${data.totalUsers}`;
-      document.getElementById(
-        "total-products"
-      ).innerText = `Total Products: ${data.totalProducts}`;
+      document.getElementById("total-orders").innerText = `Total Orders: ${data.totalOrders}`;
+      document.getElementById("total-users").innerText = `Total Users: ${data.totalUsers}`;
+      document.getElementById("total-products").innerText = `Total Products: ${data.totalProducts}`;
 
       const ctx = document.getElementById("orderChart").getContext("2d");
       if (window.chartInstance) window.chartInstance.destroy();
@@ -114,23 +99,21 @@ function loadDashboard() {
         type: "bar",
         data: {
           labels: ["Pending", "Shipped", "Delivered"],
-          datasets: [
-            {
-              label: "Order Status",
-              data: [
-                data.orderStatus.pending,
-                data.orderStatus.shipped,
-                data.orderStatus.delivered,
-              ],
-              backgroundColor: ["orange", "blue", "green"],
-            },
-          ],
+          datasets: [{
+            label: "Order Status",
+            data: [
+              data.orderStatus.pending,
+              data.orderStatus.shipped,
+              data.orderStatus.delivered,
+            ],
+            backgroundColor: ["orange", "blue", "green"],
+          }],
         },
       });
     });
 }
 
-// === Product Management ===
+// ========== Products ==========
 
 function loadProducts() {
   authFetch(API_BASE.products)
@@ -140,20 +123,18 @@ function loadProducts() {
       tbody.innerHTML = "";
 
       products.forEach(async (p) => {
-        // Fetch order count per product
-        const orderCountRes = await authFetch(
-          `${API_BASE.products}/${p.id}/order-count`
-        );
+        const orderCountRes = await authFetch(`${API_BASE.products}/${p.id}/order-count`);
         const orderCount = await orderCountRes.json();
 
         const row = document.createElement("tr");
+        row.dataset.id = p.id;
         row.innerHTML = `
           <td>${p.name}</td>
           <td>${p.description}</td>
           <td>${p.price}</td>
           <td>${p.category?.name || "—"}</td>
-          <td><img src="${BACKEND_URL}${p.imageUrl}" width="50" /></td>
-          <td>${orderCount}</td> <!-- Display order count -->
+          <td><img src="${API_BASE_URL}${p.imageUrl}" width="50" /></td>
+          <td>${orderCount}</td>
           <td>
             <button onclick="editProduct(${p.id})">Edit</button>
             <button onclick="deleteProduct(${p.id})">Delete</button>
@@ -164,18 +145,16 @@ function loadProducts() {
     });
 }
 
-
 function saveProduct() {
   const form = document.getElementById("productForm");
   const formData = new FormData(form);
   const isEditing = !!form.productId.value;
 
-  // If editing, include existing imageUrl (if no new file is selected)
   if (isEditing && !form.productImage.files[0]) {
     const existingImage = document
       .querySelector(`#productTable tr[data-id="${form.productId.value}"] img`)
       ?.getAttribute("src")
-      ?.replace(BACKEND_URL, "");
+      ?.replace(API_BASE_URL, "");
     if (existingImage) {
       formData.append("existingImageUrl", existingImage);
     }
@@ -185,13 +164,8 @@ function saveProduct() {
   const url = isEditing
     ? `${API_BASE.products}/${form.productId.value}`
     : API_BASE.uploadProduct;
-  
 
-  // Let the browser set the Content-Type for FormData
-  authFetch(url, {
-    method,
-    body: formData,
-  })
+  authFetch(url, { method, body: formData })
     .then((res) => {
       if (!res.ok) throw new Error("Failed to save product");
       return res.json();
@@ -203,8 +177,6 @@ function saveProduct() {
     })
     .catch((err) => alert("Error saving product: " + err.message));
 }
-
-
 
 function editProduct(id) {
   authFetch(`${API_BASE.products}/${id}`)
@@ -222,41 +194,26 @@ function editProduct(id) {
     });
 }
 
-
 function deleteProduct(id) {
-  // Step 1: Check order count before deleting
   authFetch(`${API_BASE.products}/${id}/order-count`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch order count");
-      return res.json();
-    })
+    .then((res) => res.json())
     .then((count) => {
       if (count > 0) {
-        alert(
-          `This product has been ordered ${count} time(s) and cannot be deleted.`
-        );
+        alert(`This product has been ordered ${count} time(s) and cannot be deleted.`);
         return;
       }
-
-      // Step 2: Confirm deletion if no orders
-      if (!confirm("This product has no orders. Delete this product?")) return;
-
+      if (!confirm("Delete this product?")) return;
       return authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" });
     })
-    .then((res) => {
-      if (res) {
-        loadProducts();
-      }
-    })
+    .then((res) => { if (res) loadProducts(); })
     .catch((err) => alert("Error: " + err.message));
 }
-
 
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.resetForm = () => document.getElementById("productForm").reset();
 
-// === Blog Management ===
+// ========== Blogs ==========
 
 function saveBlog() {
   const id = document.getElementById("blogId").value;
@@ -278,11 +235,8 @@ function saveBlog() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-      .then(() => {
-        resetBlogForm();
-        loadBlogs();
-      })
-      .catch((err) => alert("Blog save failed"));
+      .then(() => { resetBlogForm(); loadBlogs(); })
+      .catch(() => alert("Blog save failed"));
   };
 
   if (imageFile) {
@@ -292,7 +246,7 @@ function saveBlog() {
       .then((res) => res.text())
       .then(handleSave);
   } else {
-    handleSave(null); // for editing without image change
+    handleSave(null);
   }
 }
 
@@ -307,7 +261,7 @@ function loadBlogs() {
         row.innerHTML = `
           <td>${b.title}</td>
           <td>${b.snippet}</td>
-          <td><img src="${BACKEND_URL}${b.imageUrl}" width="50"/></td>
+          <td><img src="${API_BASE_URL}${b.imageUrl}" width="50"/></td>
           <td>
             <button onclick="editBlog(${b.id})">Edit</button>
             <button onclick="deleteBlog(${b.id})">Delete</button>
@@ -348,7 +302,7 @@ function resetBlogForm() {
 window.editBlog = editBlog;
 window.deleteBlog = deleteBlog;
 
-// === Order Management ===
+// ========== Orders ==========
 
 function loadOrders() {
   authFetch(API_BASE.orders)
@@ -361,10 +315,7 @@ function loadOrders() {
         row.innerHTML = `
           <td>${o.id}</td>
           <td>${o.userEmail}</td>
-          <td>${new Intl.NumberFormat("en-KE", {
-            style: "currency",
-            currency: "KES",
-          }).format(o.totalAmount)}</td>
+          <td>${new Intl.NumberFormat("en-KE",{style:"currency",currency:"KES"}).format(o.totalAmount)}</td>
           <td>${o.status}</td>
           <td><button onclick="markShipped(${o.id})">Mark Shipped</button></td>
         `;
@@ -376,13 +327,12 @@ function loadOrders() {
 function markShipped(id) {
   authFetch(`${API_BASE.orders}/${id}/status`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status: "SHIPPED" }),
   }).then(loadOrders);
 }
 window.markShipped = markShipped;
 
-// === Users ===
+// ========== Users ==========
 
 function loadUsers() {
   authFetch(API_BASE.users)
@@ -402,7 +352,7 @@ function loadUsers() {
     });
 }
 
-// === Contact Messages ===
+// ========== Contacts ==========
 
 function loadContactMessages() {
   authFetch(API_BASE.contacts)
@@ -424,7 +374,7 @@ function loadContactMessages() {
     });
 }
 
-// === Quotes ===
+// ========== Quotes ==========
 
 function loadQuotes() {
   authFetch(API_BASE.quotes)
@@ -445,5 +395,3 @@ function loadQuotes() {
       });
     });
 }
-
-window.showSection = showSection;
