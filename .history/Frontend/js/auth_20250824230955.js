@@ -2,7 +2,7 @@ import { mergeGuestCartWithServer } from "./modules/guestCartMerge.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 
 // Redirect after login based on context (checkout or normal)
-function getPostLoginRedirect(role = "CUSTOMER") {
+function getPostLoginRedirect(role = "USER") {
   const redirect = sessionStorage.getItem("redirectAfterLogin");
   sessionStorage.removeItem("redirectAfterLogin");
 
@@ -25,6 +25,8 @@ function getPostLoginRedirect(role = "CUSTOMER") {
   return "/"; // homepage for normal users
 }
 
+
+// Login Handler
 // Login Handler
 export function handleLogin(formId, endpoint) {
   const form = document.getElementById(formId);
@@ -38,8 +40,8 @@ export function handleLogin(formId, endpoint) {
 
     try {
       // Clear any previous session
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
+      localStorage.removeItem("jwtToken");
+      localStorage.removeItem("userRole");
       localStorage.removeItem("profileImage");
       localStorage.removeItem("username");
       localStorage.removeItem("userEmail");
@@ -62,15 +64,15 @@ export function handleLogin(formId, endpoint) {
 
       if (!data.token) throw new Error("Login failed: No token received.");
 
-      // ✅ Store consistent keys
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("username", data.fullName || "User");
-      localStorage.setItem("userEmail", data.email);
+localStorage.setItem("role", data.role);
+localStorage.setItem("username", data.fullName || data.name || "User");
+localStorage.setItem("userEmail", data.email);
 
-      if (data.profileImageUrl) {
-        localStorage.setItem("profileImage", data.profileImageUrl);
-      }
+if (data.profileImageUrl) {
+  localStorage.setItem("profileImage", data.profileImageUrl);
+}
+
 
       // Merge guest cart → authenticated cart
       await mergeGuestCartWithServer();
@@ -86,6 +88,7 @@ export function handleLogin(formId, endpoint) {
     }
   });
 }
+
 
 // Registration Handler
 export function handleRegister(formId, endpoint) {
@@ -133,7 +136,7 @@ export async function refreshToken() {
 
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem("token", data.token); // ✅ updated
+      localStorage.setItem("jwtToken", data.jwtToken);
       return true;
     }
   } catch (err) {
@@ -145,6 +148,6 @@ export async function refreshToken() {
 
 // Check login status
 export function isLoggedIn() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("jwtToken");
   return !!token;
 }

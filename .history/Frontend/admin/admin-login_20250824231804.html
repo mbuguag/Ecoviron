@@ -6,14 +6,7 @@
         <title>Admin Login</title>
         <link rel="stylesheet" href="css/styles.css">
         <script type="module" src="../js/apiConfig.js"></script>
-        <script>
-            const token = localStorage.getItem("token");
-            const role = localStorage.getItem("role");
-
-            if (!token || role !== "ADMIN") {
-                window.location.href = "../admin/admin-login.html";
-            }
-        </script>
+        
     </head>
 
     <body>

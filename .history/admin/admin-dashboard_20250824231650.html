@@ -6,11 +6,12 @@
     <title>Admin Dashboard - BionixAdmin</title>
     <script>
       const token = localStorage.getItem("token");
-      const role = localStorage.getItem("role");
+        const role = localStorage.getItem("role");
 
-      if (!token || role !== "ADMIN") {
-        window.location.href = "../admin/admin-login.html";
-      }
+        if (!token || role !== "ADMIN") {
+          window.location.href = "../admin/admin-login.html";
+        }
+
     </script>
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

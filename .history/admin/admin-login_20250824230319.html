@@ -7,11 +7,10 @@
         <link rel="stylesheet" href="../css/styles.css">
 
         <script>
-            const token = localStorage.getItem("token");
-            const role = localStorage.getItem("role");
-
-            if (!token || role !== "ADMIN") {
-                window.location.href = "../admin/admin-login.html";
+            const role = localStorage.getItem("userRole");
+            if (role !== "ADMIN") {
+                alert("Access denied: Admins only");
+                window.location.href = "/";
             }
         </script>
     </head>
