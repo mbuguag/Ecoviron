@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Admin Login</title>
-        <link rel="stylesheet" href="admin-style.css">
+        <link rel="stylesheet" href="css/styles.css">
     </head>
 
     <body>
@@ -32,7 +32,7 @@
                 e.preventDefault();
                 const form = e.target;
 
-                fetch("http://localhost:8080/api/auth/login", {
+                fetch("http://www.bionix-hse.co.ke/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -43,15 +43,17 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.token) {
-                            if (!data.roles.includes("ADMIN")) {
+                            if (data.role !== "ADMIN") {
+
                                 alert("Access denied: You are not an admin.");
                                 return;
                             }
                             localStorage.setItem("token", data.token);
                             localStorage.setItem("name", data.name);
                             localStorage.setItem("userId", data.userId);
-                            localStorage.setItem("role", "ADMIN");
-                            window.location.href = "/admin/admin.html";
+                            localStorage.setItem("role", data.role);
+
+                            window.location.href = "../admin/admin-dashboard.html";
                         } else {
                             alert("Login failed");
                         }
