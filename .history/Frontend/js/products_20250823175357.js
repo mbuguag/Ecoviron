@@ -179,6 +179,7 @@ function injectSchemaForProducts(products) {
       "@type": "Product",
       name: product.name,
       image: `${STATIC_BASE_URL}${product.imageUrl}`,
+
       description: product.description || product.name,
       sku: `SKU-${product.id}`,
       brand: {

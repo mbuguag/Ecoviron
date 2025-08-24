@@ -1,23 +1,22 @@
-import { API_BASE_URL } from "../../js/apiConfig.js"; // adjust path as needed
-
+// dashboard.js
+const BACKEND_URL = "http://localhost:8080";
 export const API_BASE = {
-  dashboard: `${API_BASE_URL}/admin/summary`,
-  products: `${API_BASE_URL}/admin/products`,
-  uploadProduct: `${API_BASE_URL}/admin/products/upload`,
-  blogs: `${API_BASE_URL}/admin-blogs`,
-  orders: `${API_BASE_URL}/orders`,
-  users: `${API_BASE_URL}/users`,
-  contacts: `${API_BASE_URL}/contact/admin/messages`,
-  quotes: `${API_BASE_URL}/admin/quote-requests`,
-  blogImage: `${API_BASE_URL}/images/upload/blog`,
+  dashboard: `${BACKEND_URL}/api/admin/summary`,
+  products: `${BACKEND_URL}/api/admin/products`,
+  uploadProduct: `${BACKEND_URL}/api/admin/products/upload`,
+  blogs: `${BACKEND_URL}/api/admin-blogs`,
+  orders: `${BACKEND_URL}/api/orders`,
+  users: `${BACKEND_URL}/api/users`,
+  contacts: `${BACKEND_URL}/api/contact/admin/messages`,
+  quotes: `${BACKEND_URL}/api/admin/quote-requests`,
+  blogImage: `${BACKEND_URL}/api/images/upload/blog`,
 };
 
-// ✅ auth wrapper
 export function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Your session has expired. Please log in again.");
-    window.location.href = "/frontend/login.html";
+    window.location.href = "/login.html";
     return Promise.reject("Missing token");
   }
 
@@ -30,17 +29,15 @@ export function authFetch(url, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-  return fetch(url, { ...options, headers });
+  return fetch(url, {
+    ...options,
+    headers,
+  });
 }
 
-// 🖼️ For images (because DB stores relative paths)
-function resolveImage(path) {
-  if (!path) return "";
-  return path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
-}
 
-// === Quill Editor ===
 let quill;
+
 function initQuillEditor() {
   const editorContainer = document.getElementById("editor");
   if (editorContainer) {
@@ -48,7 +45,6 @@ function initQuillEditor() {
   }
 }
 
-// === Init ===
 document.addEventListener("DOMContentLoaded", () => {
   initQuillEditor();
   showSection("dashboard");
@@ -63,35 +59,54 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBlog();
   });
 
-  document.getElementById("cancelEdit")?.addEventListener("click", resetBlogForm);
+  document
+    .getElementById("cancelEdit")
+    ?.addEventListener("click", resetBlogForm);
 });
 
-// === Section Router ===
 function showSection(sectionId) {
   document.querySelectorAll(".admin-section").forEach((sec) => {
     sec.style.display = sec.id === sectionId ? "block" : "none";
   });
 
   switch (sectionId) {
-    case "dashboard": loadDashboard(); break;
-    case "products": loadProducts(); break;
-    case "orders": loadOrders(); break;
-    case "users": loadUsers(); break;
-    case "blogs": loadBlogs(); break;
-    case "contacts": loadContactMessages(); break;
-    case "quotes": loadQuotes(); break;
+    case "dashboard":
+      loadDashboard();
+      break;
+    case "products":
+      loadProducts();
+      break;
+    case "orders":
+      loadOrders();
+      break;
+    case "users":
+      loadUsers();
+      break;
+    case "blogs":
+      loadBlogs();
+      break;
+    case "contacts":
+      loadContactMessages();
+      break;
+    case "quotes":
+      loadQuotes();
+      break;
   }
 }
-window.showSection = showSection;
 
-// === Dashboard ===
 function loadDashboard() {
   authFetch(API_BASE.dashboard)
     .then((res) => res.json())
     .then((data) => {
-      document.getElementById("total-orders").innerText = `Total Orders: ${data.totalOrders}`;
-      document.getElementById("total-users").innerText = `Total Users: ${data.totalUsers}`;
-      document.getElementById("total-products").innerText = `Total Products: ${data.totalProducts}`;
+      document.getElementById(
+        "total-orders"
+      ).innerText = `Total Orders: ${data.totalOrders}`;
+      document.getElementById(
+        "total-users"
+      ).innerText = `Total Users: ${data.totalUsers}`;
+      document.getElementById(
+        "total-products"
+      ).innerText = `Total Products: ${data.totalProducts}`;
 
       const ctx = document.getElementById("orderChart").getContext("2d");
       if (window.chartInstance) window.chartInstance.destroy();
@@ -99,17 +114,24 @@ function loadDashboard() {
         type: "bar",
         data: {
           labels: ["Pending", "Shipped", "Delivered"],
-          datasets: [{
-            label: "Order Status",
-            data: [data.orderStatus.pending, data.orderStatus.shipped, data.orderStatus.delivered],
-            backgroundColor: ["orange", "blue", "green"],
-          }],
+          datasets: [
+            {
+              label: "Order Status",
+              data: [
+                data.orderStatus.pending,
+                data.orderStatus.shipped,
+                data.orderStatus.delivered,
+              ],
+              backgroundColor: ["orange", "blue", "green"],
+            },
+          ],
         },
       });
     });
 }
 
-// === Products ===
+// === Product Management ===
+
 function loadProducts() {
   authFetch(API_BASE.products)
     .then((res) => res.json())
@@ -118,7 +140,10 @@ function loadProducts() {
       tbody.innerHTML = "";
 
       products.forEach(async (p) => {
-        const orderCountRes = await authFetch(`${API_BASE.products}/${p.id}/order-count`);
+        // Fetch order count per product
+        const orderCountRes = await authFetch(
+          `${API_BASE.products}/${p.id}/order-count`
+        );
         const orderCount = await orderCountRes.json();
 
         const row = document.createElement("tr");
@@ -127,8 +152,8 @@ function loadProducts() {
           <td>${p.description}</td>
           <td>${p.price}</td>
           <td>${p.category?.name || "—"}</td>
-          <td><img src="${resolveImage(p.imageUrl)}" width="50" /></td>
-          <td>${orderCount}</td>
+          <td><img src="${BACKEND_URL}${p.imageUrl}" width="50" /></td>
+          <td>${orderCount}</td> <!-- Display order count -->
           <td>
             <button onclick="editProduct(${p.id})">Edit</button>
             <button onclick="deleteProduct(${p.id})">Delete</button>

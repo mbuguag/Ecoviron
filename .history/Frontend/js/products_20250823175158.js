@@ -58,10 +58,11 @@ function renderProductGrid(products) {
           product.id
         }" class="product-image-link">
           <div class="image-wrapper">
-            <img src="${STATIC_BASE_URL}${product.imageUrl}" 
-     alt="${product.name}" 
-     class="product-image"
-     loading="lazy"/>
+            <img src="${API_BASE_URL.replace('/api', '')}${product.imageUrl}"
+              alt="${product.name}" 
+              class="product-image"
+              loading="lazy"
+            />
             ${badge ? `<span class="badge">${badge}</span>` : ""}
             <button class="wishlist-btn" data-id="${product.id}">
   <i class="fa${isInWishlist(product.id) ? "s" : "r"} fa-heart"></i>
@@ -178,7 +179,7 @@ function injectSchemaForProducts(products) {
       "@context": "https://schema.org/",
       "@type": "Product",
       name: product.name,
-      image: `${STATIC_BASE_URL}${product.imageUrl}`,
+      image: `${BACKEND_URL}${product.imageUrl}`,
       description: product.description || product.name,
       sku: `SKU-${product.id}`,
       brand: {
