@@ -396,4 +396,3 @@ function loadQuotes() {
     });
 }
 
-window.showSection = showSection;
