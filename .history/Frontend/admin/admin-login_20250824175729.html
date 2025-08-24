@@ -8,7 +8,7 @@
     </head>
 
     <body>
-        <script>
+        <!-- <script>
             const token = localStorage.getItem("token");
             const role = localStorage.getItem("role");
 
@@ -16,7 +16,7 @@
                 alert("Access denied: Admins only");
                 window.location.href = "/frontend/login.html";
             }
-        </script>
+        </script> -->
         <div class="login-container">
             <h2>Admin Login</h2>
             <form id="adminLoginForm">
@@ -32,7 +32,7 @@
                 e.preventDefault();
                 const form = e.target;
 
-                fetch("https://www.bionix-hse.co.ke/api/auth/login", {
+                fetch("http://localhost:8080/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
