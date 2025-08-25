@@ -1,9 +1,7 @@
-import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./apiConfig.js";
+
 import { fetchAllProducts } from "./api.js";
 import { setupCartInteractions, addToCart } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
-import { loadLayoutComponents } from "./modules/components.js";
-
 
 let originalProducts = [];
 let filterTimeout;
