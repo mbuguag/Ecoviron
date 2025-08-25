@@ -1,5 +1,5 @@
 import { BASE_PATH } from "./apiConfig.js";
-export function loadFaviconAndManifest() {
+exportb function loadFaviconAndManifest() {
   const head = document.head;
 
   // Array of favicons / PWA icons for full compatibility
