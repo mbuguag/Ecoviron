@@ -2,7 +2,7 @@ import { loadLayoutComponents } from "./domUtils.js";
 import { fetchAllProducts } from "./api.js";
 import { setupCartInteractions, addToCart } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
-import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./apiConfig.js";
+import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./apiconfig.js";
 
 let originalProducts = [];
 let filterTimeout;
