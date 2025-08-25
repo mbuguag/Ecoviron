@@ -1,7 +1,7 @@
 import { CartAPI } from "./cart/cart-api.js";
 import { getGuestCart, addToGuestCart } from "./cart/guestCart.js";
 import { isLoggedIn } from "./auth.js";
-import { BASE_PATH } from "../js/apiConfig.js";
+import { BASE_PATH } from "../";
 
 /**
  * Add a product to the cart (guest or logged-in user)
