@@ -1,6 +1,6 @@
 // main.js
 import { BASE_PATH } from "./apiConfig.js";
-// import { loadFaviconAndManifest } from "./manifest-loader.js";
+import { loadFaviconAndManifest } from "./manifest-loader.js";
 import { initCarousel } from "./modules/carousel.js";
 import { initContactForm } from "./modules/contact.js";
 import { initFeaturedProducts } from "./modules/featured-products.js";
