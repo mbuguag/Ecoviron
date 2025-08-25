@@ -29,3 +29,7 @@ export async function initServices() {
   }
 }
 
+function setFallback(id, message = "Content not available") {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<p>${message}</p>`;
+}

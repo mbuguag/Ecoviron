@@ -29,3 +29,4 @@ export async function initServices() {
   }
 }
 
+    const res = await fetch(`${API_BASE_URL}/services`);

@@ -28,4 +28,3 @@ export async function initServices() {
     grid.innerHTML = `<p class="error">Unable to load services at the moment.</p>`;
   }
 }
-

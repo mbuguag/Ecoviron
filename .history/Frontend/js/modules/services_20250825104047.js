@@ -29,3 +29,11 @@ export async function initServices() {
   }
 }
 
+function setFallback(id, message = "Content not available") {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<p>${message}</p>`;
+}
+catch (err) {
+  console.error(err);
+  setFallback("dynamic-services-grid", "Unable to load services at the moment.");
+}

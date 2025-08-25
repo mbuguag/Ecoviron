@@ -8,7 +8,7 @@ export async function initServices() {
   if (!grid) return;
 
   try {
-        const res = await fetch(`${API_BASE_URL}/services`);
+    const res = await fetch(`${BASE_PATH}/services`);
     if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
     const services = await res.json();
 
@@ -28,4 +28,3 @@ export async function initServices() {
     grid.innerHTML = `<p class="error">Unable to load services at the moment.</p>`;
   }
 }
-
