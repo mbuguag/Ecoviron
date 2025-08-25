@@ -4,7 +4,7 @@ import { isLoggedIn } from "./auth.js";
 import { BASE_PATH } from "../apiConfig.js";
 
 /**
- * Add a product to the cart (guest or logged-in user)
+ * Add product to cart (guest or logged-in user)
  */
 export async function addToCart(product, quantity = 1) {
   try {
@@ -23,7 +23,7 @@ export async function addToCart(product, quantity = 1) {
 }
 
 /**
- * Update the mini-cart badge
+ * Update mini-cart badge count
  */
 export async function updateMiniCartCount() {
   const badge = document.getElementById("mini-cart-count");
@@ -31,17 +31,13 @@ export async function updateMiniCartCount() {
 
   try {
     let totalItems = 0;
-
     if (isLoggedIn()) {
       const cart = await CartAPI.getCart();
-      totalItems = Array.isArray(cart.items)
-        ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
-        : 0;
+      totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     } else {
       const guestCart = getGuestCart();
       totalItems = guestCart.reduce((sum, item) => sum + item.quantity, 0);
     }
-
     badge.textContent = totalItems;
   } catch (err) {
     console.warn("Failed to update mini cart count:", err);
@@ -49,7 +45,7 @@ export async function updateMiniCartCount() {
 }
 
 /**
- * Merge guest cart into backend after login
+ * Merge guest cart to backend after login
  */
 export async function mergeGuestCartToBackend() {
   if (!isLoggedIn()) return;
@@ -70,9 +66,9 @@ export async function mergeGuestCartToBackend() {
 }
 
 /**
- * Setup all .add-to-cart buttons
+ * Setup add-to-cart button interactions
  */
-export function setupCartInteractions() {
+export async function setupCartInteractions() {
   const buttons = document.querySelectorAll(".add-to-cart");
   buttons.forEach((button) => {
     button.addEventListener("click", async () => {
@@ -94,7 +90,7 @@ export function setupCartInteractions() {
 }
 
 /**
- * Require user login before accessing checkout
+ * Require authentication for checkout
  */
 export function requireAuthForCheckout() {
   if (!isLoggedIn()) {
@@ -107,7 +103,7 @@ export function requireAuthForCheckout() {
 }
 
 /**
- * Toast notification utility
+ * Toast notification system
  */
 function showToast(message, isError = false, duration = 3000) {
   const toast = document.createElement("div");
@@ -118,28 +114,23 @@ function showToast(message, isError = false, duration = 3000) {
   setTimeout(() => toast.remove(), duration);
 }
 
-// Inject minimal CSS for toast notifications
-if (!document.getElementById("toast-styles")) {
-  const style = document.createElement("style");
-  style.id = "toast-styles";
-  style.textContent = `
-    .toast-message {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #4caf50;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      z-index: 9999;
-      opacity: 0.95;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    .toast-message.toast-error {
-      background: #f44336;
-    }
-  `;
-  document.head.appendChild(style);
+// Minimal CSS for toast
+const style = document.createElement("style");
+style.textContent = `
+.toast-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  z-index: 9999;
+  opacity: 0.95;
+  font-weight: 500;
 }
+.toast-message.toast-error {
+  background: #f44336;
+}
+`;
+document.head.appendChild(style);

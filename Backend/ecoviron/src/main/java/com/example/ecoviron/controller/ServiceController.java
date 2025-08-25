@@ -38,7 +38,7 @@ public class ServiceController  {
     @PostMapping
     public ResponseEntity<ServiceEntity> addService(@RequestBody ServiceRequest request){
       ServiceEntity newService =  environmentalService.createService(request);
-      return ResponseEntity.created(URI.create("/api/services" + newService.getId())).body(newService);
+        return ResponseEntity.created(URI.create("/api/services/" + newService.getId())).body(newService);
     }
 
     @PutMapping("/{id}")

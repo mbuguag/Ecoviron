@@ -1,6 +1,6 @@
 import { loadLayoutComponents } from "./domUtils.js";
 import { fetchAllProducts } from "./api.js";
-import { setupCartInteractions, addToCart } from "./cart-actions.js";
+import { setupCartInteractions } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
 import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./config.js";
 
@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadLayoutComponents();
   await loadAndRenderProducts();
   setupControls();
-  initStickyCart();
 });
 
 /** Environment-safe API URL */
@@ -90,7 +89,6 @@ function renderProductGrid(products) {
   setupCartInteractions();
   setupWishlistListeners();
   injectSchemaForProducts(products);
-  updateStickyCartVisibility();
 }
 
 /** Render star rating */
@@ -201,49 +199,3 @@ function injectSchemaForProducts(products) {
     head.appendChild(script);
   });
 }
-
-/** ===================== MOBILE STICKY CART ===================== **/
-
-const stickyCartBar = document.createElement("div");
-stickyCartBar.id = "mobile-sticky-bar";
-stickyCartBar.style.cssText = `
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #fff;
-  border-top: 1px solid #ccc;
-  display: none;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  z-index: 999;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-`;
-stickyCartBar.innerHTML = `
-  <span id="sticky-price">KES 0.00</span>
-  <button id="sticky-add-to-cart" class="btn">Add to Cart</button>
-`;
-document.body.appendChild(stickyCartBar);
-
-/** Initialize sticky cart */
-function initStickyCart() {
-  updateStickyCartVisibility();
-}
-
-/** Update sticky cart based on viewport */
-function updateStickyCartVisibility() {
-  const isMobile = window.innerWidth <= 768;
-  const bar = document.getElementById("mobile-sticky-bar");
-  if (!bar) return;
-  bar.style.display = isMobile ? "flex" : "none";
-
-  const firstProduct = originalProducts[0];
-  if (firstProduct) {
-    document.getElementById("sticky-price").textContent = formatPrice(firstProduct.price);
-    document.getElementById("sticky-add-to-cart").onclick = () => addToCart(firstProduct);
-  }
-}
-
-// Adjust sticky cart on resize
-window.addEventListener("resize", updateStickyCartVisibility);

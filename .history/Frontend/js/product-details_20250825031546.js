@@ -165,7 +165,3 @@ function renderBreadcrumb(product) {
 }
 
 
-window.addEventListener('resize', () => {
-  document.getElementById("mobile-sticky-bar").style.display =
-    window.innerWidth <= 768 ? "flex" : "none";
-});
