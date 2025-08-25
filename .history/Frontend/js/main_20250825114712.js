@@ -1,5 +1,6 @@
 // main.js
 import { BASE_PATH } from "./apiConfig.js";
+import { loadFaviconAndManifest } from "./manifest-loader.js";
 import { initCarousel } from "./modules/carousel.js";
 import { initContactForm } from "./modules/contact.js";
 import { initFeaturedProducts } from "./modules/featured-products.js";
@@ -12,7 +13,6 @@ import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
-import { loadFaviconAndManifest } from "./manifest-loader.js";
 
 loadFaviconAndManifest();
 

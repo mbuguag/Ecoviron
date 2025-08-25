@@ -102,11 +102,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-                "http://127.0.0.1:5500",
                 "https://bionix-hse.co.ke",
                 "https://www.bionix-hse.co.ke",
-                "https://*.vercel.app",
-                "http://localhost:5500",
+                "https://*.vercel.app",    // allow all preview deploys
+                "http://localhost:000",
                 "http://127.0.0.1:3000"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

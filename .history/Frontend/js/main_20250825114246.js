@@ -1,20 +1,20 @@
 // main.js
 import { BASE_PATH } from "./apiConfig.js";
+// import { loadFaviconAndManifest } from "./manifest-loader.js";
 import { initCarousel } from "./modules/carousel.js";
 import { initContactForm } from "./modules/contact.js";
 import { initFeaturedProducts } from "./modules/featured-products.js";
 import { initServices } from "./modules/services.js";
 import { initAboutSection } from "./modules/about.js";
-import { loadLayoutComponents } from "./modules/components.js";
+import { loadLayoutComponents } from "./";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
 import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
-import { loadFaviconAndManifest } from "./manifest-loader.js";
 
-loadFaviconAndManifest();
+// loadFaviconAndManifest();
 
 /**
  * Sticky Header

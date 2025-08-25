@@ -83,8 +83,6 @@ export async function initCarousel() {
       }
     });
   }
-console.log("Services loaded:", services);
-console.log("Carousel innerHTML:", carouselSlide.innerHTML);
 
 
   function showSlide(index) {

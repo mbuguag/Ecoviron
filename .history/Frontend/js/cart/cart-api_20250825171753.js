@@ -116,6 +116,6 @@ export class CartAPI {
 
 /** Get JWT headers if logged in */
 function getAuthHeaders() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("oken");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

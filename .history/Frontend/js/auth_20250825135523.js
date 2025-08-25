@@ -1,6 +1,6 @@
 import { mergeGuestCartWithServer } from "./modules/guestCartMerge.js";
 import { updateMiniCartCount } from "./cart-actions.js";
-import { API_BASE_URL } from "../js/apiConfig.js";
+import
 
 // Redirect after login based on context (checkout or normal)
 function getPostLoginRedirect(role = "CUSTOMER") {

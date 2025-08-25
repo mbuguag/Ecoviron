@@ -12,7 +12,6 @@ import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
-import { loadFaviconAndManifest } from "./manifest-loader.js";
 
 loadFaviconAndManifest();
 

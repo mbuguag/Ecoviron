@@ -6,34 +6,6 @@ export async function initCarousel() {
 
   if (!carouselSlide) return;
 
-   async function fetchServices() {
-    // Replace with live API if needed
-    try {
-
-      return [
-        {
-          title: "Workplace  Hygiene Surveys",
-          image: "assets/images/NEMA.jpg",
-        },
-        {
-          title: "Waste Water Management",
-          image: "assets/images/reelbed-wastewater.png",
-        },
-        {
-          title: "NEMA Audits",
-          image: "assets/images/Environmental Audits.jpg",
-        },
-        {
-          title: "OSHA Audits ",
-          image: "assets/images/OSHA.jpg",
-        },
-      ];
-    } catch (err) {
-      console.error("Failed to load services", err);
-      return [];
-    }
-  }
-
   const services = await fetchServices();
 
   const itemsPerView = () => {
@@ -83,8 +55,6 @@ export async function initCarousel() {
       }
     });
   }
-console.log("Services loaded:", services);
-console.log("Carousel innerHTML:", carouselSlide.innerHTML);
 
 
   function showSlide(index) {

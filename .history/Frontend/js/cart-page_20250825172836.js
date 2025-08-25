@@ -118,7 +118,7 @@ async function renderCart(items) {
         <strong>Total: ${formatPrice(total)}</strong>
       </div>
       <div class="cart-actions">
-        <a href="../ecommerce/checkout.html" class="btn btn-primary proceed-checkout">
+        <a href="../eco" class="btn btn-primary proceed-checkout">
           Proceed to Checkout
         </a>
       </div>
