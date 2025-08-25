@@ -1,11 +1,5 @@
 import { API_BASE_URL } from "../apiConfig.js";
 
-
-function setFallback(id) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = "Content not available at the moment.";
-}
-
 export async function initAboutSection() {
   try {
     const response = await fetch(`${API_BASE_URL}/about`);
