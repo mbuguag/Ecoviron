@@ -8,14 +8,10 @@ import com.example.ecoviron.repository.CategoryRepository;
 import com.example.ecoviron.repository.ProductRepository;
 import com.example.ecoviron.service.FileStorageService;
 import com.example.ecoviron.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -23,23 +19,25 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    @Autowired
     private final FileStorageService fileStorageService;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, FileStorageService fileStorageService) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryRepository categoryRepository,
+                              FileStorageService fileStorageService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.fileStorageService = fileStorageService;
     }
+
     @Override
-    public Product saveProduct(Product product){
+    public Product saveProduct(Product product) {
         return productRepository.save(product);
     }
 
     @Override
-    public Product getProductById(Long id){
+    public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID:" +id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID:" + id));
     }
 
     @Override
@@ -73,15 +71,14 @@ public class ProductServiceImpl implements ProductService {
                 existing.setCategory(category);
             }
 
-            // Delete previous image if a new one is being uploaded
+            // Replace old image if new one is uploaded
             if (dto.getImage() != null && !dto.getImage().isEmpty()) {
-                deleteFileIfExists(existing.getImageUrl()); // 💥 remove old image
-
                 try {
+                    fileStorageService.deleteFile(existing.getImageUrl()); // remove old Cloudinary image
                     String imagePath = fileStorageService.saveFile(dto.getImage(), "products");
                     existing.setImageUrl(imagePath);
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to save image", e);
+                    throw new RuntimeException("Failed to save new image", e);
                 }
             } else if (dto.getExistingImageUrl() != null) {
                 existing.setImageUrl(dto.getExistingImageUrl());
@@ -91,14 +88,16 @@ public class ProductServiceImpl implements ProductService {
         }).orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
-
     @Override
     public void deleteProduct(Long id) {
         Product existing = getProductById(id);
-        deleteFileIfExists(existing.getImageUrl());
+        try {
+            fileStorageService.deleteFile(existing.getImageUrl());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete image from Cloudinary", e);
+        }
         productRepository.delete(existing);
     }
-
 
     @Override
     public List<Product> getFeaturedProducts() {
@@ -123,17 +122,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productRepository.save(product);
-    }
-
-    private void deleteFileIfExists(String imageUrl) {
-        if (imageUrl != null && !imageUrl.isBlank()) {
-            try {
-                Path imagePath = Paths.get("uploads").resolve(imageUrl.replace("/uploads/", ""));
-                Files.deleteIfExists(imagePath);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to delete image file: " + imageUrl, e);
-            }
-        }
     }
 
     @Override

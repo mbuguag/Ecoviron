@@ -5,15 +5,15 @@ import com.example.ecoviron.entity.BlogPost.PostStatus;
 import com.example.ecoviron.exception.ResourceNotFoundException;
 import com.example.ecoviron.repository.BlogPostRepository;
 import com.example.ecoviron.service.BlogService;
+import com.example.ecoviron.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -22,10 +22,12 @@ import java.util.Set;
 public class BlogServiceImpl implements BlogService {
 
     private final BlogPostRepository blogPostRepository;
+    private final FileStorageService fileStorageService;
 
     @Autowired
-    public BlogServiceImpl(BlogPostRepository blogPostRepository) {
+    public BlogServiceImpl(BlogPostRepository blogPostRepository, FileStorageService fileStorageService) {
         this.blogPostRepository = blogPostRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     // --- Paginated fetch methods ---
@@ -133,11 +135,17 @@ public class BlogServiceImpl implements BlogService {
     public BlogPost uploadImage(Long id, MultipartFile file) {
         validateImageFile(file);
         BlogPost post = getPostById(id);
-        String imageUrl = storeImageAndGetUrl(file);
-        post.setImageUrl(imageUrl);
-        post.setUpdatedAt(LocalDateTime.now());
-        return blogPostRepository.save(post);
+
+        try {
+            String imageUrl = fileStorageService.saveFile(file, "blogs");
+            post.setImageUrl(imageUrl);
+            post.setUpdatedAt(LocalDateTime.now());
+            return blogPostRepository.save(post);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload blog image", e);
+        }
     }
+
 
     @Override
     @Transactional

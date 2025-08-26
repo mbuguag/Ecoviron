@@ -103,6 +103,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
                 "http://127.0.0.1:5500",
+                "http://127.0.0.1:5500",
                 "https://bionix-hse.co.ke",
                 "https://www.bionix-hse.co.ke",
                 "https://*.vercel.app",

@@ -4,6 +4,7 @@ package com.example.ecoviron.service.Impl;
 import com.example.ecoviron.dto.UserDto;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.UserRepository;
+import com.example.ecoviron.service.FileStorageService;
 import com.example.ecoviron.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${upload.profile-path}")
-    private String profileUploadDir;
+    @Autowired
+    private FileStorageService fileStorageService;
 
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -56,6 +57,8 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+
+    @Override
     public UserDto updateUser(String email, String fullName, String password, MultipartFile profileImage) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -68,13 +71,11 @@ public class UserServiceImpl implements UserService {
 
         if (profileImage != null && !profileImage.isEmpty()) {
             try {
-                String filename = UUID.randomUUID() + "_" + profileImage.getOriginalFilename();
-                Path imagePath = Paths.get(profileUploadDir).resolve(filename);
-                Files.createDirectories(imagePath.getParent());
-                Files.copy(profileImage.getInputStream(), imagePath, StandardCopyOption.REPLACE_EXISTING);
-                user.setProfilePicture("/uploads/profile-pics/" + filename); // Update to match your mapping
+                // Save to Cloudinary (folder = profile-pics)
+                String imageUrl = fileStorageService.saveFile(profileImage, "profile-pics");
+                user.setProfilePicture(imageUrl);
             } catch (IOException e) {
-                throw new RuntimeException("Failed to store profile image", e);
+                throw new RuntimeException("Failed to upload profile image", e);
             }
         }
 

@@ -19,17 +19,18 @@ import java.util.List;
 public class AdminProductController {
 
     private final ProductService productService;
-
     private final OrderItemService orderItemService;
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminProductController.class);
 
     public AdminProductController(ProductService productService, OrderItemService orderItemService) {
         this.productService = productService;
         this.orderItemService = orderItemService;
     }
 
-
-    private static final Logger logger = LoggerFactory.getLogger(AdminProductController.class);
-
+    /**
+     * Create a product (without image).
+     */
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         logger.info("Admin creating product: {}", product.getName());
@@ -37,17 +38,9 @@ public class AdminProductController {
         return ResponseEntity.ok(saved);
     }
 
-    @PostMapping("/products/{id}")
-    public ResponseEntity<?> updateProductViaPost(
-            @PathVariable Long id,
-            @ModelAttribute ProductUploadDto dto
-    ) {
-        // logic to update the product
-        Product updated = productService.updateProductWithImage(id, dto);
-        return ResponseEntity.ok(updated);
-    }
-
-
+    /**
+     * Create a product with image.
+     */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> uploadProductWithImage(@ModelAttribute ProductUploadDto dto) {
         Product product = new Product();
@@ -56,32 +49,39 @@ public class AdminProductController {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setFeatured(dto.isFeatured());
-        // Handle image saving and category assignment here...
+
         Product saved = productService.saveProductWithImage(product, dto.getImage(), dto.getCategoryId());
         return ResponseEntity.ok(saved);
     }
 
-
+    /**
+     * Get all products.
+     */
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
-
+    /**
+     * Get product order count.
+     */
     @GetMapping("/{productId}/order-count")
     public long getProductOrderCount(@PathVariable Long productId) {
         return orderItemService.countOrdersForProduct(productId);
     }
 
+    /**
+     * Get product by ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id);
-        return (product != null) ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(product);
     }
 
-
-
+    /**
+     * Update product (with optional image).
+     */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
@@ -91,13 +91,13 @@ public class AdminProductController {
         return ResponseEntity.ok(updated);
     }
 
-
-
+    /**
+     * Delete product.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("User: " + auth.getName());
-        System.out.println("Authorities: " + auth.getAuthorities());
+        logger.info("User '{}' deleting product ID {}. Authorities: {}", auth.getName(), id, auth.getAuthorities());
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

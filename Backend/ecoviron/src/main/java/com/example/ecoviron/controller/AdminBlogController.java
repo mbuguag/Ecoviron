@@ -4,7 +4,7 @@ import com.example.ecoviron.dto.BlogPostDto;
 import com.example.ecoviron.entity.BlogPost;
 import com.example.ecoviron.mapper.BlogPostMapper;
 import com.example.ecoviron.service.BlogService;
-import com.example.ecoviron.service.StorageService;
+import com.example.ecoviron.service.FileStorageService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +27,15 @@ public class AdminBlogController {
 
     private final BlogService blogService;
     private final BlogPostMapper blogPostMapper;
-    private final StorageService storageService;
+    private final FileStorageService fileStorageService;
 
     @Autowired
     public AdminBlogController(BlogService blogService,
                                BlogPostMapper blogPostMapper,
-                               StorageService storageService) {
+                               FileStorageService fileStorageService) {
         this.blogService = blogService;
         this.blogPostMapper = blogPostMapper;
-        this.storageService = storageService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping
@@ -66,9 +66,9 @@ public class AdminBlogController {
         log.info("Creating post with title: {}", postDto.getTitle());
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = storageService.saveBlogImage(imageFile);
+                String imageUrl = fileStorageService.uploadBlogImage(imageFile);
                 postDto.setImageUrl(imageUrl);
-                log.info("Image uploaded: {}", imageFile.getOriginalFilename());
+                log.info("Image uploaded to Cloudinary: {}", imageUrl);
             }
 
             BlogPost blogPost = blogPostMapper.toEntity(postDto);
@@ -88,7 +88,7 @@ public class AdminBlogController {
 
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = storageService.saveBlogImage(imageFile);
+                String imageUrl = fileStorageService.uploadBlogImage(imageFile);
                 postDto.setImageUrl(imageUrl);
             }
 
