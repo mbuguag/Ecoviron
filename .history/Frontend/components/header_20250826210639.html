@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>BIONIX-EHS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="${BASE_PATH}css/header.css">
     <link rel="stylesheet" href="${BASE_PATH}css/styles.css">
 
@@ -57,7 +57,28 @@
         </li>
 
         <!-- Auth Area -->
-      <span id="authArea"></span>
+        <li class="header-auth-item dropdown">
+          <div id="auth-container" class="user-dropdown">
+            <a href="#" class="header-nav-link auth-loading">
+              <i class="fas fa-user"></i>
+            </a>
+            <div class="dropdown-content">
+              <span class="dropdown-header">My Account</span>
+              <a href="${BASE_PATH}auth/login.html" class="auth-login-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+              </a>
+              <a href="${BASE_PATH}auth/register.html" class="auth-register-link">
+                <i class="fas fa-user-plus"></i> Register
+              </a>
+              <a href="${BASE_PATH}profile.html" class="auth-profile-link" style="display: none;">
+                <i class="fas fa-user"></i> Profile
+              </a>
+              <a href="#" class="auth-logout-link" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </div>
+          </div>
+        </li>
       </ul>
     </nav>
   </div>
@@ -90,7 +111,28 @@
       </li>
 
       <!-- Auth Area -->
-      <span id="authArea"></span>
+      <li class="header-auth-item dropdown">
+        <div id="auth-container-mobile" class="user-dropdown">
+          <a href="#" class="header-nav-link auth-loading">
+            <i class="fas fa-user"></i>
+          </a>
+          <div class="dropdown-content">
+            <span class="dropdown-header">My Account</span>
+            <a href="${BASE_PATH}auth/login.html" class="auth-login-link">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="${BASE_PATH}auth/register.html" class="auth-register-link">
+              <i class="fas fa-user-plus"></i> Register
+            </a>
+            <a href="${BASE_PATH}profile.html" class="auth-profile-link" style="display: none;">
+              <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="auth-logout-link" style="display: none;">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </div>
+        </div>
+      </li>
     </ul>
   </nav>
 </header>

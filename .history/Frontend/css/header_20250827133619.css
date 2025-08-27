@@ -301,7 +301,6 @@
 .user-dropdown:hover .dropdown-content {
     display: flex;
 }
-
 .header-auth-item .dropdown-content {
     right: 0;
     left: auto;

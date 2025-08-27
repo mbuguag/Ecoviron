@@ -13,6 +13,7 @@ import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
 import { loadFaviconAndManifest } from "./manifest-loader.js";
+import { renderAuthArea } from './auth-ui.js';
 
 
 loadFaviconAndManifest();
@@ -53,6 +54,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     await loadLayoutComponents();
     console.log("Layout components loaded successfully");
 
+    
     renderUserDropdown();
     const initTasks = [];
 

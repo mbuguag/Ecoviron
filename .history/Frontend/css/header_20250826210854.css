@@ -198,7 +198,6 @@
     display: none;
 }
 
-
 .cart-count-badge {
     position: absolute;
     top: -5px;
@@ -235,73 +234,22 @@
         transform: scale(1);
     }
 }
+/* Ensure cart icon shows properly in mobile nav */
+.mobile-nav .cart-icon-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dark); /* or var(--primary-color) */
+  font-size: 1.2rem;
+}
+
+.mobile-nav .cart-icon-link i {
+  font-size: 1.2rem;
+  color: inherit;
+}
 
 
 /* Auth Dropdown */
-.user-dropdown {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    color: #fff;
-}
-
-.avatar-small {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-#userName::after {
-    content: " ▼";
-    font-size: 12px;
-    color: #fff;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 42px;
-    right: 0;
-    background: #fff;
-    min-width: 160px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 999;
-    flex-direction: column;
-}
-
-.dropdown-content a,
-.dropdown-content button {
-    padding: 12px 16px;
-    text-align: left;
-    text-decoration: none;
-    color: #333;
-    background: none;
-    border: none;
-    width: 100%;
-    cursor: pointer;
-}
-
-.dropdown-content a:hover,
-.dropdown-content button:hover {
-    background-color: #f5f5f5;
-}
-
-.dropdown-header {
-    padding: 10px 16px;
-    font-weight: bold;
-    background-color: #f8f8f8;
-    border-bottom: 1px solid #ddd;
-}
-
-.user-dropdown:hover .dropdown-content {
-    display: flex;
-}
-
 .header-auth-item .dropdown-content {
     right: 0;
     left: auto;

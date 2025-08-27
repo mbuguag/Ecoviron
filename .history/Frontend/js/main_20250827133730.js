@@ -8,11 +8,12 @@ import { initAboutSection } from "./modules/about.js";
 import { loadLayoutComponents } from "./modules/components.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
-import { renderUserDropdown } from "./auth-ui.js";
+// import { renderUserDropdown } from "./auth-ui.js";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
 import { loadFaviconAndManifest } from "./manifest-loader.js";
+import { renderAuthArea } from './auth-ui.js';
 
 
 loadFaviconAndManifest();
@@ -52,6 +53,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("Loading layout components...");
     await loadLayoutComponents();
     console.log("Layout components loaded successfully");
+
+    renderAuthArea();
 
     renderUserDropdown();
     const initTasks = [];
