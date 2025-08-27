@@ -54,7 +54,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("Layout components loaded successfully");
 
 
-    // renderAuthArea();
+    renderAuthArea();
 
     renderUserDropdown();
     const initTasks = [];

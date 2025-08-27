@@ -8,7 +8,7 @@ import { initAboutSection } from "./modules/about.js";
 import { loadLayoutComponents } from "./modules/components.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
-import { renderUserDropdown } from "./auth-ui.js";
+import { renderUserDropdown } from "./";
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
@@ -41,6 +41,7 @@ function initStickyHeader() {
   toggleSticky(); // run once on load
 }
 
+renderUserDropdown();
 /**
  * Main App Initialization
  */
@@ -54,9 +55,9 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("Layout components loaded successfully");
 
 
-    // renderAuthArea();
+    renderAuthArea();
 
-    renderUserDropdown();
+    
     const initTasks = [];
 
     // Core UI

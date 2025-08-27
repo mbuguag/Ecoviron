@@ -13,6 +13,7 @@ import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
 import { loadFaviconAndManifest } from "./manifest-loader.js";
+import { renderUserDropdown, renderAuthArea } from "./auth-ui.js";
 
 
 loadFaviconAndManifest();
@@ -54,9 +55,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("Layout components loaded successfully");
 
 
-    // renderAuthArea();
-
     renderUserDropdown();
+    renderAuthArea();
+
+    
     const initTasks = [];
 
     // Core UI

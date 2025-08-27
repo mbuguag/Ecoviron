@@ -54,9 +54,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("Layout components loaded successfully");
 
 
-    // renderAuthArea();
-
     renderUserDropdown();
+    renderAuthArea();
+
+    
     const initTasks = [];
 
     // Core UI
