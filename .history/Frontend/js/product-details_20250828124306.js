@@ -7,20 +7,9 @@ import {
   formatPrice,
 } from "./apiConfig.js";
 
-
 document.addEventListener("DOMContentLoaded", () => {
   loadProductDetail();
 });
-
-
-// Helper: Resolve image paths
-function resolveImageUrl(path) {
-  if (!path) return `${STATIC_BASE_URL}/assets/images/fallback.png`;
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path; // external URL → leave it as is
-  }
-  return `${STATIC_BASE_URL}${path}`; // relative path → prefix with STATIC_BASE_URL
-}
 
 // Get product ID from URL
 function getProductIdFromURL() {

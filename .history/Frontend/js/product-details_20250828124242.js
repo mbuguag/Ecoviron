@@ -7,20 +7,9 @@ import {
   formatPrice,
 } from "./apiConfig.js";
 
-
 document.addEventListener("DOMContentLoaded", () => {
   loadProductDetail();
 });
-
-
-// Helper: Resolve image paths
-function resolveImageUrl(path) {
-  if (!path) return `${STATIC_BASE_URL}/assets/images/fallback.png`;
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path; // external URL → leave it as is
-  }
-  return `${STATIC_BASE_URL}${path}`; // relative path → prefix with STATIC_BASE_URL
-}
 
 // Get product ID from URL
 function getProductIdFromURL() {
@@ -154,7 +143,7 @@ function renderRelatedProducts(products) {
     const card = document.createElement("div");
     card.className = "related-card";
     card.innerHTML = `
-      <img src="${resolveImageUrl(product.imageUrl)}" alt="${product.name}" />
+      <img src="${STATIC_BASE_URL}${product.imageUrl}" alt="${product.name}" />
       <h4>${product.name}</h4>
       <span class="price">${formatPrice(product.price)}</span>
       <a href="product-details.html?id=${product.id}" class="btn btn-sm">View</a>

@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProductDetail();
 });
 
+import { STATIC_BASE_URL } from "../apiConfig.js";
 
 // Helper: Resolve image paths
 function resolveImageUrl(path) {

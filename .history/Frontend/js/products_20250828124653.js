@@ -213,6 +213,7 @@ function injectSchemaForProducts(products) {
   });
 }
 
+
 /** ===================== MOBILE STICKY CART ===================== **/
 
 const stickyCartBar = document.createElement("div");

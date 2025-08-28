@@ -21,16 +21,6 @@ const API_BASE = {
   products: `${API_BASE_URL}/products`,
 };
 
-
-// Helper: Resolve image paths
-function resolveImageUrl(path) {
-  if (!path) return `${STATIC_BASE_URL}/assets/images/fallback.png`;
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path; // external URL → leave it as is
-  }
-  return `${STATIC_BASE_URL}${path}`; // relative path → prefix with STATIC_BASE_URL
-}
-
 /** Get category from query string */
 function getCategoryFromQuery() {
   const params = new URLSearchParams(window.location.search);
@@ -211,6 +201,14 @@ function injectSchemaForProducts(products) {
     script.textContent = JSON.stringify(schema, null, 2);
     head.appendChild(script);
   });
+}
+
+function resolveImageUrl(path) {
+  if (!path) return `${STATIC_BASE_URL}/assets/images/fallback.png`;
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path; // external URL → leave it as is
+  }
+  return `${STATIC_BASE_URL}${path}`; // relative path → prefix with STATIC_BASE_URL
 }
 
 /** ===================== MOBILE STICKY CART ===================== **/
