@@ -1,3 +1,6 @@
+import { fetchBlogs } from "./blogApi.js";
+import { API_BASE_URL } from "./apiConfig.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const postId = params.get("id");
@@ -13,11 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     // First fetch the post
     let post = await fetchPost(postId);
 
-    // Update view count once per session
-    if (!sessionStorage.getItem(viewedKey)) {
+    // Update view count once per session (removed sessionStorage per requirements)
+    const hasViewed = window.viewedPosts?.has?.(postId) || false;
+    if (!hasViewed) {
       await incrementViewCount(postId);
       post = await fetchPost(postId);
-      sessionStorage.setItem(viewedKey, "true");
+      // Store in memory instead of sessionStorage
+      if (!window.viewedPosts) window.viewedPosts = new Set();
+      window.viewedPosts.add(postId);
     }
 
     renderPost(post);
@@ -36,14 +42,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function fetchPost(postId) {
-  const response = await fetch(`http://localhost:8080/api/public-blogs/public/${postId}`);
+  const response = await fetch(`${API_BASE_URL}/public-blogs/public/${postId}`);
   if (!response.ok) throw new Error("Post not found");
   return await response.json();
 }
 
 async function incrementViewCount(postId) {
   try {
-    const response = await fetch(`http://localhost:8080/api/public-blogs/public/${postId}/views`, {
+    const response = await fetch(`${API_BASE_URL}/public-blogs/public/${postId}/views`, {
       method: "PUT",
     });
     if (!response.ok) throw new Error("Failed to increment view count");
@@ -80,12 +86,13 @@ function renderPost(post) {
   `;
   document.getElementById("post-content").innerHTML = contentHTML;
 
-  // View count
-  document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;
+  // View count (removed duplicate line)
+  document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;
 
   // Tags
   const tagsContainer = document.getElementById("post-tags");
   if (post.tags?.length > 0 && tagsContainer) {
+    tagsContainer.innerHTML = ""; // Clear existing tags
     post.tags.forEach(tag => {
       const tagEl = document.createElement("a");
       tagEl.href = `blog.html?tag=${encodeURIComponent(tag)}`;
@@ -104,7 +111,7 @@ async function loadRelatedPosts(tags, excludeId) {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/api/blogs/public/related?tags=${tags.join(",")}&exclude=${excludeId}&limit=3`
+      `${API_BASE_URL}/blogs/public/related?tags=${tags.join(",")}&exclude=${excludeId}&limit=3`
     );
     if (response.ok) {
       const posts = await response.json();
@@ -122,6 +129,7 @@ function renderRelatedPosts(posts) {
     return;
   }
 
+  container.innerHTML = ""; // Clear existing content
   posts.forEach(post => {
     const card = document.createElement("article");
     card.className = "blog-card";

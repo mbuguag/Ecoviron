@@ -3,11 +3,8 @@ import { fetchProductById, fetchAllProducts } from "./api.js";
 import { addToCart } from "./cart-actions.js";
 import {
   STATIC_BASE_URL,
-  getAssetPath,
   getQueryParam,
   formatPrice,
-  loadComponent,
-  API_BASE_URL,
 } from "./apiConfig.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,8 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Get product ID from URL
 function getProductIdFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id");
+  return getQueryParam("id");
 }
 
 async function loadProductDetail() {
@@ -29,9 +25,7 @@ async function loadProductDetail() {
 
   try {
     showLoading(true);
-    const response = await fetch(`${API_BASE_URL}/products/${productId}`);
-    if (!response.ok) throw new Error("Product not found");
-    const product = await response.json();
+    const product = await fetchProductById(productId);
     renderProductDetail(product);
     loadRelatedProducts(product.category.id, product.id);
   } catch (err) {
@@ -47,16 +41,10 @@ function renderProductDetail(product) {
 
   // Textual Info
   document.getElementById("product-name").textContent = product.name;
-  document.getElementById("product-description").textContent =
-    product.description;
-  document.getElementById("product-category").textContent =
-    product.category.name;
-  document.getElementById(
-    "product-price"
-  ).textContent = `KES ${product.price.toLocaleString()}`;
-  document.getElementById("product-rating").textContent = getStars(
-    product.rating || 4
-  );
+  document.getElementById("product-description").textContent = product.description;
+  document.getElementById("product-category").textContent = product.category.name;
+  document.getElementById("product-price").textContent = formatPrice(product.price);
+  document.getElementById("product-rating").textContent = getStars(product.rating || 4);
 
   // Main Image
   const mainImage = document.getElementById("main-product-image");
@@ -83,12 +71,8 @@ function renderProductDetail(product) {
   // Eco Features
   const ecoFeatures = document.getElementById("eco-features");
   ecoFeatures.innerHTML = "";
-  if (product.ecoFriendly) {
-    ecoFeatures.innerHTML += `<li><i class="fa fa-leaf"></i> Eco-Friendly</li>`;
-  }
-  if (product.recyclable) {
-    ecoFeatures.innerHTML += `<li><i class="fa fa-recycle"></i> Recyclable</li>`;
-  }
+  if (product.ecoFriendly) ecoFeatures.innerHTML += `<li><i class="fa fa-leaf"></i> Eco-Friendly</li>`;
+  if (product.recyclable) ecoFeatures.innerHTML += `<li><i class="fa fa-recycle"></i> Recyclable</li>`;
 
   // Wishlist (placeholder)
   document.getElementById("wishlist-btn").addEventListener("click", () => {
@@ -102,14 +86,10 @@ function renderProductDetail(product) {
   });
 
   // Sticky Cart (Mobile)
-  document.getElementById(
-    "sticky-price"
-  ).textContent = `KES ${product.price.toLocaleString()}`;
-  document
-    .getElementById("sticky-add-to-cart")
-    .addEventListener("click", () => {
-      addToCart(product);
-    });
+  document.getElementById("sticky-price").textContent = formatPrice(product.price);
+  document.getElementById("sticky-add-to-cart").addEventListener("click", () => {
+    addToCart(product);
+  });
 
   if (window.innerWidth <= 768) {
     document.getElementById("mobile-sticky-bar").style.display = "flex";
@@ -132,19 +112,16 @@ function renderError(message) {
 // Loading spinner visibility
 function showLoading(isLoading) {
   const spinner = document.getElementById("loading-spinner");
-  if (spinner) {
-    spinner.style.display = isLoading ? "flex" : "none";
-  }
+  if (spinner) spinner.style.display = isLoading ? "flex" : "none";
 }
 
 // Fetch and render related products
 async function loadRelatedProducts(categoryId, excludeProductId) {
   try {
-    const res = await fetch(`${API_BASE_URL}/products/category/${categoryId}`);
-    if (!res.ok) return;
-
-    const products = await res.json();
-    const related = products.filter((p) => p.id !== parseInt(excludeProductId));
+    const allProducts = await fetchAllProducts();
+    const related = allProducts.filter(
+      (p) => p.category.id === categoryId && p.id !== parseInt(excludeProductId)
+    );
     renderRelatedProducts(related);
   } catch (err) {
     console.warn("Failed to load related products:", err);
@@ -168,10 +145,8 @@ function renderRelatedProducts(products) {
     card.innerHTML = `
       <img src="${STATIC_BASE_URL}${product.imageUrl}" alt="${product.name}" />
       <h4>${product.name}</h4>
-      <span class="price">KES ${product.price.toLocaleString()}</span>
-      <a href="product-details.html?id=${
-        product.id
-      }" class="btn btn-sm">View</a>
+      <span class="price">${formatPrice(product.price)}</span>
+      <a href="product-details.html?id=${product.id}" class="btn btn-sm">View</a>
     `;
     container.appendChild(card);
   });

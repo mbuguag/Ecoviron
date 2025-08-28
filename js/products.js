@@ -2,6 +2,8 @@ import { loadLayoutComponents } from "./domUtils.js";
 import { fetchAllProducts } from "./api.js";
 import { setupCartInteractions } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
+import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./config.js";
+
 
 
 const BACKEND_URL = "https://api.bionix-hse.co.ke";
@@ -14,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 const API_BASE = {
-  products: `${BACKEND_URL}/api/products`,
+  products: `${API_BASE_URL}/products`,
 };
 
 function getCategoryFromQuery() {
@@ -56,12 +58,10 @@ function renderProductGrid(products) {
           product.id
         }" class="product-image-link">
           <div class="image-wrapper">
-            <img 
-              src="${BACKEND_URL}${product.imageUrl}" 
-              alt="${product.name}" 
-              class="product-image"
-              loading="lazy"
-            />
+            <img src="${STATIC_BASE_URL}${product.imageUrl}" 
+     alt="${product.name}" 
+     class="product-image"
+     loading="lazy"/>
             ${badge ? `<span class="badge">${badge}</span>` : ""}
             <button class="wishlist-btn" data-id="${product.id}">
   <i class="fa${isInWishlist(product.id) ? "s" : "r"} fa-heart"></i>
@@ -162,9 +162,6 @@ function applyFiltersAndSort({
   setActiveFilterButton(category);
 }
 
-function formatPrice(price) {
-  return `KES ${Number(price).toLocaleString()}`;
-}
 
 function injectSchemaForProducts(products) {
   const head = document.head;
@@ -181,7 +178,7 @@ function injectSchemaForProducts(products) {
       "@context": "https://schema.org/",
       "@type": "Product",
       name: product.name,
-      image: `${BACKEND_URL}${product.imageUrl}`,
+      image: `${STATIC_BASE_URL}${product.imageUrl}`,
       description: product.description || product.name,
       sku: `SKU-${product.id}`,
       brand: {

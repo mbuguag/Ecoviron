@@ -29,7 +29,8 @@
   <script type="module" src="../js/auth.js"></script>
   <script type="module">
     import { handleRegister } from "../js/auth.js";
-    handleRegister("registerForm", "http://localhost:8080/api/auth/register");
+    import { API_BASE_URL } from "../js/apiConfig.js";
+    handleRegister("registerForm", `${API_BASE_URL}/auth/register`);
   </script>
 </body>
 </html>

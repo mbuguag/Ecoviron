@@ -3,7 +3,7 @@ export function renderUserDropdown() {
   if (!authArea) return;
   const name = localStorage.getItem("username");
  const photo = localStorage.getItem("profileImage")?.startsWith("/uploads")
-   ? `http://localhost:8080${localStorage.getItem("profileImage")}`
+   ? `https://api.bionix-hse.co.ke${localStorage.getItem("profileImage")}`
    : "/frontend/assets/icons/default-avatar.png";
 
 
