@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Success | Ecoviron Shop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <link rel="stylesheet" href="../css/order-success.css"/>
+</head>
+
+  <header class="site-header">
+    <div class="menu-overlay"></div>
+    <div class="header-container">
+      <div class="header-logo">
+        <a href="/" class="header-logo-link">
+          <h1 class="header-logo-text">BIONIX-EHS</h1>
+        </a>
+      </div>
+  
+      <button class="header-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span class="header-hamburger-line"></span>
+        <span class="header-hamburger-line"></span>
+        <span class="header-hamburger-line"></span>
+      </button>
+  
+      <nav class="header-nav desktop-nav">
+        <ul class="header-nav-list">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/services/services.html">Services</a></li>
+          <li><a href="/blog/blog.html">Blog</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li class="dropdown">
+            <a href="/ecommerce/product-details.html">Products ▾</a>
+            <div class="dropdown-content">
+              <a href="/ecommerce/product-grid.html">Shop</a>
+              <a href="/ecommerce/cart.html">Cart</a>
+            </div>
+          </li>
+          <li class="header-cart-item">
+            <a href="/ecommerce/cart.html">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="mini-cart-count" class="cart-count-badge">0</span>
+            </a>
+          </li>
+          <li class="header-auth-item dropdown">
+            <div id="auth-container" class="user-dropdown">
+              <a href="#" class="header-nav-link auth-loading">
+                <i class="fas fa-user"></i>
+              </a>
+              <div class="dropdown-content">
+                <span class="dropdown-header">My Account</span>
+                <a href="/auth/login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="/auth/register.html"><i class="fas fa-user-plus"></i> Register</a>
+                <a href="/profile.html" class="auth-profile-link" style="display: none;">
+                  <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="#" class="auth-logout-link" style="display: none;">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+<body>
+  <!-- <div id="header-container"></div> -->
+
+  <main>
+    <div class="success-container">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 class="success-title">Thank You for Your Order!</h2>
+      <p class="success-message">Your order has been received and is being processed.</p>
+
+      <!-- Dynamic Order Info -->
+      <div id="order-details"></div>
+
+      <div class="action-buttons">
+  <a href="../index.html" class="btn-return-home">Back to Home</a>
+  <a href="../profile.html#orders" class="btn-view-orders" id="view-orders-btn" style="display: none;">View My Orders</a>
+</div>
+
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/order-success.js"></script>
+</body>
+</html>
