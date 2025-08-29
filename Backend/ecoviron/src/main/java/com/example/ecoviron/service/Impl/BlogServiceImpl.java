@@ -136,15 +136,30 @@ public class BlogServiceImpl implements BlogService {
         validateImageFile(file);
         BlogPost post = getPostById(id);
 
-        try {
-            String imageUrl = fileStorageService.saveFile(file, "blogs");
-            post.setImageUrl(imageUrl);
-            post.setUpdatedAt(LocalDateTime.now());
-            return blogPostRepository.save(post);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to upload blog image", e);
-        }
+        String imageUrl = fileStorageService.uploadBlogImage(file); // no try/catch
+        post.setImageUrl(imageUrl);
+        post.setUpdatedAt(LocalDateTime.now());
+
+        return blogPostRepository.save(post);
     }
+
+    // Improved slug generator
+    private String generateSlug(String title) {
+        String baseSlug = title.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-");
+
+        String slug = baseSlug;
+        int counter = 1;
+        while (blogPostRepository.existsBySlug(slug)) {
+            slug = baseSlug + "-" + counter++;
+        }
+        return slug;
+    }
+
+
+
 
 
     @Override

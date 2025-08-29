@@ -63,21 +63,14 @@ public class AdminBlogController {
             @RequestPart("post") @Valid BlogPostDto postDto,
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
 
-        log.info("Creating post with title: {}", postDto.getTitle());
-        try {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = fileStorageService.uploadBlogImage(imageFile);
-                postDto.setImageUrl(imageUrl);
-                log.info("Image uploaded to Cloudinary: {}", imageUrl);
-            }
-
-            BlogPost blogPost = blogPostMapper.toEntity(postDto);
-            BlogPost saved = blogService.createPost(blogPost);
-            return ResponseEntity.ok(blogPostMapper.toDto(saved));
-        } catch (Exception e) {
-            log.error("Error creating post", e);
-            return ResponseEntity.internalServerError().build();
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.uploadBlogImage(imageFile);
+            postDto.setImageUrl(imageUrl);
+            log.info("Image uploaded to Cloudinary: {}", imageUrl);
         }
+
+        BlogPost saved = blogService.createPost(blogPostMapper.toEntity(postDto));
+        return ResponseEntity.ok(blogPostMapper.toDto(saved));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -86,18 +79,22 @@ public class AdminBlogController {
             @RequestPart("post") @Valid BlogPostDto postDto,
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
 
-        try {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = fileStorageService.uploadBlogImage(imageFile);
-                postDto.setImageUrl(imageUrl);
-            }
+        BlogPost existing = blogService.getPostById(id);
 
-            BlogPost updated = blogService.updatePost(id, blogPostMapper.toEntity(postDto));
-            return ResponseEntity.ok(blogPostMapper.toDto(updated));
-        } catch (Exception e) {
-            log.error("Error updating post with id {}: {}", id, e.getMessage());
-            return ResponseEntity.internalServerError().build();
+        // If new image uploaded → upload to Cloudinary
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.uploadBlogImage(imageFile);
+            postDto.setImageUrl(imageUrl);
+            log.info("Image replaced on Cloudinary: {}", imageUrl);
+        } else {
+            // ✅ Keep existing imageUrl if none provided
+            if (postDto.getImageUrl() == null || postDto.getImageUrl().isEmpty()) {
+                postDto.setImageUrl(existing.getImageUrl());
+            }
         }
+
+        BlogPost updated = blogService.updatePost(id, blogPostMapper.toEntity(postDto));
+        return ResponseEntity.ok(blogPostMapper.toDto(updated));
     }
 
     @PutMapping("/{id}/status")
