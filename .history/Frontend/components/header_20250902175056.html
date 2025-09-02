@@ -1,0 +1,43 @@
+<header class="site-header">
+  <div class="container flex items-center justify-between py-3">
+    <!-- Logo -->
+    <a href="/" class="logo flex items-center">
+      <img src="/frontend/assets/icons/logo.png" alt="BionixEHS" class="h-10" />
+    </a>
+
+    <!-- Navigation -->
+    <nav class="nav-menu hidden md:flex space-x-6">
+      <a href="/" class="hover:text-primary">Home</a>
+      <a href="/frontend/about.html" class="hover:text-primary">About</a>
+      <a href="/frontend/contact.html" class="hover:text-primary">Contact</a>
+      <a href="/frontend/products.html" class="hover:text-primary">Products</a>
+    </nav>
+
+    <!-- Right Actions -->
+    <div class="flex items-center space-x-4">
+      <!-- Search -->
+      <button class="p-2 hover:bg-gray-100 rounded-full">
+        <i class="fas fa-search text-gray-600"></i>
+      </button>
+
+      <!-- Notifications -->
+      <button class="relative p-2 hover:bg-gray-100 rounded-full">
+        <i class="fas fa-bell text-gray-600"></i>
+        <span class="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full px-1.5" id="notificationCount">
+          3
+        </span>
+      </button>
+
+      <!-- ✅ Auth Dropdown Placeholder -->
+      <div id="authArea" class="relative"></div>
+
+      <!-- Cart -->
+      <a href="/frontend/cart.html" class="relative p-2 hover:bg-gray-100 rounded-full">
+        <i class="fas fa-shopping-cart text-gray-600"></i>
+        <span id="miniCartCount" class="absolute top-0 right-0 bg-green-600 text-white text-xs rounded-full px-1.5">
+          0
+        </span>
+      </a>
+    </div>
+  </div>
+</header>
