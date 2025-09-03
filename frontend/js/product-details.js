@@ -7,9 +7,20 @@ import {
   formatPrice,
 } from "./apiConfig.js";
 
+
 document.addEventListener("DOMContentLoaded", () => {
   loadProductDetail();
 });
+
+
+// Helper: Resolve image paths
+function resolveImageUrl(path) {
+  if (!path) return `${STATIC_BASE_URL}/assets/images/fallback.png`;
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path; // external URL → leave it as is
+  }
+  return `${STATIC_BASE_URL}${path}`; // relative path → prefix with STATIC_BASE_URL
+}
 
 // Get product ID from URL
 function getProductIdFromURL() {
@@ -48,7 +59,7 @@ function renderProductDetail(product) {
 
   // Main Image
   const mainImage = document.getElementById("main-product-image");
-  mainImage.src = `${STATIC_BASE_URL}${product.imageUrl}`;
+  mainImage.src = resolveImageUrl(product.imageUrl);
   mainImage.alt = product.name;
 
   // Gallery Thumbnails
@@ -59,7 +70,7 @@ function renderProductDetail(product) {
   images.forEach((img, index) => {
     if (!img) return;
     const thumb = document.createElement("img");
-    thumb.src = `${STATIC_BASE_URL}${img}`;
+    thumb.src = resolveImageUrl(img);
     thumb.className = "thumbnail";
     thumb.alt = `Image ${index + 1}`;
     thumb.addEventListener("click", () => {
@@ -143,7 +154,7 @@ function renderRelatedProducts(products) {
     const card = document.createElement("div");
     card.className = "related-card";
     card.innerHTML = `
-      <img src="${STATIC_BASE_URL}${product.imageUrl}" alt="${product.name}" />
+      <img src="${resolveImageUrl(product.imageUrl)}" alt="${product.name}" />
       <h4>${product.name}</h4>
       <span class="price">${formatPrice(product.price)}</span>
       <a href="product-details.html?id=${product.id}" class="btn btn-sm">View</a>
@@ -163,3 +174,9 @@ function renderBreadcrumb(product) {
 
   breadcrumb.innerHTML = `${homeLink} / ${categoryLink} / ${current}`;
 }
+
+
+window.addEventListener('resize', () => {
+  document.getElementById("mobile-sticky-bar").style.display =
+    window.innerWidth <= 768 ? "flex" : "none";
+});

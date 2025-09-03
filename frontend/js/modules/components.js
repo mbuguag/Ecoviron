@@ -1,46 +1,28 @@
-/**
- * Layout Component Manager
- * Loads and initializes header/footer with fallbacks
- */
+// ==================
+// components.js
+// ==================
+import { BASE_PATH, getAssetPath, loadComponents } from "../apiConfig.js";
 
-import {
-  BASE_PATH,
-  getAssetPath,
-  loadComponents
-} from '../apiConfig.js';
-
-// Layout state
-const layoutState = {
-  initialized: false,
-  headerLoaded: false,
-  footerLoaded: false
-};
-
-// Cache DOM elements
-const domCache = {
-  header: null,
-  footer: null,
-  menuToggle: null,
-  navMenu: null
-};
+const layoutState = { initialized: false, headerLoaded: false, footerLoaded: false };
+const domCache = { header: null, footer: null, menuToggle: null, navMenu: null };
 
 /**
- * Load header and footer components
+ * Load layout (header + footer)
  */
 export async function loadLayoutComponents() {
   if (layoutState.initialized) return true;
 
-  domCache.header = document.getElementById('header-container');
-  domCache.footer = document.getElementById('footer-container');
+  domCache.header = document.getElementById("header-container");
+  domCache.footer = document.getElementById("footer-container");
 
   try {
     const results = await loadComponents([
-      { fileName: 'header.html', containerId: 'header-container' },
-      { fileName: 'footer.html', containerId: 'footer-container' }
+      { fileName: "header.html", containerId: "header-container" },
+      { fileName: "footer.html", containerId: "footer-container" }
     ]);
 
-    layoutState.headerLoaded = results['header.html'];
-    layoutState.footerLoaded = results['footer.html'];
+    layoutState.headerLoaded = results["header.html"];
+    layoutState.footerLoaded = results["footer.html"];
 
     if (!layoutState.headerLoaded) loadFallbackHeader();
     if (!layoutState.footerLoaded) loadFallbackFooter();
@@ -48,9 +30,8 @@ export async function loadLayoutComponents() {
     initFeatures();
     layoutState.initialized = true;
     return true;
-
   } catch (err) {
-    console.error('Layout loading failed, using fallbacks', err);
+    console.error("Layout loading failed, using fallbacks", err);
     loadFallbackHeader();
     loadFallbackFooter();
     initFeatures();
@@ -59,75 +40,86 @@ export async function loadLayoutComponents() {
 }
 
 /**
- * Initialize layout features
+ * Init interactive features
  */
 function initFeatures() {
   cacheInteractiveElements();
   initMobileMenu();
-  updateCopyright();
   initSmoothScroll();
   initLazyLoading();
+  updateCopyright();
 }
 
-/**
- * Cache interactive elements
- */
 function cacheInteractiveElements() {
-  domCache.menuToggle = document.querySelector('.mobile-menu-toggle');
-  domCache.navMenu = document.querySelector('.nav-menu');
+  domCache.menuToggle = document.querySelector(".mobile-menu-toggle");
+  domCache.navMenu = document.querySelector(".nav-menu");
 }
 
 /**
- * Mobile menu toggle
+ * Mobile nav
  */
 function initMobileMenu() {
-  if (!domCache.menuToggle || !domCache.navMenu) return;
+  const toggle = document.querySelector(".header-menu-toggle");
+  const mobileNav = document.querySelector(".mobile-nav");
+  const overlay = document.querySelector(".menu-overlay");
+  const closeBtn = document.querySelector(".mobile-nav-close");
 
-  domCache.menuToggle.addEventListener('click', () => {
-    const active = domCache.navMenu.classList.toggle('active');
-    domCache.menuToggle.classList.toggle('active', active);
-    document.body.classList.toggle('menu-open', active);
-    domCache.menuToggle.setAttribute('aria-expanded', active);
+  if (!toggle || !mobileNav) return;
+
+  const openMenu = () => {
+    mobileNav.classList.add("active");
+    overlay?.classList.add("active");
+    document.body.classList.add("menu-open");
+    toggle.classList.add("active");
+    toggle.setAttribute("aria-expanded", "true");
+  };
+
+  const closeMenu = () => {
+    mobileNav.classList.remove("active");
+    overlay?.classList.remove("active");
+    document.body.classList.remove("menu-open");
+    toggle.classList.remove("active");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+
+  toggle.addEventListener("click", () => {
+    mobileNav.classList.contains("active") ? closeMenu() : openMenu();
   });
+
+  overlay?.addEventListener("click", closeMenu);
+  closeBtn?.addEventListener("click", closeMenu);
 }
 
 /**
- * Smooth scroll for anchor links
+ * Smooth scroll
  */
 function initSmoothScroll() {
-  document.addEventListener('click', e => {
+  document.addEventListener("click", e => {
     const link = e.target.closest('a[href^="#"]');
     if (!link) return;
-
-    const target = document.querySelector(link.getAttribute('href'));
+    const target = document.querySelector(link.getAttribute("href"));
     if (target) {
       e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
-      domCache.navMenu?.classList.remove('active');
-      domCache.menuToggle?.classList.remove('active');
+      target.scrollIntoView({ behavior: "smooth" });
+      domCache.navMenu?.classList.remove("active");
+      domCache.menuToggle?.classList.remove("active");
     }
   });
 }
 
 /**
- * Lazy loading
+ * Lazy load images
  */
 function initLazyLoading() {
-  const lazyItems = document.querySelectorAll('[data-src], [data-srcset]');
-  if (!('IntersectionObserver' in window)) return;
+  const lazyItems = document.querySelectorAll("[data-src], [data-srcset]");
+  if (!("IntersectionObserver" in window)) return;
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const el = entry.target;
-        if (el.dataset.src) {
-          el.src = el.dataset.src;
-          el.removeAttribute('data-src');
-        }
-        if (el.dataset.srcset) {
-          el.srcset = el.dataset.srcset;
-          el.removeAttribute('data-srcset');
-        }
+        if (el.dataset.src) { el.src = el.dataset.src; el.removeAttribute("data-src"); }
+        if (el.dataset.srcset) { el.srcset = el.dataset.srcset; el.removeAttribute("data-srcset"); }
         observer.unobserve(el);
       }
     });
@@ -137,24 +129,22 @@ function initLazyLoading() {
 }
 
 /**
- * Update copyright year
+ * Copyright
  */
 function updateCopyright() {
   const year = new Date().getFullYear();
-  document.querySelectorAll('[data-current-year]')
-    .forEach(el => el.textContent = year);
+  document.querySelectorAll("[data-current-year]").forEach(el => (el.textContent = year));
 }
 
 /**
- * Fallback header
+ * Fallbacks
  */
 function loadFallbackHeader() {
   if (!domCache.header) return;
   domCache.header.innerHTML = `
     <header class="fallback-header">
       <a href="${BASE_PATH}">
-        <img src="${getAssetPath('assets/icons/Bionix logo.jpg')}" 
-             alt="Logo" width="60" height="60">
+        <img src="${getAssetPath("assets/icons/Bionix logo.jpg")}" alt="Logo" width="60" height="60">
       </a>
       <button class="mobile-menu-toggle" aria-expanded="false">☰</button>
       <nav class="nav-menu">
@@ -168,17 +158,11 @@ function loadFallbackHeader() {
     </header>`;
 }
 
-/**
- * Fallback footer
- */
 function loadFallbackFooter() {
   if (!domCache.footer) return;
   const year = new Date().getFullYear();
-  domCache.footer.innerHTML = `
-    <footer class="fallback-footer">
-      <p>© ${year} BIONIX-EHS. All rights reserved.</p>
-    </footer>`;
+  domCache.footer.innerHTML = `<footer class="fallback-footer"><p>© ${year} BIONIX-EHS. All rights reserved.</p></footer>`;
 }
 
 // Auto-init
-document.addEventListener('DOMContentLoaded', loadLayoutComponents);
+document.addEventListener("DOMContentLoaded", loadLayoutComponents);

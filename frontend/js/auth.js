@@ -1,8 +1,9 @@
 import { mergeGuestCartWithServer } from "./modules/guestCartMerge.js";
 import { updateMiniCartCount } from "./cart-actions.js";
+import { API_BASE_URL } from "../js/apiConfig.js";
 
 // Redirect after login based on context (checkout or normal)
-function getPostLoginRedirect(role = "USER") {
+function getPostLoginRedirect(role = "CUSTOMER") {
   const redirect = sessionStorage.getItem("redirectAfterLogin");
   sessionStorage.removeItem("redirectAfterLogin");
 
@@ -25,7 +26,6 @@ function getPostLoginRedirect(role = "USER") {
   return "/"; // homepage for normal users
 }
 
-
 // Login Handler
 export function handleLogin(formId, endpoint) {
   const form = document.getElementById(formId);
@@ -39,28 +39,34 @@ export function handleLogin(formId, endpoint) {
 
     try {
       // Clear any previous session
-      localStorage.removeItem("jwtToken");
-      localStorage.removeItem("userRole");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
       localStorage.removeItem("profileImage");
       localStorage.removeItem("username");
       localStorage.removeItem("userEmail");
 
+      const emailField = form.email || form.username; // ✅ support both
+      const payload = {
+        email: emailField.value.trim(),
+        password: form.password.value.trim(),
+      };
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: form.email.value.trim(),
-          password: form.password.value.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Invalid credentials");
 
       const data = await res.json();
 
-      localStorage.setItem("jwtToken", data.token);
-      localStorage.setItem("userRole", data.role);
-      localStorage.setItem("username", data.fullName || data.name || "User");
+      if (!data.token) throw new Error("Login failed: No token received.");
+
+      // ✅ Store consistent keys
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("username", data.fullName || "User");
       localStorage.setItem("userEmail", data.email);
 
       if (data.profileImageUrl) {
@@ -71,12 +77,8 @@ export function handleLogin(formId, endpoint) {
       await mergeGuestCartWithServer();
       updateMiniCartCount();
 
-      // Redirect logic
-      if (data.role === "ADMIN") {
-        window.location.href = "../admin/admin-dashboard.html";
-      } else {
-        window.location.href = getPostLoginRedirect();
-      }
+      // Role-based redirect
+      window.location.href = getPostLoginRedirect(data.role);
     } catch (err) {
       alert(err.message || "Login failed");
     } finally {
@@ -125,14 +127,14 @@ export function handleRegister(formId, endpoint) {
 // Token Refresh (optional)
 export async function refreshToken() {
   try {
-    const res = await fetch("http://localhost:8080/api/auth/refresh", {
+    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: "POST",
       credentials: "include",
     });
 
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem("jwtToken", data.jwtToken);
+      localStorage.setItem("token", data.token); // ✅ updated
       return true;
     }
   } catch (err) {
@@ -144,6 +146,6 @@ export async function refreshToken() {
 
 // Check login status
 export function isLoggedIn() {
-  const token = localStorage.getItem("jwtToken");
+  const token = localStorage.getItem("token");
   return !!token;
 }
