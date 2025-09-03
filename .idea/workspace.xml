@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="c871ae6c-face-46aa-8d51-1640be1a4685" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250610131551.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250610131558.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250610131840.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250610133212.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250610133215.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611000440.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611000746.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611001323.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611001325.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611001338.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611001439.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112519.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112522.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112540.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112543.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112547.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112632.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112636.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112639.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112643.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112645.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611112648.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121333.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121337.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121838.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121854.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121855.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611121857.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122324.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122328.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122353.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122402.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122405.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122410.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122451.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122455.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122510.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122519.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122520.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122550.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122837.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122839.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122843.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122848.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122859.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122902.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122904.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122913.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/admin-dashboard_20250611122916.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610125454.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610125521.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610125559.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610125649.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610130017.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610131928.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610131954.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610131955.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610132000.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610132001.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250610132006.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250611001642.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250611113701.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/admin/js/dashboard_20250611122217.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250610225801.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250610234822.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193517.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193522.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193532.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193538.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193543.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193558.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193739.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/auth/login_20250611193741.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250602143604.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250602143611.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603125454.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603125459.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603125505.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603215019.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603215028.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250603215033.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004234.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004239.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004241.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004335.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004342.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004813.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004841.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605004855.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605005041.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605005043.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/components/footer_20250605005049.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250602143308.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603210753.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603211919.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603213301.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603213349.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603214627.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603215804.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603215806.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603215835.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/contact_20250603215838.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611151156.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611151451.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611152501.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611152503.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611193900.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611193907.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/css/styles_20250611193921.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604123941.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604125937.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604130033.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604131212.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604131236.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604132117.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604134034.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604140921.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604140925.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604140931.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604140934.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604141147.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604141151.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604141153.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170048.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170143.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170154.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170204.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170415.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170422.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604170829.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250604180134.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611183634.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611191050.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611191052.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611191054.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611205512.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611205517.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611205521.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250611210026.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-details_20250612113749.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611150721.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611150731.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611150732.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611150805.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611150808.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183215.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183217.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183231.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183233.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183236.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183242.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183244.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183254.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611183256.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611185414.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611185900.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194557.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194600.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194603.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194620.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194624.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194625.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611194642.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/ecommerce/product-grid_20250611201924.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611142831.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611205150.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611205202.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611205205.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611205214.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/index_20250611205217.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/auth_20250611193421.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/auth_20250611193428.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/domUtils_20250611193213.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/domUtils_20250611193221.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611142309.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611142311.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611142316.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611142456.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611142528.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151026.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151027.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151340.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151410.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151416.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611151435.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152353.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152357.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152406.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152408.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152414.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152438.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611152439.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611154714.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611154803.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611154911.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155131.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155201.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155512.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155514.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155515.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611155715.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611162339.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611162947.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611162950.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611162957.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611162959.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163005.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163018.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163040.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163101.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163108.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611163245.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183027.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183029.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183042.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183105.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183125.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183128.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183132.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183139.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183141.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183145.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611183149.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611190051.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611190052.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611205129.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/main_20250611205233.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/product-details_20250611193332.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.history/Frontend/js/product-details_20250611193340.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/controller/ContactController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/controller/ContactController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/controller/QuoteRequestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/controller/QuoteRequestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/dto/QuoteRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/dto/QuoteRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/service/Impl/QuoteRequestServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/java/com/example/ecoviron/service/Impl/QuoteRequestServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Backend/ecoviron/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../Backend/ecoviron/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/js/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/admin/js/dashboard.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../uploads/profile-pics/passport.jpg" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="30KPgw9yyH7NUAR6d3F4XiIjReA" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Admin/Desktop/Environ/Backend"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c871ae6c-face-46aa-8d51-1640be1a4685" name="Changes" comment="" />
+      <created>1753373405433</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1753373405433</updated>
+    </task>
+    <servers />
+  </component>
+</project>
