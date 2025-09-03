@@ -1,5 +1,7 @@
-import { API_BASE_URL } from "../../js/apiConfig.js"; // adjust path as needed
+// dashboard.js
+import { API_BASE_URL } from './apiConfig.js';
 
+// ✅ Use centralized API configuration
 export const API_BASE = {
   dashboard: `${API_BASE_URL}/admin/summary`,
   products: `${API_BASE_URL}/admin/products`,
@@ -12,12 +14,17 @@ export const API_BASE = {
   blogImage: `${API_BASE_URL}/images/upload/blog`,
 };
 
-// ✅ auth wrapper
+// ✅ Safe JSON parser for better error messages
+function safeJson(res) {
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 export function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Your session has expired. Please log in again.");
-    window.location.href = "/frontend/login.html";
+    window.location.href = "/login.html";
     return Promise.reject("Missing token");
   }
 
@@ -33,14 +40,8 @@ export function authFetch(url, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
-// 🖼️ For images (because DB stores relative paths)
-function resolveImage(path) {
-  if (!path) return "";
-  return path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
-}
-
-// === Quill Editor ===
 let quill;
+
 function initQuillEditor() {
   const editorContainer = document.getElementById("editor");
   if (editorContainer) {
@@ -48,7 +49,6 @@ function initQuillEditor() {
   }
 }
 
-// === Init ===
 document.addEventListener("DOMContentLoaded", () => {
   initQuillEditor();
   showSection("dashboard");
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cancelEdit")?.addEventListener("click", resetBlogForm);
 });
 
-// === Section Router ===
 function showSection(sectionId) {
   document.querySelectorAll(".admin-section").forEach((sec) => {
     sec.style.display = sec.id === sectionId ? "block" : "none";
@@ -82,12 +81,11 @@ function showSection(sectionId) {
     case "quotes": loadQuotes(); break;
   }
 }
-window.showSection = showSection;
 
 // === Dashboard ===
 function loadDashboard() {
   authFetch(API_BASE.dashboard)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((data) => {
       document.getElementById("total-orders").innerText = `Total Orders: ${data.totalOrders}`;
       document.getElementById("total-users").innerText = `Total Users: ${data.totalUsers}`;
@@ -99,78 +97,73 @@ function loadDashboard() {
         type: "bar",
         data: {
           labels: ["Pending", "Shipped", "Delivered"],
-          datasets: [{
-            label: "Order Status",
-            data: [data.orderStatus.pending, data.orderStatus.shipped, data.orderStatus.delivered],
-            backgroundColor: ["orange", "blue", "green"],
-          }],
+          datasets: [
+            {
+              label: "Order Status",
+              data: [data.orderStatus.pending, data.orderStatus.shipped, data.orderStatus.delivered],
+              backgroundColor: ["orange", "blue", "green"],
+            },
+          ],
         },
       });
-    });
+    })
+    .catch((err) => alert("Failed to load dashboard: " + err.message));
 }
 
-// === Products ===
+// === Product Management ===
 function loadProducts() {
   authFetch(API_BASE.products)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((products) => {
       const tbody = document.querySelector("#productTable tbody");
       tbody.innerHTML = "";
 
       products.forEach(async (p) => {
-        const orderCountRes = await authFetch(`${API_BASE.products}/${p.id}/order-count`);
-        const orderCount = await orderCountRes.json();
+        try {
+          const orderCount = await authFetch(`${API_BASE.products}/${p.id}/order-count`).then(safeJson);
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${p.name}</td>
-          <td>${p.description}</td>
-          <td>${p.price}</td>
-          <td>${p.category?.name || "—"}</td>
-          <td><img src="${resolveImage(p.imageUrl)}" width="50" /></td>
-          <td>${orderCount}</td>
-          <td>
-            <button onclick="editProduct(${p.id})">Edit</button>
-            <button onclick="deleteProduct(${p.id})">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${p.name}</td>
+            <td>${p.description}</td>
+            <td>${p.price}</td>
+            <td>${p.category?.name || "—"}</td>
+            <td><img src="${p.imageUrl}" width="50" /></td>
+            <td>${orderCount}</td>
+            <td>
+              <button onclick="editProduct(${p.id})">Edit</button>
+              <button onclick="deleteProduct(${p.id})">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        } catch (err) {
+          console.error("Failed to load order count for product", p.id, err);
+        }
       });
-    });
+    })
+    .catch((err) => alert("Failed to load products: " + err.message));
 }
-
 
 function saveProduct() {
   const form = document.getElementById("productForm");
   const formData = new FormData(form);
   const isEditing = !!form.productId.value;
 
-  // If editing, include existing imageUrl (if no new file is selected)
   if (isEditing && !form.productImage.files[0]) {
     const existingImage = document
       .querySelector(`#productTable tr[data-id="${form.productId.value}"] img`)
       ?.getAttribute("src")
-      ?.replace(BACKEND_URL, "");
+      ?.replace(API_BASE_URL.replace('/api', ''), "");
     if (existingImage) {
       formData.append("existingImageUrl", existingImage);
     }
   }
 
   const method = isEditing ? "PUT" : "POST";
-  const url = isEditing
-    ? `${API_BASE.products}/${form.productId.value}`
-    : API_BASE.uploadProduct;
-  
+  const url = isEditing ? `${API_BASE.products}/${form.productId.value}` : API_BASE.uploadProduct;
 
-  // Let the browser set the Content-Type for FormData
-  authFetch(url, {
-    method,
-    body: formData,
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to save product");
-      return res.json();
-    })
+  authFetch(url, { method, body: formData })
+    .then(safeJson)
     .then(() => {
       form.reset();
       form.productId.value = "";
@@ -179,11 +172,9 @@ function saveProduct() {
     .catch((err) => alert("Error saving product: " + err.message));
 }
 
-
-
 function editProduct(id) {
   authFetch(`${API_BASE.products}/${id}`)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((p) => {
       const form = document.getElementById("productForm");
       form.productId.value = p.id;
@@ -194,45 +185,30 @@ function editProduct(id) {
       form.productFeatured.checked = p.featured;
       form.productCategoryId.value = p.category?.id || "";
       form.existingImageUrl.value = p.imageUrl || "";
-    });
+    })
+    .catch((err) => alert("Failed to load product: " + err.message));
 }
-
 
 function deleteProduct(id) {
-  // Step 1: Check order count before deleting
   authFetch(`${API_BASE.products}/${id}/order-count`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch order count");
-      return res.json();
-    })
+    .then(safeJson)
     .then((count) => {
       if (count > 0) {
-        alert(
-          `This product has been ordered ${count} time(s) and cannot be deleted.`
-        );
+        alert(`This product has been ordered ${count} time(s) and cannot be deleted.`);
         return;
       }
-
-      // Step 2: Confirm deletion if no orders
       if (!confirm("This product has no orders. Delete this product?")) return;
-
       return authFetch(`${API_BASE.products}/${id}`, { method: "DELETE" });
     })
-    .then((res) => {
-      if (res) {
-        loadProducts();
-      }
-    })
-    .catch((err) => alert("Error: " + err.message));
+    .then((res) => { if (res) loadProducts(); })
+    .catch((err) => alert("Error deleting product: " + err.message));
 }
-
 
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.resetForm = () => document.getElementById("productForm").reset();
 
 // === Blog Management ===
-
 function saveBlog() {
   const id = document.getElementById("blogId").value;
   const title = document.getElementById("title").value;
@@ -248,16 +224,10 @@ function saveBlog() {
     const method = id ? "PUT" : "POST";
     const url = id ? `${API_BASE.blogs}/${id}` : API_BASE.blogs;
 
-    authFetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then(() => {
-        resetBlogForm();
-        loadBlogs();
-      })
-      .catch((err) => alert("Blog save failed"));
+    authFetch(url, { method, body: JSON.stringify(payload) })
+      .then(safeJson)
+      .then(() => { resetBlogForm(); loadBlogs(); })
+      .catch(() => alert("Blog save failed"));
   };
 
   if (imageFile) {
@@ -265,15 +235,16 @@ function saveBlog() {
     formData.append("file", imageFile);
     authFetch(API_BASE.blogImage, { method: "POST", body: formData })
       .then((res) => res.text())
-      .then(handleSave);
+      .then(handleSave)
+      .catch(() => alert("Failed to upload blog image"));
   } else {
-    handleSave(null); // for editing without image change
+    handleSave(null);
   }
 }
 
 function loadBlogs() {
   authFetch(API_BASE.blogs)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((blogs) => {
       const tbody = document.getElementById("blogList");
       tbody.innerHTML = "";
@@ -282,7 +253,7 @@ function loadBlogs() {
         row.innerHTML = `
           <td>${b.title}</td>
           <td>${b.snippet}</td>
-          <td><img src="${BACKEND_URL}${b.imageUrl}" width="50"/></td>
+          <td><img src="${b.imageUrl}" width="50"/></td>
           <td>
             <button onclick="editBlog(${b.id})">Edit</button>
             <button onclick="deleteBlog(${b.id})">Delete</button>
@@ -290,12 +261,13 @@ function loadBlogs() {
         `;
         tbody.appendChild(row);
       });
-    });
+    })
+    .catch((err) => alert("Failed to load blogs: " + err.message));
 }
 
 function editBlog(id) {
   authFetch(`${API_BASE.blogs}/${id}`)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((b) => {
       document.getElementById("blogId").value = b.id;
       document.getElementById("title").value = b.title;
@@ -304,12 +276,15 @@ function editBlog(id) {
       quill.root.innerHTML = b.content;
       document.getElementById("submitBtn").textContent = "Update Blog";
       document.getElementById("cancelEdit").style.display = "inline-block";
-    });
+    })
+    .catch((err) => alert("Failed to load blog: " + err.message));
 }
 
 function deleteBlog(id) {
   if (!confirm("Delete this blog post?")) return;
-  authFetch(`${API_BASE.blogs}/${id}`, { method: "DELETE" }).then(loadBlogs);
+  authFetch(`${API_BASE.blogs}/${id}`, { method: "DELETE" })
+    .then(() => loadBlogs())
+    .catch((err) => alert("Failed to delete blog: " + err.message));
 }
 
 function resetBlogForm() {
@@ -323,11 +298,10 @@ function resetBlogForm() {
 window.editBlog = editBlog;
 window.deleteBlog = deleteBlog;
 
-// === Order Management ===
-
+// === Orders ===
 function loadOrders() {
   authFetch(API_BASE.orders)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((orders) => {
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = "";
@@ -336,52 +310,47 @@ function loadOrders() {
         row.innerHTML = `
           <td>${o.id}</td>
           <td>${o.userEmail}</td>
-          <td>${new Intl.NumberFormat("en-KE", {
-            style: "currency",
-            currency: "KES",
-          }).format(o.totalAmount)}</td>
+          <td>KES ${parseFloat(o.totalAmount || 0).toFixed(2)}</td>
           <td>${o.status}</td>
           <td><button onclick="markShipped(${o.id})">Mark Shipped</button></td>
         `;
         tbody.appendChild(row);
       });
-    });
+    })
+    .catch((err) => alert("Failed to load orders: " + err.message));
 }
 
 function markShipped(id) {
   authFetch(`${API_BASE.orders}/${id}/status`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status: "SHIPPED" }),
-  }).then(loadOrders);
+  })
+    .then(safeJson)
+    .then(() => loadOrders())
+    .catch((err) => alert("Failed to mark shipped: " + err.message));
 }
 window.markShipped = markShipped;
 
 // === Users ===
-
 function loadUsers() {
   authFetch(API_BASE.users)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((users) => {
       const tbody = document.querySelector("#userTable tbody");
       tbody.innerHTML = "";
       users.forEach((u) => {
         const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${u.id}</td>
-          <td>${u.name}</td>
-          <td>${u.email}</td>
-          <td>${u.role}</td>`;
+        row.innerHTML = `<td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td>`;
         tbody.appendChild(row);
       });
-    });
+    })
+    .catch((err) => alert("Failed to load users: " + err.message));
 }
 
-// === Contact Messages ===
-
+// === Contacts ===
 function loadContactMessages() {
   authFetch(API_BASE.contacts)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((messages) => {
       const tbody = document.getElementById("contactMessagesBody");
       tbody.innerHTML = "";
@@ -396,14 +365,14 @@ function loadContactMessages() {
           <td>${new Date(m.submittedAt).toLocaleString()}</td>`;
         tbody.appendChild(row);
       });
-    });
+    })
+    .catch((err) => alert("Failed to load messages: " + err.message));
 }
 
 // === Quotes ===
-
 function loadQuotes() {
   authFetch(API_BASE.quotes)
-    .then((res) => res.json())
+    .then(safeJson)
     .then((quotes) => {
       const container = document.getElementById("quoteRequestsContainer");
       container.innerHTML = "";
@@ -418,7 +387,8 @@ function loadQuotes() {
         `;
         container.appendChild(div);
       });
-    });
+    })
+    .catch((err) => alert("Failed to load quotes: " + err.message));
 }
 
 window.showSection = showSection;

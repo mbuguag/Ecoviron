@@ -1,23 +1,21 @@
 {
-  "name": "Bionix EHS Consultancy Limited",
-  "short_name": "BionixEHS",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#356510",
-  "theme_color": "#ffffff",
-  "description": "Environmental consultancy and eco-solutions",
+  "name": "bionix-ehs Consultancy limited",
+  "short_name": "Bionix-ehs",
   "icons": [
     {
-      "src": "/assets/icons/favicons/web-app-manifest-192x192.png",
+      "src": "/frontend/assets/icons/favicons/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/assets/icons/favicons/web-app-manifest-512x512.png",
+      "src": "/frontend/assets/icons/favicons/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#356510",
+  "display": "standalone"
 }

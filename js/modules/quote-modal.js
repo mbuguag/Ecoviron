@@ -1,23 +1,54 @@
+// quote-modal.js
+import { API_BASE_URL, STATIC_BASE_URL } from "../apiConfig.js";
+
 export async function loadQuoteModal() {
   try {
-    // Prevent re-initializing
-    if (document.getElementById("quoteModal")) return;
+    // ✅ Prevent duplicates
+    if (document.getElementById("quote-modal-wrapper")) return;
 
-    // Load modal HTML
+    // Wrapper container
     const modalContainer = document.createElement("div");
     modalContainer.id = "quote-modal-wrapper";
 
-    const response = await fetch("/frontend/services/quote-modal.html");
-    const html = await response.text();
+    let html = null;
+    try {
+      // Try STATIC_BASE_URL first
+      const response = await fetch(`${STATIC_BASE_URL}/services/quote-modal.html`, {
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error(`Failed with ${response.status}`);
+      html = await response.text();
+      console.log("✅ Loaded quote-modal.html from STATIC_BASE_URL");
+    } catch (err) {
+      console.warn("⚠️ Falling back to /frontend/services/quote-modal.html:", err.message);
+      const fallbackRes = await fetch("/frontend/services/quote-modal.html", {
+        cache: "no-store"
+      });
+      if (!fallbackRes.ok) throw new Error(`Fallback failed with ${fallbackRes.status}`);
+      html = await fallbackRes.text();
+    }
+
     modalContainer.innerHTML = html;
     document.body.appendChild(modalContainer);
 
-    // Toast setup
+    // ✅ Load CSS dynamically only once
+    if (!document.getElementById("quote-modal-css")) {
+      const link = document.createElement("link");
+      link.id = "quote-modal-css";
+      link.rel = "stylesheet";
+      link.href = "/css/quote-modal.css";
+      document.head.appendChild(link);
+    }
+
+    // ✅ Ensure single toast
+    let toast = document.getElementById("toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toast";
+      toast.className = "toast hidden";
+      document.body.appendChild(toast);
+    }
     let toastTimeout;
-    const toast = document.createElement("div");
-    toast.id = "toast";
-    toast.className = "toast hidden";
-    document.body.appendChild(toast);
 
     const modal = document.getElementById("quoteModal");
     const openBtn = document.querySelector('[data-toggle="quote-modal"]');
@@ -27,32 +58,45 @@ export async function loadQuoteModal() {
     if (!modal) return;
 
     // Open modal
-    if (openBtn) {
-      openBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        modal.style.display = "flex";
-        modal.setAttribute("aria-hidden", "false");
-      });
+    function openModal() {
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden"; // lock scroll
     }
 
     // Close modal
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => {
-        closeModal();
+    function closeModal() {
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.removeProperty("overflow"); // safely restore scroll
+    }
+
+    // Open button
+    if (openBtn) {
+      openBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openModal();
       });
     }
 
-    // Close if clicked outside
-    window.addEventListener("click", (e) => {
-      if (e.target === modal) {
+    // Close button
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeModal);
+    }
+
+    // Close on outside click
+    modal.addEventListener("click", (e) => {
+      if (e.target.classList.contains("modal-overlay")) {
         closeModal();
       }
     });
 
-    function closeModal() {
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden", "true");
-    }
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        closeModal();
+      }
+    });
 
     // Handle submission
     if (form) {
@@ -71,22 +115,19 @@ export async function loadQuoteModal() {
           return;
         }
 
-        // Loading UI
         const submitButton = form.querySelector("button[type='submit']");
         submitButton.disabled = true;
         submitButton.textContent = "Sending...";
 
         try {
-          const res = await fetch("http://localhost:8080/api/quote/request", {
+          const res = await fetch(`${API_BASE_URL}/quote/request`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
 
           if (res.ok) {
-            showToast(
-              "Quote request sent successfully! A confirmation has been sent to your email."
-            );
+            showToast("Quote request sent successfully! A confirmation has been sent to your email.");
             form.reset();
             closeModal();
           } else {
@@ -102,6 +143,7 @@ export async function loadQuoteModal() {
       });
     }
 
+    // Toast helper
     function showToast(message = "Request sent successfully!") {
       if (!toast) return;
       clearTimeout(toastTimeout);

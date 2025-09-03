@@ -1,9 +1,0 @@
-target/
-uploads/
-.env
-*.sql
-*.jar
-.git
-.gitignore
-.idea
-.vscode

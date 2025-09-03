@@ -1,116 +1,101 @@
 import { layoutLoaded } from "./main.js";
 import { fetchAllProducts } from "./api/product-api.js";
-import { requireAuthForCheckout } from "./cart-actions.js";
 import { isLoggedIn } from "./auth.js";
 import { CartAPI } from "./cart/cart-api.js";
+import { requireAuthForCheckout, updateMiniCartCount, mergeGuestCartToBackend } from "./cart-actions.js";
+import { API_BASE_URL, BASE_PATH, formatPrice } from "./apiConfig.js";
 
-const API_BASE_URL = "http://localhost:8080/api";
-const ORDER_SUCCESS_URL = "order-success.html";
+const ORDER_SUCCESS_URL = `${BASE_PATH}order-success.html`;
 
-
-const getCartItems = async () => {
+/** Get cart items (guest or logged-in) */
+async function getCartItems() {
   if (isLoggedIn()) {
     try {
       const cart = await CartAPI.getCart();
-      console.log("Fetched cart from backend:", cart);
-
       if (!cart || !Array.isArray(cart.items)) return [];
-
-      const validItems = cart.items.filter((item) => item.product);
-      console.log("Valid items:", validItems);
-
-      return validItems.map((item) => ({
-        productId: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-      }));
+      return cart.items
+        .filter((item) => item.product)
+        .map((item) => ({
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+        }));
     } catch (err) {
       console.error("Error fetching cart from backend:", err);
       return [];
     }
   } else {
-    return JSON.parse(localStorage.getItem("cart") || "[]");
+    return JSON.parse(localStorage.getItem("guest_cart") || "[]");
   }
-};
+}
 
-
-
-
-const formatCurrency = (amount) => `KES ${amount.toLocaleString()}`;
-
-const calculateOrderSummary = async () => {
+/** Calculate order summary */
+async function calculateOrderSummary() {
   const cart = await getCartItems();
   let total = 0;
   const items = cart.map((item) => {
     const itemTotal = item.price * item.quantity;
     total += itemTotal;
-    return {
-      productId: item.productId || item.id,
-      name: item.name,
-      quantity: item.quantity,
-      price: item.price,
-      itemTotal,
-    };
+    return { ...item, itemTotal };
   });
   return { items, total };
-};
+}
 
+/** Render checkout summary */
 async function renderCheckoutSummary(summaryContainer, form) {
   const { items, total } = await calculateOrderSummary();
-
-  if (items.length === 0) {
+  if (!items.length) {
     summaryContainer.innerHTML = `
       <div class="empty-cart">
         <p>Your cart is empty.</p>
-        <a href="products.html" class="btn primary">Continue Shopping</a>
+        <a href="${BASE_PATH}products.html" class="btn primary">Continue Shopping</a>
       </div>
     `;
     form.style.display = "none";
     return;
   }
 
-  let html = `<h4>Order Items</h4><ul class="checkout-items">`;
-  for (const item of items) {
-    html += `
-      <li class="checkout-item">
-        <span class="item-name">${item.name}</span>
-        <span class="item-quantity">${item.quantity} x ${formatCurrency(
-      item.price
-    )}</span>
-        <span class="item-total">${formatCurrency(item.itemTotal)}</span>
-      </li>`;
-  }
-
-  html += `</ul>
+  const html = `
+    <h4>Order Items</h4>
+    <ul class="checkout-items">
+      ${items
+        .map(
+          (i) =>
+            `<li class="checkout-item">
+              <span class="item-name">${i.name}</span>
+              <span class="item-quantity">${i.quantity} x ${formatPrice(i.price)}</span>
+              <span class="item-total">${formatPrice(i.itemTotal)}</span>
+            </li>`
+        )
+        .join("")}
+    </ul>
     <div class="order-total">
       <span>Total:</span>
-      <strong>${formatCurrency(total)}</strong>
-    </div>`;
-
+      <strong>${formatPrice(total)}</strong>
+    </div>
+  `;
   summaryContainer.innerHTML = html;
 }
 
-
+/** Validate checkout form */
 function validateForm(data) {
   if (!data.name || !data.email || !data.address || !data.paymentMethod) {
     throw new Error("Please fill in all required fields.");
   }
-
   if (
     data.paymentMethod === "mpesa" &&
     (!data.mpesaPhone || !/^254[17]\d{8}$/.test(data.mpesaPhone))
   ) {
     throw new Error("Please enter a valid M-Pesa phone number (2547XXXXXXXX).");
   }
-
   if (!/\S+@\S+\.\S+/.test(data.email)) {
     throw new Error("Please enter a valid email address.");
   }
 }
 
+/** Initiate M-Pesa payment */
 async function initiateMpesaPayment(phone, amount, orderReference) {
-  console.log("📲 Initiating M-Pesa payment...");
   const token = localStorage.getItem("jwtToken");
   const res = await fetch(`${API_BASE_URL}/payment/pay`, {
     method: "POST",
@@ -121,33 +106,30 @@ async function initiateMpesaPayment(phone, amount, orderReference) {
     body: JSON.stringify({ phone, amount: String(amount), orderReference }),
   });
 
-
   if (!res.ok) {
-   let errorMessage = "Failed to initiate M-Pesa payment.";
-   try {
-     const error = await res.json();
-     errorMessage = error.message || errorMessage;
-   } catch (_) {
-     // response is empty or not JSON
-   }
-   throw new Error(errorMessage);
-
+    let errorMessage = "Failed to initiate M-Pesa payment.";
+    try {
+      const error = await res.json();
+      errorMessage = error.message || errorMessage;
+    } catch (_) {}
+    throw new Error(errorMessage);
   }
 
-  alert("M-Pesa STK push sent. Complete the payment on your phone.");
+  showToast("M-Pesa STK push sent. Complete the payment on your phone.");
 }
 
+/** Submit checkout order */
 async function submitOrder(event, refs) {
   event.preventDefault();
 
   const { paymentSelect, mpesaPhoneInput } = refs;
 
   try {
-    const cart =  await getCartItems();
-    if (cart.length === 0) throw new Error("Your cart is empty.");
+    const cart = await getCartItems();
+    if (!cart.length) throw new Error("Your cart is empty.");
 
     const token = localStorage.getItem("jwtToken");
-    if (!token) return (window.location.href = "login.html");
+    if (!token) return (window.location.href = `${BASE_PATH}login.html`);
 
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -155,35 +137,29 @@ async function submitOrder(event, refs) {
     const paymentMethod = paymentSelect.value;
     const mpesaPhone = mpesaPhoneInput?.value.trim() || "";
 
-    const orderItems = cart.map((item) => ({
-      productId: item.productId || item.id,
-      name: item.name,
-      quantity: item.quantity,
-      price: item.price,
-    }));
+    validateForm({ name, email, address, paymentMethod, mpesaPhone });
 
+    // Verify product availability
     const products = await fetchAllProducts();
     const validProductIds = new Set(products.map((p) => p.id));
-    const invalidItems = orderItems.filter(
-      (item) => !validProductIds.has(item.productId)
-    );
-
-    if (invalidItems.length > 0) {
-      const missingNames = invalidItems.map((i) => i.name).join(", ");
+    const invalidItems = cart.filter((i) => !validProductIds.has(i.productId));
+    if (invalidItems.length) {
       throw new Error(
-        `The following items are no longer available: ${missingNames}`
+        `These items are no longer available: ${invalidItems
+          .map((i) => i.name)
+          .join(", ")}`
       );
     }
 
-    const totalAmount = orderItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    validateForm({ name, email, address, paymentMethod, mpesaPhone });
+    const totalAmount = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
     const orderPayload = {
-      items: orderItems,
+      items: cart.map((i) => ({
+        productId: i.productId,
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      })),
       totalAmount,
       customerDetails: { name, email, shippingAddress: address },
       paymentMethod,
@@ -204,27 +180,25 @@ async function submitOrder(event, refs) {
     }
 
     const { id: orderId, orderReference } = await res.json();
-    console.log(" Order saved:", orderId, orderReference);
+    console.log("✅ Order saved:", orderId, orderReference);
 
     if (paymentMethod === "mpesa") {
       await initiateMpesaPayment(mpesaPhone, totalAmount, orderReference);
     }
 
-    // Clear both guest and backend cart
-    await fetch(`${API_BASE_URL}/cart/clear`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
+    // Clear backend + guest cart
+    await CartAPI.clearCart();
     localStorage.removeItem("guest_cart");
+    await updateMiniCartCount();
 
     window.location.href = `${ORDER_SUCCESS_URL}?ref=${orderReference}`;
   } catch (err) {
-    alert(`Checkout Error: ${err.message}`);
+    showToast(`Checkout Error: ${err.message}`, true);
     console.error(err);
   }
 }
 
+/** Init checkout page */
 function initCheckout() {
   const form = document.getElementById("checkout-form");
   const summaryContainer = document.getElementById("checkout-summary");
@@ -234,7 +208,7 @@ function initCheckout() {
   const placeOrderBtn = document.getElementById("place-order-btn");
 
   if (!form || !summaryContainer || !paymentSelect || !placeOrderBtn) {
-    console.error("Missing required checkout form elements.");
+    console.error("Missing checkout form elements.");
     return;
   }
 
@@ -250,9 +224,41 @@ function initCheckout() {
   });
 }
 
-// Init on DOM ready
+/** Toast notification */
+function showToast(msg, isError = false, duration = 3500) {
+  const toast = document.createElement("div");
+  toast.className = `toast-message ${isError ? "toast-error" : ""}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration);
+}
+
+/** Toast CSS */
+const style = document.createElement("style");
+style.textContent = `
+.toast-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  z-index: 9999;
+  opacity: 0.95;
+  font-weight: 500;
+}
+.toast-message.toast-error {
+  background: #f44336;
+}
+`;
+document.head.appendChild(style);
+
+/** Init on DOM ready */
 document.addEventListener("DOMContentLoaded", async () => {
   await layoutLoaded;
   requireAuthForCheckout();
+  await mergeGuestCartToBackend();
   initCheckout();
 });
+ 

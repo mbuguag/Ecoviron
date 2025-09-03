@@ -1,7 +1,7 @@
-import { layoutLoaded } from "./main.js";
+import { fetchBlogs } from "./blogApi.js";
+import { STATIC_BASE_URL } from "./apiConfig.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM Elements
   const blogGrid = document.getElementById("blog-grid");
   const pagination = document.getElementById("pagination");
   const searchInput = document.getElementById("blog-search");
@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initLoadingIndicator();
   loadBlogs();
 
-  // Functions
   function initLoadingIndicator() {
     loadingIndicator.innerHTML = `
       <div class="spinner"></div>
@@ -40,14 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showError(message) {
-    const errorElement = document.createElement("div");
-    errorElement.className = "error-message";
-    errorElement.innerHTML = `
-      <i class="fas fa-exclamation-circle"></i>
-      <span>${message}</span>
+    blogGrid.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+      </div>
     `;
-    blogGrid.innerHTML = "";
-    blogGrid.appendChild(errorElement);
   }
 
   async function loadBlogs(page = 1, sort = currentSort, query = currentQuery) {
@@ -56,30 +53,18 @@ document.addEventListener("DOMContentLoaded", () => {
     currentQuery = query;
 
     showLoading();
-
     try {
-      let url;
-      if (query) {
-        url = `http://localhost:8080/api/public-blogs/public/search?query=${encodeURIComponent(
-          query
-        )}&page=${page - 1}&size=${pageSize}&sort=${getSortParam(sort)}`;
-      } else {
-        url = `http://localhost:8080/api/public-blogs/public?page=${
-          page - 1
-        }&size=${pageSize}&sort=${getSortParam(sort)}`;
-      }
+      const data = await fetchBlogs({
+        page: page - 1,
+        size: pageSize,
+        sort: getSortParam(sort),
+        query: query,
+      });
 
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
       renderBlogs(data.content);
       renderPagination(data.totalPages, page);
-    } catch (error) {
-      console.error("Error fetching blogs:", error);
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
       showError("Failed to load blog posts. Please try again later.");
     } finally {
       hideLoading();
@@ -104,8 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : resolvePath("/uploads/default.jpg");
 
       const altText = post.title || "Blog post image";
-      const snippet =
-        post.snippet || "Click to read more about this article...";
+      const snippet = post.snippet || "Click to read more about this article...";
       const date = post.publishedAt ? formatDate(post.publishedAt) : "";
 
       card.innerHTML = `
@@ -117,9 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3>${post.title || "Untitled Post"}</h3>
           <p>${snippet}</p>
           <div class="blog-card-footer">
-            <a href="blog-details.html?id=${
-              post.id
-            }" class="btn-outline">Read More</a>
+            <a href="blog-details.html?id=${post.id}" class="btn-outline">Read More</a>
             ${
               post.viewCount
                 ? `<span class="views"><i class="fas fa-eye"></i> ${post.viewCount}</span>`
@@ -135,19 +117,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPagination(totalPages, current) {
     pagination.innerHTML = "";
-
     if (totalPages <= 1) return;
 
-    // Previous Button
+    // Prev
     if (current > 1) {
-      const prevBtn = createPaginationButton("&laquo; Previous", () => {
-        loadBlogs(current - 1);
-      });
-      prevBtn.classList.add("prev-btn");
-      pagination.appendChild(prevBtn);
+      pagination.appendChild(createPaginationButton("&laquo; Previous", () => loadBlogs(current - 1)));
     }
 
-    // Page Numbers
     const maxVisiblePages = 5;
     let startPage = Math.max(1, current - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -157,45 +133,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (startPage > 1) {
-      const firstBtn = createPaginationButton("1", () => loadBlogs(1));
-      pagination.appendChild(firstBtn);
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.className = "ellipsis";
-        ellipsis.textContent = "...";
-        pagination.appendChild(ellipsis);
-      }
+      pagination.appendChild(createPaginationButton("1", () => loadBlogs(1)));
+      if (startPage > 2) pagination.appendChild(createEllipsis());
     }
 
     for (let i = startPage; i <= endPage; i++) {
       const btn = createPaginationButton(i.toString(), () => loadBlogs(i));
-      if (i === current) {
-        btn.classList.add("active");
-        btn.setAttribute("aria-current", "page");
-      }
+      if (i === current) btn.classList.add("active");
       pagination.appendChild(btn);
     }
 
     if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.className = "ellipsis";
-        ellipsis.textContent = "...";
-        pagination.appendChild(ellipsis);
-      }
-      const lastBtn = createPaginationButton(totalPages.toString(), () =>
-        loadBlogs(totalPages)
-      );
-      pagination.appendChild(lastBtn);
+      if (endPage < totalPages - 1) pagination.appendChild(createEllipsis());
+      pagination.appendChild(createPaginationButton(totalPages.toString(), () => loadBlogs(totalPages)));
     }
 
-    // Next Button
+    // Next
     if (current < totalPages) {
-      const nextBtn = createPaginationButton("Next &raquo;", () => {
-        loadBlogs(current + 1);
-      });
-      nextBtn.classList.add("next-btn");
-      pagination.appendChild(nextBtn);
+      pagination.appendChild(createPaginationButton("Next &raquo;", () => loadBlogs(current + 1)));
     }
   }
 
@@ -205,6 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.innerHTML = text;
     btn.addEventListener("click", onClick);
     return btn;
+  }
+
+  function createEllipsis() {
+    const ellipsis = document.createElement("span");
+    ellipsis.className = "ellipsis";
+    ellipsis.textContent = "...";
+    return ellipsis;
   }
 
   function getSortParam(option) {
@@ -220,8 +182,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function formatDate(dateString) {
     try {
-      const options = { year: "numeric", month: "short", day: "numeric" };
-      return new Date(dateString).toLocaleDateString("en-US", options);
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
     } catch {
       return "";
     }
@@ -231,34 +196,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!path) return "";
     return path.startsWith("http")
       ? path
-      : `http://localhost:8080${path.startsWith("/") ? "" : "/"}${path}`;
+      : `${STATIC_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
   }
 
-  // Event Listeners
-  searchBtn.addEventListener("click", () => {
-    const query = searchInput.value.trim();
-    currentQuery = query;
-    loadBlogs(1);
-  });
+  // Events
+  searchBtn.addEventListener("click", () => loadBlogs(1, currentSort, searchInput.value.trim()));
+  searchInput.addEventListener("keydown", (e) => e.key === "Enter" && searchBtn.click());
+  sortOptions.addEventListener("change", (e) => loadBlogs(1, e.target.value, currentQuery));
 
-  searchInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      searchBtn.click();
-    }
-  });
-
-  sortOptions.addEventListener("change", (e) => {
-    currentSort = e.target.value;
-    loadBlogs(1);
-  });
-
-  // Expose for debugging
+  // Debugging
   window.blogApp = {
     reload: () => loadBlogs(currentPage),
-    getState: () => ({
-      currentPage,
-      currentQuery,
-      currentSort,
-    }),
+    getState: () => ({ currentPage, currentQuery, currentSort }),
   };
 });

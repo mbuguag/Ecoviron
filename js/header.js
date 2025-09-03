@@ -1,214 +1,370 @@
-// header.js - Header functionality with authentication
-import { authService } from './auth.js';
-import { BASE_PATH } from './apiConfig.js';
+// ==========================================
+// BIONIX-EHS Header JavaScript Module
+// Delegation-based HeaderManager
+// ==========================================
+
+import { fetchFeaturedProducts } from "./api.js";
+import { setupCartInteractions } from "./cart-actions.js";
 
 class HeaderManager {
-    constructor() {
-        this.menuToggle = null;
-        this.navMenu = null;
-        this.authContainer = null;
-        this.init();
-    }
+  constructor() {
+    this.header = document.querySelector(".site-header");
 
-    init() {
-        this.cacheDOMElements();
-        this.setupEventListeners();
-        this.initAuth();
-        this.replaceTemplateVariables();
-    }
+    // State
+    this.isMenuOpen = false;
+    this.currentUser = null;
+    this.cartCount = 0;
 
-    cacheDOMElements() {
-        this.menuToggle = document.querySelector('.header-menu-toggle');
-        this.navMenu = document.querySelector('.header-nav-list');
-        this.authContainer = document.getElementById('auth-container');
-    }
+    this.init();
+  }
 
-    setupEventListeners() {
-        // Mobile menu toggle
-        if (this.menuToggle && this.navMenu) {
-            this.menuToggle.addEventListener('click', () => this.toggleMobileMenu());
-        }
+  init() {
+    this.setupDelegatedListeners();
+    this.setupScrollHeader();
+    this.initAuth();
+    this.initCart();
+    this.setupAccessibility();
+    this.handleResize();
+  }
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.site-header') && this.navMenu?.classList.contains('active')) {
-                this.closeMobileMenu();
-            }
+  // ------------------------------
+  // 🔹 Delegated Event Listeners
+  // ------------------------------
+  setupDelegatedListeners() {
+    const root = document;
+
+    root.addEventListener("click", (e) => {
+      const target = e.target;
+
+      // Mobile menu toggle
+      if (target.closest(".header-menu-toggle")) {
+        e.preventDefault();
+        this.toggleMobileMenu();
+        return;
+      }
+
+      // Mobile nav close
+      if (target.closest(".mobile-nav-close")) {
+        e.preventDefault();
+        this.closeMobileMenu();
+        return;
+      }
+
+      // Overlay
+      if (target.closest(".menu-overlay")) {
+        e.preventDefault();
+        this.closeMobileMenu();
+        return;
+      }
+
+      // Mobile dropdown toggle
+      const mobileDropdownLink = target.closest(".mobile-nav .dropdown > a");
+      if (mobileDropdownLink) {
+        e.preventDefault();
+        const dropdown = mobileDropdownLink.closest(".dropdown");
+        const isActive = dropdown.classList.contains("active");
+
+        document.querySelectorAll(".mobile-nav .dropdown.active")
+          .forEach(d => { if (d !== dropdown) d.classList.remove("active"); });
+
+        dropdown.classList.toggle("active", !isActive);
+        return;
+      }
+
+      // Cart icon
+      if (target.closest(".cart-icon")) {
+        e.preventDefault();
+        this.openMiniCart?.();
+        return;
+      }
+
+      // Auth links
+      if (target.closest(".auth-login-link")) return;
+      if (target.closest(".auth-register-link")) return;
+
+      if (target.closest(".auth-logout-link")) {
+        e.preventDefault();
+        this.handleLogout();
+        return;
+      }
+    });
+
+    // Esc key closes menu
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.isMenuOpen) {
+        this.closeMobileMenu();
+      }
+    });
+
+    // Window events
+    window.addEventListener("resize", () => this.handleResize());
+    window.addEventListener("scroll", () => this.handleScroll());
+  }
+
+  // ------------------------------
+  // Scroll + Resize
+  // ------------------------------
+  setupScrollHeader() {
+    let ticking = false;
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this.handleScroll();
+          ticking = false;
         });
+        ticking = true;
+      }
+    });
+  }
 
-        // Close on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeMobileMenu();
-                this.closeAllDropdowns();
-            }
-        });
+  handleScroll() {
+    if (!this.header) return;
+    this.header.classList.toggle("scrolled", window.scrollY > 50);
+  }
+
+  handleResize() {
+    if (window.innerWidth > 768 && this.isMenuOpen) {
+      this.closeMobileMenu();
     }
+  }
 
-    toggleMobileMenu() {
-        this.menuToggle.classList.toggle('active');
-        this.navMenu.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-        this.menuToggle.setAttribute('aria-expanded', 
-            this.menuToggle.classList.contains('active'));
+  // ------------------------------
+  // Mobile Menu
+  // ------------------------------
+  toggleMobileMenu() {
+    this.isMenuOpen ? this.closeMobileMenu() : this.openMobileMenu();
+  }
+
+  openMobileMenu() {
+    this.isMenuOpen = true;
+    document.querySelector(".header-menu-toggle")?.classList.add("active");
+    document.querySelector(".mobile-nav")?.classList.add("active");
+    document.querySelector(".menu-overlay")?.classList.add("active");
+    document.body.style.overflow = "hidden";
+    document.querySelector(".mobile-nav-close")?.focus();
+    document.querySelector(".header-menu-toggle")?.setAttribute("aria-expanded", "true");
+  }
+
+  closeMobileMenu() {
+    this.isMenuOpen = false;
+    document.querySelector(".header-menu-toggle")?.classList.remove("active");
+    document.querySelector(".mobile-nav")?.classList.remove("active");
+    document.querySelector(".menu-overlay")?.classList.remove("active");
+    document.body.style.overflow = "";
+
+    document.querySelectorAll(".mobile-nav .dropdown.active")
+      .forEach(dropdown => dropdown.classList.remove("active"));
+
+    document.querySelector(".header-menu-toggle")?.setAttribute("aria-expanded", "false");
+    document.querySelector(".header-menu-toggle")?.focus();
+  }
+
+  // ------------------------------
+  // Auth
+  // ------------------------------
+  initAuth() {
+    this.checkAuthStatus();
+  }
+
+  checkAuthStatus() {
+    try {
+      const userData = JSON.parse(localStorage.getItem("bionix_user") || "null");
+      if (userData?.token) {
+        this.setAuthenticatedState(userData);
+      } else {
+        this.setUnauthenticatedState();
+      }
+    } catch (err) {
+      console.warn("Auth check error:", err);
+      this.setUnauthenticatedState();
     }
+  }
 
-    closeMobileMenu() {
-        this.menuToggle.classList.remove('active');
-        this.navMenu.classList.remove('active');
-        document.body.classList.remove('menu-open');
-        this.menuToggle.setAttribute('aria-expanded', 'false');
-    }
+  setAuthenticatedState(user) {
+    this.currentUser = user;
+    this.renderAuthUI(true, user);
+  }
 
-    closeAllDropdowns() {
-        const dropdowns = document.querySelectorAll('.dropdown-content');
-        dropdowns.forEach(dropdown => {
-            dropdown.style.display = 'none';
-        });
-    }
+  setUnauthenticatedState() {
+    this.currentUser = null;
+    this.renderAuthUI(false);
+  }
 
-    async initAuth() {
-        if (!this.authContainer) return;
+  renderAuthUI(isAuth, user = null) {
+    const areas = [document.querySelector("#authArea"), document.querySelector("#authAreaMobile")];
+    areas.forEach(area => {
+      if (!area) return;
 
-        try {
-            const user = authService.getCurrentUser();
-            
-            if (authService.isLoggedIn() && user) {
-                this.renderLoggedInState(user);
-            } else {
-                this.renderLoggedOutState();
-            }
-
-            this.setupAuthEventListeners();
-
-        } catch (error) {
-            console.error('Auth initialization failed:', error);
-            this.renderLoggedOutState();
-        }
-    }
-
-    renderLoggedInState(user) {
-        const profileImage = authService.getProfileImage();
-        
-        this.authContainer.innerHTML = `
-            <div class="user-dropdown">
-                <img class="avatar-small" src="${profileImage}" alt="${user.username}" 
-                     onerror="this.src='${BASE_PATH}assets/icons/default-avatar.png'">
-                <span>${user.username?.split(" ")[0] || 'User'}</span>
-                <div class="dropdown-content">
-                    <span class="dropdown-header">My Account</span>
-                    <a href="${BASE_PATH}profile.html" class="auth-profile-link">
-                        <i class="fas fa-user"></i> Profile
-                    </a>
-                    <a href="#" class="auth-logout-link">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                </div>
-            </div>
+      if (isAuth) {
+        area.innerHTML = `
+          <a href="/account" class="auth-profile-link">
+            <i class="fas fa-user"></i> ${user.name || user.email || "User"}
+          </a>
+          <a href="#" class="auth-logout-link">Logout</a>
         `;
-    }
-
-    renderLoggedOutState() {
-        this.authContainer.innerHTML = `
-            <div class="user-dropdown">
-                <a href="#" class="header-nav-link">
-                    <i class="fas fa-user"></i> Account
-                </a>
-                <div class="dropdown-content">
-                    <span class="dropdown-header">My Account</span>
-                    <a href="${BASE_PATH}auth/login.html" class="auth-login-link">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <a href="${BASE_PATH}auth/register.html" class="auth-register-link">
-                        <i class="fas fa-user-plus"></i> Register
-                    </a>
-                </div>
-            </div>
+      } else {
+        area.innerHTML = `
+          <a href="/login" class="auth-login-link">Login</a>
+          <a href="/register" class="auth-register-link">Register</a>
         `;
+      }
+    });
+  }
+
+  handleLogout() {
+    localStorage.removeItem("bionix_user");
+    localStorage.removeItem("bionix_token");
+    this.setUnauthenticatedState();
+    this.showNotification("Successfully logged out!", "success");
+    window.location.href = window.BASE_PATH || "/";
+  }
+
+  // ------------------------------
+  // Cart
+  // ------------------------------
+  initCart() {
+    this.loadCartCount();
+    document.addEventListener("cartUpdated", (e) => {
+      this.updateCartCount(e.detail.count);
+    });
+  }
+
+  loadCartCount() {
+    try {
+      const cart = JSON.parse(localStorage.getItem("bionix_cart") || "[]");
+      const count = cart.reduce((t, i) => t + (i.quantity || 1), 0);
+      this.updateCartCount(count);
+    } catch {
+      this.updateCartCount(0);
     }
+  }
 
-    setupAuthEventListeners() {
-        // Event delegation for logout
-        this.authContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('auth-logout-link') || 
-                e.target.closest('.auth-logout-link')) {
-                e.preventDefault();
-                this.handleLogout();
-            }
-        });
+  updateCartCount(count) {
+    this.cartCount = count;
+    document.querySelectorAll('[id^="mini-cart-count"]').forEach(el => {
+      el.textContent = count;
+      el.style.display = count > 0 ? "flex" : "none";
+    });
+  }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.user-dropdown')) {
-                this.closeAllDropdowns();
-            }
-        });
+  // ------------------------------
+  // Accessibility
+  // ------------------------------
+  setupAccessibility() {
+    document.querySelector(".header-menu-toggle")
+      ?.setAttribute("aria-label", "Toggle navigation menu");
+    document.querySelector(".mobile-nav")
+      ?.setAttribute("role", "navigation");
+    document.querySelector(".mobile-nav")
+      ?.setAttribute("aria-label", "Mobile navigation");
+
+    this.setupFocusTrap();
+  }
+
+  setupFocusTrap() {
+    const focusable = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    document.addEventListener("keydown", (e) => {
+      if (!this.isMenuOpen || e.key !== "Tab") return;
+
+      const focusableEls = document.querySelector(".mobile-nav")?.querySelectorAll(focusable);
+      if (!focusableEls?.length) return;
+
+      const first = focusableEls[0];
+      const last = focusableEls[focusableEls.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    });
+  }
+
+  // ------------------------------
+  // Utilities
+  // ------------------------------
+  showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = `header-notification header-notification--${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: ${type === "success" ? "#4CAF50" : type === "error" ? "#f44336" : "#2196F3"};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    requestAnimationFrame(() => {
+      notification.style.opacity = "1";
+      notification.style.transform = "translateX(0)";
+    });
+
+    setTimeout(() => {
+      notification.style.opacity = "0";
+      notification.style.transform = "translateX(100%)";
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
+  // ------------------------------
+  // Public API
+  // ------------------------------
+  updateUser(userData) {
+    if (userData) {
+      localStorage.setItem("bionix_user", JSON.stringify(userData));
+      this.setAuthenticatedState(userData);
+    } else {
+      this.handleLogout();
     }
+  }
 
-    async handleLogout() {
-        try {
-            await authService.logout();
-            this.showNotification('Logged out successfully!', 'success');
-            
-            // Re-render auth state
-            this.renderLoggedOutState();
-            
-            // Redirect after short delay
-            setTimeout(() => {
-                window.location.href = `${BASE_PATH}index.html`;
-            }, 1000);
-            
-        } catch (error) {
-            console.error('Logout failed:', error);
-            this.showNotification('Logout failed. Please try again.', 'error');
-        }
+  addToCart(product, quantity = 1) {
+    try {
+      const cart = JSON.parse(localStorage.getItem("bionix_cart") || "[]");
+      const existing = cart.find(item => item.id === product.id);
+
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        cart.push({ ...product, quantity });
+      }
+
+      localStorage.setItem("bionix_cart", JSON.stringify(cart));
+      this.loadCartCount();
+
+      document.dispatchEvent(new CustomEvent("cartUpdated", {
+        detail: { count: this.cartCount, cart }
+      }));
+
+      this.showNotification(`${product.name || "Item"} added to cart!`, "success");
+    } catch (err) {
+      console.error("Cart add error:", err);
+      this.showNotification("Error adding item to cart", "error");
     }
+  }
 
-    showNotification(message, type = 'info') {
-        // Remove existing notifications
-        const existingNotification = document.querySelector('.auth-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-
-        const notification = document.createElement('div');
-        notification.className = `auth-notification auth-notification-${type}`;
-        notification.innerHTML = `
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">&times;</button>
-        `;
-
-        document.body.appendChild(notification);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
-    replaceTemplateVariables() {
-        // Replace BASE_PATH in all links
-        const links = document.querySelectorAll('a[href*="${BASE_PATH}"]');
-        links.forEach(link => {
-            link.href = link.href.replace('${BASE_PATH}', BASE_PATH);
-        });
-
-        // Replace in other elements if needed
-        const elements = document.querySelectorAll('*');
-        elements.forEach(el => {
-            if (el.textContent.includes('${BASE_PATH}')) {
-                el.textContent = el.textContent.replace('${BASE_PATH}', BASE_PATH);
-            }
-        });
-    }
+  getCurrentUser() { return this.currentUser; }
+  getCartCount() { return this.cartCount; }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    new HeaderManager();
+// Init
+document.addEventListener("DOMContentLoaded", () => {
+  window.bionixHeader = new HeaderManager();
 });
 
-// Export for manual initialization if needed
-export default HeaderManager;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = HeaderManager;
+}
