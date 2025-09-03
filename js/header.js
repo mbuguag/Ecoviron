@@ -1,25 +1,25 @@
+// ==========================================
 // BIONIX-EHS Header JavaScript Module
+// Delegation-based HeaderManager
+// ==========================================
+
+import { fetchFeaturedProducts } from "./api.js";
+import { setupCartInteractions } from "./cart-actions.js";
+
 class HeaderManager {
   constructor() {
-    this.header = document.querySelector('.site-header');
-    this.menuToggle = document.querySelector('.header-menu-toggle');
-    this.mobileNav = document.querySelector('.mobile-nav');
-    this.mobileNavClose = document.querySelector('.mobile-nav-close');
-    this.menuOverlay = document.querySelector('.menu-overlay');
-    this.dropdowns = document.querySelectorAll('.dropdown');
-    this.authContainers = document.querySelectorAll('[id^="auth-container"]');
-    this.cartCountElements = document.querySelectorAll('[id^="mini-cart-count"]');
-    
-    // State management
+    this.header = document.querySelector(".site-header");
+
+    // State
     this.isMenuOpen = false;
     this.currentUser = null;
     this.cartCount = 0;
-    
+
     this.init();
   }
 
   init() {
-    this.setupEventListeners();
+    this.setupDelegatedListeners();
     this.setupScrollHeader();
     this.initAuth();
     this.initCart();
@@ -27,45 +27,87 @@ class HeaderManager {
     this.handleResize();
   }
 
-  setupEventListeners() {
-    // Mobile menu toggle
-    if (this.menuToggle) {
-      this.menuToggle.addEventListener('click', () => this.toggleMobileMenu());
-    }
+  // ------------------------------
+  // 🔹 Delegated Event Listeners
+  // ------------------------------
+  setupDelegatedListeners() {
+    const root = document;
 
-    if (this.mobileNavClose) {
-      this.mobileNavClose.addEventListener('click', () => this.closeMobileMenu());
-    }
+    root.addEventListener("click", (e) => {
+      const target = e.target;
 
-    if (this.menuOverlay) {
-      this.menuOverlay.addEventListener('click', () => this.closeMobileMenu());
-    }
+      // Mobile menu toggle
+      if (target.closest(".header-menu-toggle")) {
+        e.preventDefault();
+        this.toggleMobileMenu();
+        return;
+      }
 
-    // Mobile dropdown handling
-    this.setupMobileDropdowns();
+      // Mobile nav close
+      if (target.closest(".mobile-nav-close")) {
+        e.preventDefault();
+        this.closeMobileMenu();
+        return;
+      }
 
-    // Desktop dropdown handling
-    this.setupDesktopDropdowns();
+      // Overlay
+      if (target.closest(".menu-overlay")) {
+        e.preventDefault();
+        this.closeMobileMenu();
+        return;
+      }
 
-    // Auth links
-    this.setupAuthListeners();
+      // Mobile dropdown toggle
+      const mobileDropdownLink = target.closest(".mobile-nav .dropdown > a");
+      if (mobileDropdownLink) {
+        e.preventDefault();
+        const dropdown = mobileDropdownLink.closest(".dropdown");
+        const isActive = dropdown.classList.contains("active");
 
-    // Window events
-    window.addEventListener('resize', () => this.handleResize());
-    window.addEventListener('scroll', () => this.handleScroll());
-    
-    // Escape key to close mobile menu
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isMenuOpen) {
+        document.querySelectorAll(".mobile-nav .dropdown.active")
+          .forEach(d => { if (d !== dropdown) d.classList.remove("active"); });
+
+        dropdown.classList.toggle("active", !isActive);
+        return;
+      }
+
+      // Cart icon
+      if (target.closest(".cart-icon")) {
+        e.preventDefault();
+        this.openMiniCart?.();
+        return;
+      }
+
+      // Auth links
+      if (target.closest(".auth-login-link")) return;
+      if (target.closest(".auth-register-link")) return;
+
+      if (target.closest(".auth-logout-link")) {
+        e.preventDefault();
+        this.handleLogout();
+        return;
+      }
+    });
+
+    // Esc key closes menu
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.isMenuOpen) {
         this.closeMobileMenu();
       }
     });
+
+    // Window events
+    window.addEventListener("resize", () => this.handleResize());
+    window.addEventListener("scroll", () => this.handleScroll());
   }
 
+  // ------------------------------
+  // Scroll + Resize
+  // ------------------------------
   setupScrollHeader() {
     let ticking = false;
-    
-    window.addEventListener('scroll', () => {
+
+    window.addEventListener("scroll", () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           this.handleScroll();
@@ -78,303 +120,181 @@ class HeaderManager {
 
   handleScroll() {
     if (!this.header) return;
-    
-    const scrollY = window.scrollY;
-    const scrollThreshold = 50;
-    
-    if (scrollY > scrollThreshold) {
-      this.header.classList.add('scrolled');
-    } else {
-      this.header.classList.remove('scrolled');
-    }
+    this.header.classList.toggle("scrolled", window.scrollY > 50);
   }
 
-  toggleMobileMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-    
-    if (this.isMenuOpen) {
-      this.openMobileMenu();
-    } else {
+  handleResize() {
+    if (window.innerWidth > 768 && this.isMenuOpen) {
       this.closeMobileMenu();
     }
   }
 
+  // ------------------------------
+  // Mobile Menu
+  // ------------------------------
+  toggleMobileMenu() {
+    this.isMenuOpen ? this.closeMobileMenu() : this.openMobileMenu();
+  }
+
   openMobileMenu() {
     this.isMenuOpen = true;
-    this.menuToggle?.classList.add('active');
-    this.mobileNav?.classList.add('active');
-    this.menuOverlay?.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Focus management
-    this.mobileNavClose?.focus();
-    
-    // Update aria-expanded
-    this.menuToggle?.setAttribute('aria-expanded', 'true');
+    document.querySelector(".header-menu-toggle")?.classList.add("active");
+    document.querySelector(".mobile-nav")?.classList.add("active");
+    document.querySelector(".menu-overlay")?.classList.add("active");
+    document.body.style.overflow = "hidden";
+    document.querySelector(".mobile-nav-close")?.focus();
+    document.querySelector(".header-menu-toggle")?.setAttribute("aria-expanded", "true");
   }
 
   closeMobileMenu() {
     this.isMenuOpen = false;
-    this.menuToggle?.classList.remove('active');
-    this.mobileNav?.classList.remove('active');
-    this.menuOverlay?.classList.remove('active');
-    document.body.style.overflow = '';
-    
-    // Close mobile dropdowns
-    document.querySelectorAll('.mobile-nav .dropdown.active')
-      .forEach(dropdown => dropdown.classList.remove('active'));
-    
-    // Update aria-expanded
-    this.menuToggle?.setAttribute('aria-expanded', 'false');
-    
-    // Return focus to toggle button
-    this.menuToggle?.focus();
+    document.querySelector(".header-menu-toggle")?.classList.remove("active");
+    document.querySelector(".mobile-nav")?.classList.remove("active");
+    document.querySelector(".menu-overlay")?.classList.remove("active");
+    document.body.style.overflow = "";
+
+    document.querySelectorAll(".mobile-nav .dropdown.active")
+      .forEach(dropdown => dropdown.classList.remove("active"));
+
+    document.querySelector(".header-menu-toggle")?.setAttribute("aria-expanded", "false");
+    document.querySelector(".header-menu-toggle")?.focus();
   }
 
-  setupMobileDropdowns() {
-    const mobileDropdowns = document.querySelectorAll('.mobile-nav .dropdown > a');
-    
-    mobileDropdowns.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const dropdown = link.closest('.dropdown');
-        const isActive = dropdown.classList.contains('active');
-        
-        // Close other dropdowns
-        document.querySelectorAll('.mobile-nav .dropdown.active')
-          .forEach(d => {
-            if (d !== dropdown) d.classList.remove('active');
-          });
-        
-        // Toggle current dropdown
-        dropdown.classList.toggle('active', !isActive);
-      });
-    });
-  }
-
-  setupDesktopDropdowns() {
-    this.dropdowns.forEach(dropdown => {
-      const link = dropdown.querySelector('a');
-      const content = dropdown.querySelector('.dropdown-content');
-      
-      if (!link || !content) return;
-
-      let hoverTimeout;
-      
-      dropdown.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimeout);
-        content.style.display = 'block';
-      });
-      
-      dropdown.addEventListener('mouseleave', () => {
-        hoverTimeout = setTimeout(() => {
-          content.style.display = '';
-        }, 150);
-      });
-
-      // Keyboard navigation
-      link.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown' || e.key === 'Enter') {
-          e.preventDefault();
-          content.style.display = 'block';
-          const firstLink = content.querySelector('a');
-          firstLink?.focus();
-        }
-      });
-    });
-  }
-
-  setupAuthListeners() {
-    // Login links
-    document.querySelectorAll('.auth-login-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        // If you want to handle login via JS instead of navigation
-        // e.preventDefault();
-        // this.handleLogin();
-      });
-    });
-
-    // Register links
-    document.querySelectorAll('.auth-register-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        // If you want to handle registration via JS instead of navigation
-        // e.preventDefault();
-        // this.handleRegister();
-      });
-    });
-
-    // Logout links
-    document.querySelectorAll('.auth-logout-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.handleLogout();
-      });
-    });
-  }
-
+  // ------------------------------
+  // Auth
+  // ------------------------------
   initAuth() {
-    // Check if user is logged in (you might get this from localStorage, sessionStorage, or API)
     this.checkAuthStatus();
   }
 
   checkAuthStatus() {
-    // Simulate checking auth status - replace with your actual auth logic
     try {
-      const userData = JSON.parse(localStorage.getItem('bionix_user') || 'null');
-      if (userData && userData.token) {
+      const userData = JSON.parse(localStorage.getItem("bionix_user") || "null");
+      if (userData?.token) {
         this.setAuthenticatedState(userData);
       } else {
         this.setUnauthenticatedState();
       }
-    } catch (error) {
-      console.warn('Error checking auth status:', error);
+    } catch (err) {
+      console.warn("Auth check error:", err);
       this.setUnauthenticatedState();
     }
   }
 
   setAuthenticatedState(user) {
     this.currentUser = user;
-    
-    this.authContainers.forEach(container => {
-      const authLink = container.querySelector('.auth-loading');
-      const loginLink = container.querySelector('.auth-login-link');
-      const registerLink = container.querySelector('.auth-register-link');
-      const profileLink = container.querySelector('.auth-profile-link');
-      const logoutLink = container.querySelector('.auth-logout-link');
-      
-      if (authLink) {
-        authLink.classList.remove('auth-loading');
-        authLink.innerHTML = '<i class="fas fa-user"></i>';
-        authLink.title = `Welcome, ${user.name || user.email || 'User'}`;
-      }
-      
-      if (loginLink) loginLink.style.display = 'none';
-      if (registerLink) registerLink.style.display = 'none';
-      if (profileLink) profileLink.style.display = 'block';
-      if (logoutLink) logoutLink.style.display = 'block';
-    });
+    this.renderAuthUI(true, user);
   }
 
   setUnauthenticatedState() {
     this.currentUser = null;
-    
-    this.authContainers.forEach(container => {
-      const authLink = container.querySelector('.auth-loading');
-      const loginLink = container.querySelector('.auth-login-link');
-      const registerLink = container.querySelector('.auth-register-link');
-      const profileLink = container.querySelector('.auth-profile-link');
-      const logoutLink = container.querySelector('.auth-logout-link');
-      
-      if (authLink) {
-        authLink.classList.remove('auth-loading');
-        authLink.innerHTML = '<i class="fas fa-user"></i>';
-        authLink.title = 'Account';
+    this.renderAuthUI(false);
+  }
+
+  renderAuthUI(isAuth, user = null) {
+    const areas = [document.querySelector("#authArea"), document.querySelector("#authAreaMobile")];
+    areas.forEach(area => {
+      if (!area) return;
+
+      if (isAuth) {
+        area.innerHTML = `
+          <a href="/account" class="auth-profile-link">
+            <i class="fas fa-user"></i> ${user.name || user.email || "User"}
+          </a>
+          <a href="#" class="auth-logout-link">Logout</a>
+        `;
+      } else {
+        area.innerHTML = `
+          <a href="/login" class="auth-login-link">Login</a>
+          <a href="/register" class="auth-register-link">Register</a>
+        `;
       }
-      
-      if (loginLink) loginLink.style.display = 'block';
-      if (registerLink) registerLink.style.display = 'block';
-      if (profileLink) profileLink.style.display = 'none';
-      if (logoutLink) logoutLink.style.display = 'none';
     });
   }
 
   handleLogout() {
-    // Clear user data
-    localStorage.removeItem('bionix_user');
-    localStorage.removeItem('bionix_token');
-    
-    // Reset auth state
+    localStorage.removeItem("bionix_user");
+    localStorage.removeItem("bionix_token");
     this.setUnauthenticatedState();
-    
-    // Show success message (optional)
-    this.showNotification('Successfully logged out!', 'success');
-    
-    // Redirect to home page
-    window.location.href = window.BASE_PATH || '/';
+    this.showNotification("Successfully logged out!", "success");
+    window.location.href = window.BASE_PATH || "/";
   }
 
+  // ------------------------------
+  // Cart
+  // ------------------------------
   initCart() {
     this.loadCartCount();
-    
-    // Listen for cart updates from other parts of the app
-    document.addEventListener('cartUpdated', (e) => {
+    document.addEventListener("cartUpdated", (e) => {
       this.updateCartCount(e.detail.count);
     });
   }
 
   loadCartCount() {
     try {
-      const cart = JSON.parse(localStorage.getItem('bionix_cart') || '[]');
-      const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+      const cart = JSON.parse(localStorage.getItem("bionix_cart") || "[]");
+      const count = cart.reduce((t, i) => t + (i.quantity || 1), 0);
       this.updateCartCount(count);
-    } catch (error) {
-      console.warn('Error loading cart count:', error);
+    } catch {
       this.updateCartCount(0);
     }
   }
 
   updateCartCount(count) {
     this.cartCount = count;
-    
-    this.cartCountElements.forEach(element => {
-      element.textContent = count;
-      element.style.display = count > 0 ? 'flex' : 'none';
+    document.querySelectorAll('[id^="mini-cart-count"]').forEach(el => {
+      el.textContent = count;
+      el.style.display = count > 0 ? "flex" : "none";
     });
   }
 
+  // ------------------------------
+  // Accessibility
+  // ------------------------------
   setupAccessibility() {
-    // Add ARIA labels and roles where needed
-    this.menuToggle?.setAttribute('aria-label', 'Toggle navigation menu');
-    this.mobileNav?.setAttribute('role', 'navigation');
-    this.mobileNav?.setAttribute('aria-label', 'Mobile navigation');
-    
-    // Add focus trap for mobile menu
+    document.querySelector(".header-menu-toggle")
+      ?.setAttribute("aria-label", "Toggle navigation menu");
+    document.querySelector(".mobile-nav")
+      ?.setAttribute("role", "navigation");
+    document.querySelector(".mobile-nav")
+      ?.setAttribute("aria-label", "Mobile navigation");
+
     this.setupFocusTrap();
   }
 
   setupFocusTrap() {
-    const focusableElements = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
-    
-    document.addEventListener('keydown', (e) => {
-      if (!this.isMenuOpen || e.key !== 'Tab') return;
-      
-      const focusableContent = this.mobileNav?.querySelectorAll(focusableElements);
-      if (!focusableContent || focusableContent.length === 0) return;
-      
-      const firstFocusable = focusableContent[0];
-      const lastFocusable = focusableContent[focusableContent.length - 1];
-      
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
+    const focusable = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    document.addEventListener("keydown", (e) => {
+      if (!this.isMenuOpen || e.key !== "Tab") return;
+
+      const focusableEls = document.querySelector(".mobile-nav")?.querySelectorAll(focusable);
+      if (!focusableEls?.length) return;
+
+      const first = focusableEls[0];
+      const last = focusableEls[focusableEls.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
       }
     });
   }
 
-  handleResize() {
-    // Close mobile menu on resize to desktop
-    if (window.innerWidth > 768 && this.isMenuOpen) {
-      this.closeMobileMenu();
-    }
-  }
-
-  showNotification(message, type = 'info') {
-    // Simple notification system - you can replace with your preferred notification library
-    const notification = document.createElement('div');
+  // ------------------------------
+  // Utilities
+  // ------------------------------
+  showNotification(message, type = "info") {
+    const notification = document.createElement("div");
     notification.className = `header-notification header-notification--${type}`;
     notification.textContent = message;
     notification.style.cssText = `
       position: fixed;
       top: 80px;
       right: 20px;
-      background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+      background: ${type === "success" ? "#4CAF50" : type === "error" ? "#f44336" : "#2196F3"};
       color: white;
       padding: 12px 20px;
       border-radius: 4px;
@@ -384,29 +304,27 @@ class HeaderManager {
       transform: translateX(100%);
       transition: all 0.3s ease;
     `;
-    
+
     document.body.appendChild(notification);
-    
-    // Animate in
+
     requestAnimationFrame(() => {
-      notification.style.opacity = '1';
-      notification.style.transform = 'translateX(0)';
+      notification.style.opacity = "1";
+      notification.style.transform = "translateX(0)";
     });
-    
-    // Remove after 3 seconds
+
     setTimeout(() => {
-      notification.style.opacity = '0';
-      notification.style.transform = 'translateX(100%)';
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
+      notification.style.opacity = "0";
+      notification.style.transform = "translateX(100%)";
+      setTimeout(() => notification.remove(), 300);
     }, 3000);
   }
 
-  // Public API methods for external use
+  // ------------------------------
+  // Public API
+  // ------------------------------
   updateUser(userData) {
     if (userData) {
-      localStorage.setItem('bionix_user', JSON.stringify(userData));
+      localStorage.setItem("bionix_user", JSON.stringify(userData));
       this.setAuthenticatedState(userData);
     } else {
       this.handleLogout();
@@ -415,45 +333,38 @@ class HeaderManager {
 
   addToCart(product, quantity = 1) {
     try {
-      const cart = JSON.parse(localStorage.getItem('bionix_cart') || '[]');
-      const existingItem = cart.find(item => item.id === product.id);
-      
-      if (existingItem) {
-        existingItem.quantity += quantity;
+      const cart = JSON.parse(localStorage.getItem("bionix_cart") || "[]");
+      const existing = cart.find(item => item.id === product.id);
+
+      if (existing) {
+        existing.quantity += quantity;
       } else {
         cart.push({ ...product, quantity });
       }
-      
-      localStorage.setItem('bionix_cart', JSON.stringify(cart));
+
+      localStorage.setItem("bionix_cart", JSON.stringify(cart));
       this.loadCartCount();
-      
-      // Dispatch event for other components
-      document.dispatchEvent(new CustomEvent('cartUpdated', {
+
+      document.dispatchEvent(new CustomEvent("cartUpdated", {
         detail: { count: this.cartCount, cart }
       }));
-      
-      this.showNotification(`${product.name || 'Item'} added to cart!`, 'success');
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      this.showNotification('Error adding item to cart', 'error');
+
+      this.showNotification(`${product.name || "Item"} added to cart!`, "success");
+    } catch (err) {
+      console.error("Cart add error:", err);
+      this.showNotification("Error adding item to cart", "error");
     }
   }
 
-  getCurrentUser() {
-    return this.currentUser;
-  }
-
-  getCartCount() {
-    return this.cartCount;
-  }
+  getCurrentUser() { return this.currentUser; }
+  getCartCount() { return this.cartCount; }
 }
 
-// Initialize header when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Init
+document.addEventListener("DOMContentLoaded", () => {
   window.bionixHeader = new HeaderManager();
 });
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = HeaderManager;
 }

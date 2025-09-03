@@ -1,43 +1,37 @@
-import { BASE_PATH } from "../apiConfig.js";
+import { API_BASE_URL } from "../apiConfig.js";
 
-export function initAboutSection() {
-  return fetch(`${BASE_PATH}/about`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch about content: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (Array.isArray(data) && data.length > 0) {
-        const getContent = (section) => {
-          const item = data.find((entry) => entry.section === section);
-          return item ? item.content : "Not available.";
-        };
 
-        // No keyword highlighting
-        const rawAbout = getContent("About Us");
-        const paragraphs = rawAbout.split(/(?<=\.)\s+(?=[A-Z])/);
-
-        document.getElementById("who-we-are-content").innerHTML = paragraphs
-          .map((p) => `<p>${p.trim()}</p>`)
-          .join("");
-
-        document.getElementById("mission-content").textContent =
-          getContent("mission");
-        document.getElementById("vision-content").textContent =
-          getContent("vision");
-      } else {
-        throw new Error("No about data available.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error loading about content:", error);
-      document.getElementById("who-we-are-content").textContent =
-        "Failed to load content.";
-      document.getElementById("mission-content").textContent =
-        "Failed to load content.";
-      document.getElementById("vision-content").textContent =
-        "Failed to load content.";
-    });
+function setFallback(id) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = "Content not available at the moment.";
 }
+
+export async function initAboutSection() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/about`);
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+    
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) throw new Error("No about data available.");
+
+    const getContent = (section) => {
+      const item = data.find((entry) => entry.section.toLowerCase() === section.toLowerCase());
+      return item ? item.content : "Not available.";
+    };
+
+    const rawAbout = getContent("About Us");
+    const paragraphs = rawAbout.split(/\n+|(?<=\.)\s+(?=[A-Z])/);
+
+    document.getElementById("who-we-are-content").innerHTML = paragraphs
+      .map((p) => `<p>${p.trim()}</p>`)
+      .join("");
+
+    document.getElementById("mission-content").textContent = getContent("mission");
+    document.getElementById("vision-content").textContent = getContent("vision");
+
+  } catch (error) {
+    console.error("Error loading about content:", error);
+    ["who-we-are-content", "mission-content", "vision-content"].forEach(setFallback);
+  }
+}
+
