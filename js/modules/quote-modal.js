@@ -1,46 +1,18 @@
-// quote-modal.js
-import { API_BASE_URL, STATIC_BASE_URL } from "../apiConfig.js";
-
 export async function loadQuoteModal() {
   try {
-    // ✅ Prevent duplicates
-    if (document.getElementById("quote-modal-wrapper")) return;
+    // Prevent re-initializing
+    if (document.getElementById("quoteModal")) return;
 
-    // Wrapper container
+    // Load modal HTML
     const modalContainer = document.createElement("div");
     modalContainer.id = "quote-modal-wrapper";
 
-    let html = null;
-    try {
-      // Try STATIC_BASE_URL first
-      const response = await fetch(`${STATIC_BASE_URL}/services/quote-modal.html`, {
-        cache: "no-store"
-      });
-      if (!response.ok) throw new Error(`Failed with ${response.status}`);
-      html = await response.text();
-      console.log("✅ Loaded quote-modal.html from STATIC_BASE_URL");
-    } catch (err) {
-      console.warn("⚠️ Falling back to /frontend/services/quote-modal.html:", err.message);
-      const fallbackRes = await fetch("/frontend/services/quote-modal.html", {
-        cache: "no-store"
-      });
-      if (!fallbackRes.ok) throw new Error(`Fallback failed with ${fallbackRes.status}`);
-      html = await fallbackRes.text();
-    }
-
+    const response = await fetch("/frontend/services/quote-modal.html");
+    const html = await response.text();
     modalContainer.innerHTML = html;
     document.body.appendChild(modalContainer);
 
-    // ✅ Load CSS dynamically only once
-    if (!document.getElementById("quote-modal-css")) {
-      const link = document.createElement("link");
-      link.id = "quote-modal-css";
-      link.rel = "stylesheet";
-      link.href = "/css/quote-modal.css";
-      document.head.appendChild(link);
-    }
-
-    // ✅ Ensure single toast
+    // Ensure single toast
     let toast = document.getElementById("toast");
     if (!toast) {
       toast = document.createElement("div");
@@ -68,7 +40,7 @@ export async function loadQuoteModal() {
     function closeModal() {
       modal.style.display = "none";
       modal.setAttribute("aria-hidden", "true");
-      document.body.style.removeProperty("overflow"); // safely restore scroll
+      document.body.style.overflow = ""; // unlock scroll
     }
 
     // Open button
@@ -115,19 +87,22 @@ export async function loadQuoteModal() {
           return;
         }
 
+        // Loading UI
         const submitButton = form.querySelector("button[type='submit']");
         submitButton.disabled = true;
         submitButton.textContent = "Sending...";
 
         try {
-          const res = await fetch(`${API_BASE_URL}/quote/request`, {
+          const res = await fetch("http://localhost:8080/api/quote/request", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
           });
 
           if (res.ok) {
-            showToast("Quote request sent successfully! A confirmation has been sent to your email.");
+            showToast(
+              "Quote request sent successfully! A confirmation has been sent to your email."
+            );
             form.reset();
             closeModal();
           } else {
@@ -143,7 +118,6 @@ export async function loadQuoteModal() {
       });
     }
 
-    // Toast helper
     function showToast(message = "Request sent successfully!") {
       if (!toast) return;
       clearTimeout(toastTimeout);

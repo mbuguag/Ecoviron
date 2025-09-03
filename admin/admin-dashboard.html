@@ -6,9 +6,7 @@
     <title>Admin Dashboard - BionixAdmin</title>
     <script>
       const token = localStorage.getItem("token");
-      const role = localStorage.getItem("role");
-
-      if (!token || role !== "ADMIN") {
+      if (!token) {
         window.location.href = "../admin/admin-login.html";
       }
     </script>

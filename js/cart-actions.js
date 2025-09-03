@@ -1,11 +1,7 @@
 import { CartAPI } from "./cart/cart-api.js";
 import { getGuestCart, addToGuestCart } from "./cart/guestCart.js";
 import { isLoggedIn } from "./auth.js";
-import { BASE_PATH } from "../js/apiConfig.js";
 
-/**
- * Add a product to the cart (guest or logged-in user)
- */
 export async function addToCart(product, quantity = 1) {
   try {
     if (isLoggedIn()) {
@@ -15,16 +11,13 @@ export async function addToCart(product, quantity = 1) {
     }
 
     await updateMiniCartCount();
-    showToast(`${product.name} added to cart!`);
+    alert("Added to cart!");
   } catch (err) {
     console.error("Add to cart failed", err);
-    showToast("Failed to add item. Try again.", true);
+    alert("Failed to add item. Try again.");
   }
 }
 
-/**
- * Update the mini-cart badge
- */
 export async function updateMiniCartCount() {
   const badge = document.getElementById("mini-cart-count");
   if (!badge) return;
@@ -34,9 +27,7 @@ export async function updateMiniCartCount() {
 
     if (isLoggedIn()) {
       const cart = await CartAPI.getCart();
-      totalItems = Array.isArray(cart.items)
-        ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
-        : 0;
+      totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     } else {
       const guestCart = getGuestCart();
       totalItems = guestCart.reduce((sum, item) => sum + item.quantity, 0);
@@ -48,32 +39,28 @@ export async function updateMiniCartCount() {
   }
 }
 
-/**
- * Merge guest cart into backend after login
- */
+// Used after login
 export async function mergeGuestCartToBackend() {
   if (!isLoggedIn()) return;
 
   const guestCart = getGuestCart();
-  if (!guestCart.length) return;
+  if (guestCart.length === 0) return;
 
   for (const item of guestCart) {
     try {
       await CartAPI.addItem(item.productId || item.id, item.quantity);
     } catch (err) {
-      console.warn("Failed to sync guest cart item:", item, err);
+      console.warn(`Couldn't sync guest cart item:`, item, err);
     }
   }
 
   localStorage.removeItem("guest_cart");
-  await updateMiniCartCount();
 }
 
-/**
- * Setup all .add-to-cart buttons
- */
-export function setupCartInteractions() {
+// Attach event listeners to .add-to-cart buttons
+export async function setupCartInteractions() {
   const buttons = document.querySelectorAll(".add-to-cart");
+
   buttons.forEach((button) => {
     button.addEventListener("click", async () => {
       const id = parseInt(button.dataset.productId, 10);
@@ -82,8 +69,12 @@ export function setupCartInteractions() {
       const quantity = parseInt(button.dataset.quantity || "1", 10);
 
       if (!id || !name || isNaN(price)) {
-        console.warn("Invalid product data on button:", { id, name, price });
-        showToast("Failed to add product to cart. Invalid data.", true);
+        console.warn("Invalid product data on button:", {
+          id,
+          name,
+          price,
+        });
+        alert("Failed to add product to cart. Invalid product data.");
         return;
       }
 
@@ -93,53 +84,15 @@ export function setupCartInteractions() {
   });
 }
 
-/**
- * Require user login before accessing checkout
- */
+
 export function requireAuthForCheckout() {
   if (!isLoggedIn()) {
+    // Store the full correct path to checkout
     sessionStorage.setItem(
       "redirectAfterLogin",
-      `${BASE_PATH}ecommerce/checkout.html`
+      "/frontend/ecommerce/checkout.html" // Full correct path
     );
-    window.location.href = `${BASE_PATH}auth/login.html`;
+    // Redirect to login
+    window.location.href = "/frontend/auth/login.html";
   }
-}
-
-/**
- * Toast notification utility
- */
-function showToast(message, isError = false, duration = 3000) {
-  const toast = document.createElement("div");
-  toast.className = `toast-message ${isError ? "toast-error" : ""}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  setTimeout(() => toast.remove(), duration);
-}
-
-// Inject minimal CSS for toast notifications
-if (!document.getElementById("toast-styles")) {
-  const style = document.createElement("style");
-  style.id = "toast-styles";
-  style.textContent = `
-    .toast-message {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #4caf50;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      z-index: 9999;
-      opacity: 0.95;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    .toast-message.toast-error {
-      background: #f44336;
-    }
-  `;
-  document.head.appendChild(style);
 }
