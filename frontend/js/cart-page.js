@@ -1,28 +1,20 @@
-// cart.js
 import { CartAPI } from "./cart/cart-api.js";
 import { getGuestCart } from "./cart/guestCart.js";
-import { fetchProductById } from "./api.js";
+import { fetchAllProducts, fetchProductById } from "./api.js";
 import { isLoggedIn } from "./auth.js";
-import { 
-  API_BASE_URL, 
-  STATIC_BASE_URL, 
-  BASE_PATH, 
-  formatPrice, 
-  getQueryParam 
-} from "./apiConfig.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadCartItems();
 });
 
-/**
- * Build absolute image URL based on environment
- */
 function buildImageUrl(path) {
   if (!path) return "";
-  const cleanPath = path.replace(/^\/?uploads\//, ""); 
-  return `${API_BASE_URL.replace("/api", "")}/uploads/${cleanPath}`;
+  const cleanPath = path.replace(/^\/?uploads\//, ""); // remove leading "uploads/" if present
+  return IMAGE_BASE_URL + cleanPath;
 }
+
+
+const IMAGE_BASE_URL = "http://localhost:8080/uploads/";
 
 async function loadCartItems() {
   let items = [];
@@ -47,7 +39,6 @@ async function renderCart(items) {
   try {
     let cartItems = items;
 
-    // Resolve product details if guest cart is missing them
     if (!isLoggedIn() && items.length > 0 && !items[0].product) {
       cartItems = await Promise.all(
         items.map(async (item) => {
@@ -82,23 +73,29 @@ async function renderCart(items) {
 
     container.innerHTML = `
       <ul class="cart-items">
-        ${cartItems.map((item, index) => `
-          <li class="cart-item" data-index="${index}" 
-              data-id="${item.product.id}" 
-              data-qty="${item.quantity}" 
-              data-item-id="${item.id || ""}">
-            
-            ${item.product.imageUrl 
-              ? `<img src="${buildImageUrl(item.product.imageUrl)}" 
-                     alt="${item.product.name}" 
-                     class="cart-thumb" />` 
-              : ""}
+        ${cartItems
+          .map(
+            (item, index) => `
+          <li class="cart-item" data-index="${index}" data-id="${
+              item.product.id
+            }"
+              data-qty="${item.quantity}" data-item-id="${item.id || ""}">
+           ${
+             item.product.imageUrl
+               ? `<img src="${buildImageUrl(item.product.imageUrl)}" alt="${
+                   item.product.name
+                 }" class="cart-thumb" />`
+               : ""
+           }
+
+
+
 
             <div class="cart-item-info">
               <div class="cart-item-header">
-                <a href="${BASE_PATH}product-details.html?id=${item.product.id}">
-                  ${item.product.name}
-                </a>
+                <a href="product-details.html?id=${item.product.id}">${
+              item.product.name
+            }</a>
                 <button class="remove-btn" title="Remove item">×</button>
               </div>
 
@@ -107,20 +104,20 @@ async function renderCart(items) {
                 <span class="quantity">${item.quantity}</span>
                 <button class="qty-btn increase">+</button>
               </div>
-              <span class="item-total">
-                ${formatPrice(item.product.price * item.quantity)}
-              </span>
+              <span class="item-total">KES ${(
+                item.product.price * item.quantity
+              ).toLocaleString()}</span>
             </div>
           </li>
-        `).join("")}
+        `
+          )
+          .join("")}
       </ul>
       <div class="cart-summary">
-        <strong>Total: ${formatPrice(total)}</strong>
+        <strong>Total: KES ${total.toLocaleString()}</strong>
       </div>
       <div class="cart-actions">
-        <a href="../ecommerce/checkout.html" class="btn btn-primary proceed-checkout">
-          Proceed to Checkout
-        </a>
+        <a href="checkout.html" class="btn btn-primary proceed-checkout">Proceed to Checkout</a>
       </div>
     `;
 
@@ -131,6 +128,7 @@ async function renderCart(items) {
     console.error("Cart load error:", error);
   }
 }
+
 
 function setupQuantityButtons(cartItems) {
   const container = document.getElementById("cart-container");
@@ -155,12 +153,13 @@ function setupQuantityButtons(cartItems) {
         } else {
           updateGuestQuantity(product.id, quantity);
         }
-
         itemEl.dataset.qty = quantity;
         itemEl.querySelector(".quantity").textContent = quantity;
-        itemEl.querySelector(".item-total").textContent = formatPrice(quantity * product.price);
+        itemEl.querySelector(".item-total").textContent =
+          "KES " + (quantity * product.price).toLocaleString();
 
         recalculateCartTotal();
+
       } catch (err) {
         console.error("Failed to update quantity:", err);
         alert("Could not update item quantity.");
@@ -174,13 +173,13 @@ function recalculateCartTotal() {
   let total = 0;
 
   itemTotals.forEach((el) => {
-    const amount = el.textContent.replace(/[^\d.]/g, "");
-    total += parseFloat(amount) || 0;
+    const match = el.textContent.match(/[\d,]+/);
+    if (match) total += parseInt(match[0].replace(/,/g, ""));
   });
 
   const totalEl = document.querySelector(".cart-summary strong");
   if (totalEl) {
-    totalEl.textContent = `Total: ${formatPrice(total)}`;
+    totalEl.textContent = "Total: KES " + total.toLocaleString();
   }
 }
 
@@ -222,6 +221,7 @@ function removeGuestCartItem(productId) {
   localStorage.setItem("guest_cart", JSON.stringify(cart));
 }
 
+
 function updateGuestQuantity(productId, quantity) {
   const cart = getGuestCart();
   const index = cart.findIndex(
@@ -232,3 +232,4 @@ function updateGuestQuantity(productId, quantity) {
     localStorage.setItem("guest_cart", JSON.stringify(cart));
   }
 }
+

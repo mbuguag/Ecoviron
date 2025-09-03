@@ -1,15 +1,13 @@
-import { API_BASE_URL } from "../apiConfig.js";
+import { BASE_PATH } from "../apiConfig.js";
 
 export async function initServices() {
   const grid = document.getElementById("dynamic-services-grid");
   if (!grid) return;
 
   try {
-    const res = await fetch(`${API_BASE_URL}/services`);
+    const res = await fetch(`${BASE_PATH}/services`);
     if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
-
     const services = await res.json();
-    console.log("Services fetched:", services);
 
     grid.innerHTML = services
       .map(
