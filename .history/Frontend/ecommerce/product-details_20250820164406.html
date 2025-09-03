@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details | Ecoviron Shop</title>
+
+  
+<meta property="og:type" content="product" />
+<meta property="og:title" content="Eco-Friendly Gloves | Bionix-ESH Solutions" />
+<meta property="og:description" content="Durable, sustainable gloves made from recycled materials." />
+<meta property="og:image" content="https://www.bionix-hse.co.ke/images/products/gloves-main.jpg" />
+<meta property="og:url" content="https://www.bionix-hse.co.ke/ecommerce/product-details.html?id=123" />
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Eco-Friendly Gloves | Bionix-ESH Solutions" />
+<meta name="twitter:description" content="Durable, sustainable gloves made from recycled materials." />
+<meta name="twitter:image" content="https://www.bionix-hse.co.ke/images/products/gloves-main.jpg" />
+
+    <!-- Favicon Configuration -->
+  <link rel="icon" type="image/png" href="/frontend/assets/icons/favicons/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="/frontend/assets/icons/favicons/favicon.svg" />
+<link rel="shortcut icon" href="/frontend/assets/icons/favicons/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/frontend/assets/icons/favicons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Bionix-ehs Consultancy Limited." />
+<link rel="manifest" href="/frontend/assets/icons/favicons/site.webmanifest" />
+  <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#2ecc71">
+  <meta name="msapplication-TileColor" content="#2ecc71">
+  <meta name="theme-color" content="#2ecc71">
+
+  <!-- Font Preload -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet';">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href=""/>
+
+  
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+</head>
+<body>
+
+  
+  <div id="header-container"></div>
+  
+
+  
+  
+  <!-- <nav id="breadcrumb" class="breadcrumb-nav">
+    Filled dynamically
+  </nav> -->
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="loading-spinner" style="display: none;">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- Product Detail Section -->
+  <section class="product-detail-modern section-padding">
+    <div class="container product-grid">
+      
+      <!-- Gallery Section -->
+      <div class="product-gallery">
+        <img id="main-product-image" class="main-image" src="" alt="Product Image">
+        <div class="thumbnail-row" id="gallery-thumbnails">
+          <!-- Thumbnails will be injected -->
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="product-info">
+        <span class="product-category" id="product-category">Category</span>
+        <h1 class="product-title" id="product-name">Product Name</h1>
+        
+        <div class="price-wishlist-row">
+          <span class="product-price" id="product-price">KES 0</span>
+          <button class="wishlist-btn" id="wishlist-btn" aria-label="Add to Wishlist">
+            <i class="fa fa-heart"></i>
+          </button>
+        </div>
+
+        <div class="rating" id="product-rating">★★★★☆</div>
+        <p class="product-description" id="product-description">Product description goes here...</p>
+
+        <ul class="eco-features" id="eco-features">
+          <!-- Optional eco-feature icons will be injected here -->
+        </ul>
+
+        <button class="btn btn-primary" id="add-to-cart-btn">Add to Cart</button>
+       
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  <section class="related-products-section container">
+    <h3>Related Products</h3>
+    <div id="related-products" class="related-grid">
+      <!-- Dynamically injected related products -->
+    </div>
+  </section>
+
+  <!-- Sticky Mobile Cart Bar -->
+  <div id="mobile-cart-bar" class="mobile-cart-bar">
+    <!-- Will be dynamically filled -->
+  </div>
+  <div class="sticky-bar" id="mobile-sticky-bar" style="display: none;">
+    <span class="price" id="sticky-price"></span>
+    <button class="btn" id="sticky-add-to-cart">Add to Cart</button>
+  </div>
+
+  <div class="back-to-shop">
+  <a href="../ecommerce/product-grid.html" class="btn btn-outline">
+    <i class="fa fa-arrow-left"></i> Back to Shop
+
+  </a>
+</div>
+
+  <!-- Footer Placeholder -->
+  <footer id="footer-container"></footer>
+
+  
+  <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/product-details.js"></script>
+  <script type="module" src="../js/cart-actions.js"></script>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Eco-Friendly Gloves",
+  "image": [
+    "https://www.bionix-hse.co.ke/images/products/gloves-main.jpg"
+  ],
+  "description": "Durable, eco-friendly gloves made from recycled materials.",
+  "sku": "ECO-GLOVES-001",
+  "brand": {
+    "@type": "Brand",
+    "name": "GreenEarth"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://www.bionix-hse.co.ke/ecommerce/product-details.html?id=123",
+    "priceCurrency": "KES",
+    "price": "799.00",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+
+</body>
+</html>

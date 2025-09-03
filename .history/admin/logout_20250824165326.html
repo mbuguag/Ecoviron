@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Logging out...</title>
+    </head>
+
+    <body>
+        <script>
+  const role = localStorage.getItem("role"); //refactored 
+
+  localStorage.clear();
+
+  if (role === "ADMIN") {
+    window.location.href = "admin-login.html";
+  } else {
+    window.location.href = "../auth/login.html";
+  }
+</script>
+
+    </body>
+
+</html>

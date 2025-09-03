@@ -1,0 +1,72 @@
+<header class="site-header">
+  <div class="header-container">
+    <!-- Mobile Menu Toggle -->
+    <button class="header-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span class="header-hamburger-line"></span>
+      <span class="header-hamburger-line"></span>
+      <span class="header-hamburger-line"></span>
+    </button>
+    <!-- Logo Section -->
+    <div class="header-logo">
+      <a href="${BASE_PATH}" class="header-logo-link">
+        <h1 class="header-logo-text">BIONIX-EHS</h1>
+      </a>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="header-nav" aria-label="Main navigation">
+      <ul class="header-nav-list">
+        <li><a href="${BASE_PATH}index.html" class="header-nav-link" aria-current="page">Home</a></li>
+        <li><a href="${BASE_PATH}about.html" class="header-nav-link">About</a></li>
+        <li><a href="${BASE_PATH}services/services.html" class="header-nav-link">Services</a></li>
+        <li><a href="${BASE_PATH}blog/blog.html" class="header-nav-link">Blog</a></li>
+        <li><a href="${BASE_PATH}contact.html" class="header-nav-link">Contact</a></li>
+
+        <!-- Products Dropdown -->
+        <li class="dropdown">
+          <a href="${BASE_PATH}ecommerce/product-details.html" class="header-nav-link">Products ▾</a>
+          <div class="dropdown-content">
+            <a href="${BASE_PATH}ecommerce/product-grid.html">Shop</a>
+            <a href="${BASE_PATH}ecommerce/cart.html">Cart</a>
+          </div>
+        </li>
+
+        <div class="header-actions">
+          <div class="header-cart-item">
+            <a href="${BASE_PATH}ecommerce/cart.html" class="cart-icon-link">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="mini-cart-count" class="cart-count-badge">0</span>
+            </a>
+          </div>
+
+        <!-- Auth Area -->
+        <div class="header-auth-item dropdown">
+          <div id="auth-container" class="user-dropdown">
+            <a href="#" class="header-nav-link auth-loading">
+              <i class="fas fa-user"></i>
+            </a>
+            <div class="dropdown-content">
+            </div>
+              <span class="dropdown-header">My Account</span>
+              <a href="${BASE_PATH}auth/login.html" class="auth-login-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+              </a>
+              <a href="${BASE_PATH}auth/register.html" class="auth-register-link">
+                <i class="fas fa-user-plus"></i> Register
+              </a>
+              <a href="${BASE_PATH}profile.html" class="auth-profile-link" style="display: none;">
+                <i class="fas fa-user"></i> Profile
+              </a>
+              <a href="#" class="auth-logout-link" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<link rel="stylesheet" href="${BASE_PATH}css/header.css">
+<script type="module" src="${BASE_PATH}js/header.js"></script>

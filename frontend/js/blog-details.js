@@ -1,0 +1,192 @@
+import { fetchBlogs } from "./blogApi.js";
+import { API_BASE_URL } from "./apiConfig.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get("id");
+
+  if (!postId) {
+    window.location.href = "blog.html";
+    return;
+  }
+
+  try {
+    const viewedKey = `viewed_post_${postId}`;
+
+    // First fetch the post
+    let post = await fetchPost(postId);
+
+    // Update view count once per session (removed sessionStorage per requirements)
+    const hasViewed = window.viewedPosts?.has?.(postId) || false;
+    if (!hasViewed) {
+      await incrementViewCount(postId);
+      post = await fetchPost(postId);
+      // Store in memory instead of sessionStorage
+      if (!window.viewedPosts) window.viewedPosts = new Set();
+      window.viewedPosts.add(postId);
+    }
+
+    renderPost(post);
+    loadRelatedPosts(post.tags, post.id);
+    setMetaTags(post);
+  } catch (error) {
+    console.error("Error loading post:", error);
+    document.getElementById("post-content").innerHTML = `
+      <div class="error-message">
+        <h2>Post Not Found</h2>
+        <p>The requested article could not be found.</p>
+        <a href="blog.html" class="btn-primary">Back to Blog</a>
+      </div>
+    `;
+  }
+});
+
+async function fetchPost(postId) {
+  const response = await fetch(`${API_BASE_URL}/public-blogs/public/${postId}`);
+  if (!response.ok) throw new Error("Post not found");
+  return await response.json();
+}
+
+async function incrementViewCount(postId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/public-blogs/public/${postId}/views`, {
+      method: "PUT",
+    });
+    if (!response.ok) throw new Error("Failed to increment view count");
+  } catch (err) {
+    console.warn("View count error:", err);
+  }
+}
+
+function renderPost(post) {
+  // Update page title
+  document.title = `${post.title} | BionixEHS Blog`;
+
+  // Meta section
+  const metaHTML = `
+    <div class="author-info">
+      <img src="${post.author?.profilePicture || "../assets/images/blog.jpg"}" alt="${post.author?.fullName || "Author"}">
+      <div>
+        <span class="author-name">${post.author?.fullName || "BionixEHS Team"}</span>
+        <span class="post-date">${formatDate(post.publishedAt)}</span>
+      </div>
+    </div>
+  `;
+  document.getElementById("post-meta").innerHTML = metaHTML;
+
+  // Main content
+  const contentHTML = `
+    <div class="featured-image">
+      <img src="${post.imageUrl || "../assets/images/blog.jpg"}" alt="${post.imageAlt || post.title}">
+      ${post.imageCaption ? `<p class="image-caption">${post.imageCaption}</p>` : ""}
+    </div>
+    <div class="post-body">
+      ${post.content || "<p>No content available.</p>"}
+    </div>
+  `;
+  document.getElementById("post-content").innerHTML = contentHTML;
+
+  // View count (removed duplicate line)
+  document.getElementById("views-counter").textContent = `${post.viewCount || 0} views`;
+
+  // Tags
+  const tagsContainer = document.getElementById("post-tags");
+  if (post.tags?.length > 0 && tagsContainer) {
+    tagsContainer.innerHTML = ""; // Clear existing tags
+    post.tags.forEach(tag => {
+      const tagEl = document.createElement("a");
+      tagEl.href = `blog.html?tag=${encodeURIComponent(tag)}`;
+      tagEl.className = "post-tag";
+      tagEl.textContent = tag;
+      tagsContainer.appendChild(tagEl);
+    });
+  }
+
+  // Sharing
+  setupSocialSharing(post);
+}
+
+async function loadRelatedPosts(tags, excludeId) {
+  if (!tags || tags.length === 0) return;
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/blogs/public/related?tags=${tags.join(",")}&exclude=${excludeId}&limit=3`
+    );
+    if (response.ok) {
+      const posts = await response.json();
+      renderRelatedPosts(posts);
+    }
+  } catch (error) {
+    console.error("Error loading related posts:", error);
+  }
+}
+
+function renderRelatedPosts(posts) {
+  const container = document.getElementById("related-posts");
+  if (!posts || posts.length === 0) {
+    container.innerHTML = "<p>No related articles found.</p>";
+    return;
+  }
+
+  container.innerHTML = ""; // Clear existing content
+  posts.forEach(post => {
+    const card = document.createElement("article");
+    card.className = "blog-card";
+    card.innerHTML = `
+      <div class="card-image">
+        <img src="${post.imageUrl || "../images/blog-default.jpg"}" alt="${post.imageAlt || post.title}" loading="lazy">
+      </div>
+      <div class="card-body">
+        <h3>${post.title}</h3>
+        <p>${post.snippet || "Read more about this topic..."}</p>
+        <a href="blog-details.html?id=${post.id}" class="btn-outline">Read More</a>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function setupSocialSharing(post) {
+  const shareUrl = encodeURIComponent(window.location.href);
+  const shareTitle = encodeURIComponent(post.title);
+  const shareText = encodeURIComponent(post.snippet || "");
+
+  document.querySelector(".share-btn.facebook")?.addEventListener("click", () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, "_blank");
+  });
+
+  document.querySelector(".share-btn.twitter")?.addEventListener("click", () => {
+    window.open(`https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`, "_blank");
+  });
+
+  document.querySelector(".share-btn.linkedin")?.addEventListener("click", () => {
+    window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}&summary=${shareText}`, "_blank");
+  });
+}
+
+function setMetaTags(post) {
+  const setContent = (selector, content) => {
+    const el = document.querySelector(selector);
+    if (el) el.content = content;
+  };
+
+  const title = post.title;
+  const description = post.metaDescription || post.snippet || post.title;
+  const imageUrl = post.imageUrl || "https://www.bionix-hse.co.ke/images/og-default.jpg";
+
+  setContent('meta[name="description"]', description);
+  setContent('meta[property="og:title"]', title);
+  setContent('meta[property="og:description"]', description);
+  setContent('meta[property="og:image"]', imageUrl);
+  setContent('meta[property="og:url"]', window.location.href);
+  setContent('meta[name="twitter:title"]', title);
+  setContent('meta[name="twitter:description"]', description);
+  setContent('meta[name="twitter:image"]', imageUrl);
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(dateString).toLocaleDateString("en-US", options);
+}

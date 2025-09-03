@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cart | GreenEarth Shop</title>
+        <link rel="stylesheet" href="../css/styles.css" />
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+
+        <main>
+            <section class="section-padding cart-section">
+                <div class="container">
+                    <h1>Your Cart</h1>
+                    <div id="cart-items"></div>
+                    <div id="cart-summary" class="cart-summary"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+
+        <script src="../js/main.js"></script>
+        <script>
+            const productData = {
+                1: {
+                    name: "Reusable Water Bottle",
+                    price: 500,
+                    image: "../assets/images/products/bottle.jpg"
+                },
+                2: {
+                    name: "Eco-friendly Shopping Bag",
+                    price: 350,
+                    image: "../assets/images/products/bag.jpg"
+                },
+                3: {
+                    name: "Biodegradable Plates (Set of 10)",
+                    price: 700,
+                    image: "../assets/images/products/plates.jpg"
+                }
+            };
+
+            function loadCart() {
+                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                const cartContainer = document.getElementById("cart-items");
+                const summaryContainer = document.getElementById("cart-summary");
+
+                if (cart.length === 0) {
+                    cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+                    summaryContainer.innerHTML = "";
+                    return;
+                }
+
+                let total = 0;
+                cartContainer.innerHTML = cart.map(id => {
+                    const p = productData[id];
+                    total += p.price;
+                    return `
+          <div class="cart-item">
+            <img src="${p.image}" alt="${p.name}" />
+            <div>
+              <h3>${p.name}</h3>
+              <p>KES ${p.price}</p>
+              <button onclick="removeFromCart('${id}')">Remove</button>
+            </div>
+          </div>
+        `;
+                }).join("");
+
+                summaryContainer.innerHTML = `
+        <h3>Total: KES ${total}</h3>
+        <button class="btn" onclick="checkout()">Proceed to Checkout</button>
+      `;
+            }
+
+            function removeFromCart(id) {
+                let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                cart = cart.filter(pid => pid !== id);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                loadCart();
+            }
+
+            function checkout() {
+                alert("Simulated checkout complete. Thank you for shopping!");
+                localStorage.removeItem("cart");
+                loadCart();
+            }
+
+            window.addEventListener("DOMContentLoaded", loadCart);
+        </script>
+
+        <style>
+            .cart-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .cart-item img {
+                width: 100px;
+                border-radius: 8px;
+            }
+
+            .cart-item h3 {
+                margin: 0;
+            }
+
+            .cart-summary {
+                margin-top: 2rem;
+                font-size: 1.2rem;
+            }
+
+            .cart-summary .btn {
+                margin-top: 1rem;
+            }
+        </style>
+    </body>
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile | Ecoviron</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="profile-container">
+    <aside class="sidebar">
+      <div class="profile-summary">
+        <img id="profilePic" class="avatar-large" src="/frontend/assets/icons/default-avatar.png" alt="Profile" />
+        <h3 id="userName">User Name</h3>
+        <p id="userEmail">user@example.com</p>
+      </div>
+      <nav class="sidebar-nav">
+  <a href="#" class="tab-link active" data-tab="account"><i class="fas fa-user"></i> Account Info</a>
+  <a href="#" class="tab-link" data-tab="orders"><i class="fas fa-box"></i> Orders</a>
+  <a href="#" class="tab-link" data-tab="settings"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</nav>
+
+    </aside>
+
+    <section class="profile-content">
+  <div id="tab-content">
+    <!-- Default content will be injected here -->
+  </div>
+</section>
+
+  </main>
+
+  <!-- <div id="footer-container"></div> -->
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/profile.js"></script>
+  <!-- <script type="module">
+    import { layoutLoaded } from "../js/main.js";
+    layoutLoaded.then(() => console.log("Header and footer loaded"));
+  </script> -->
+</body>
+</html>

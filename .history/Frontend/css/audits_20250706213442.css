@@ -1,0 +1,284 @@
+/* ==============================================
+   RESET & BASE STYLES
+   ============================================== */
+:root {
+  --primary-green: #1a6b3a;
+  --secondary-green: #2e8b57;
+  --light-green: #e0f7ec;
+  --lighter-green: #f9fffc;
+  --text-dark: #333;
+  --text-medium: #444;
+  --text-light: #555;
+  --white: #ffffff;
+  --gray-light: #ccc;
+  --gray-medium: #aaa;
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 10px rgba(0, 128, 96, 0.1);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background-color: #f9f9f9;
+  padding: 0 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: var(--secondary-green);
+  transition: color var(--transition-normal);
+}
+
+a:hover {
+  color: var(--primary-green);
+}
+
+/* ==============================================
+   LAYOUT COMPONENTS
+   ============================================== */
+main.service-detail {
+  max-width: 900px;
+  margin: 2rem auto;
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+/* ==============================================
+   BANNER SECTION
+   ============================================== */
+.banner {
+  background: linear-gradient(to right, var(--light-green), #f6fff9);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 2rem;
+}
+
+.banner h1 {
+  font-size: 2.2rem;
+  color: var(--primary-green);
+  margin-bottom: 1rem;
+}
+
+.banner p {
+  max-width: 700px;
+  margin: 0 auto;
+  color: var(--text-medium);
+  font-size: 1.1rem;
+}
+
+/* ==============================================
+   CONTENT SECTION - OUR PROCESS
+   ============================================== */
+.content-section h2 {
+  font-size: 1.8rem;
+  color: var(--primary-green);
+  margin: 2.5rem 0 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--light-green);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.content-section h2 i {
+  color: var(--secondary-green);
+}
+
+.content-section ol {
+  counter-reset: process-counter;
+  padding-left: 0;
+  margin: 2rem 0;
+  list-style: none;
+}
+
+.content-section ol li {
+  counter-increment: process-counter;
+  position: relative;
+  padding: 1.5rem 1.5rem 1.5rem 4rem;
+  margin-bottom: 1.5rem;
+  background: var(--lighter-green);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 80, 60, 0.08);
+  transition: all var(--transition-normal);
+}
+
+.content-section ol li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 80, 60, 0.12);
+}
+
+.content-section ol li::before {
+  content: counter(process-counter);
+  position: absolute;
+  left: 1rem;
+  top: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--secondary-green);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.content-section ol li strong {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  color: var(--primary-green);
+  margin-bottom: 0.75rem;
+}
+
+.content-section ol li strong i {
+  color: var(--secondary-green);
+  width: 1.25rem;
+  text-align: center;
+}
+
+.content-section ol li p {
+  color: var(--text-medium);
+  margin: 0.75rem 0 1rem;
+  line-height: 1.7;
+}
+
+.content-section ol li ul {
+  margin: 1rem 0 0.5rem;
+  padding-left: 1.5rem;
+  list-style: none;
+}
+
+.content-section ol li ul li {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  background: none;
+  box-shadow: none;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+
+.content-section ol li ul li i {
+  color: var(--secondary-green);
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* ==============================================
+   BUTTONS
+   ============================================== */
+.btn-primary {
+  background-color: var(--secondary-green);
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+  margin-top: 1.5rem;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #246c45;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 80, 60, 0.15);
+}
+
+.btn-secondary {
+  display: block;
+  margin: 2rem auto;
+  text-align: center;
+  background-color: var(--gray-light);
+  color: var(--text-dark);
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
+  width: fit-content;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray-medium);
+  transform: translateY(-1px);
+}
+
+/* ==============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================== */
+@media (max-width: 768px) {
+  .banner h1 {
+    font-size: 1.7rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .content-section ol li {
+    padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+  }
+  
+  .content-section ol li::before {
+    left: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  top: 1.25rem;
+  line-height: 2rem;
+  }
+  
+  .content-section ol li strong {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Accessibility Improvements */
+:focus-visible {
+  outline: 2px solid var(--secondary-green);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .btn-primary, .btn-secondary {
+    display: none;
+  }
+  
+  main.service-detail {
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .content-section ol li {
+    break-inside: avoid;
+  }
+}

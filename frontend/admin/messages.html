@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Contact Messages | BioWorxHSE</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+  <div class="admin-header">
+    <h1>Contact Messages</h1>
+    <a href="/admin/dashboard.html" class="btn">Back to Dashboard</a>
+  </div>
+
+  <main class="admin-main">
+    <div class="admin-table-container">
+      <table class="admin-table" id="contactMessagesTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="contactMessagesBody">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module" src="js/messages.js"></script>
+</body>
+</html>

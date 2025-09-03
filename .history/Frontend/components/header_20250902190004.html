@@ -1,0 +1,61 @@
+<!-- =========================
+     Header Section
+========================= -->
+<header class="site-header">
+  <div class="container header-container">
+    <!-- Logo -->
+    <div class="header-logo">
+      <a href="${BASE_PATH}index.html" class="header-logo-link">
+        <h1 class="header-logo-text">BIONIX-EHS</h1>
+      </a>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="header-nav desktop-nav">
+      <ul class="header-nav-list">
+        <li><a href="${BASE_PATH}index.html" class="header-nav-link">Home</a></li>
+        <li><a href="${BASE_PATH}about.html" class="header-nav-link">About</a></li>
+        <li><a href="${BASE_PATH}services/services.html" class="header-nav-link">Services</a></li>
+        <li><a href="${BASE_PATH}blog/blog.html" class="header-nav-link">Blog</a></li>
+        <li><a href="${BASE_PATH}ecommerce/product-grid.html" class="header-nav-link">Products</a></li>
+        <li><a href="${BASE_PATH}contact.html" class="header-nav-link">Contact</a></li>
+
+        <!-- Desktop Auth Area -->
+        <li id="authArea"></li>
+      </ul>
+    </nav>
+
+    <!-- Mobile Navigation Toggle -->
+    <button class="header-menu-toggle" aria-controls="mobileNav" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav id="mobileNav" class="mobile-nav">
+    <!-- Close Button -->
+    <button class="mobile-nav-close" aria-label="Close Menu">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <ul class="mobile-nav-list">
+      <li><a href="${BASE_PATH}index.html" class="mobile-nav-link">Home</a></li>
+      <li><a href="${BASE_PATH}about.html" class="mobile-nav-link">About</a></li>
+      <li><a href="${BASE_PATH}services/services.html" class="mobile-nav-link">Services</a></li>
+      <li><a href="${BASE_PATH}blog/blog.html" class="mobile-nav-link">Blog</a></li>
+      <li><a href="${BASE_PATH}ecommerce/product-grid.html" class="mobile-nav-link">Products</a></li>
+      <li><a href="${BASE_PATH}contact.html" class="mobile-nav-link">Contact</a></li>
+
+      <!-- Mobile Auth Area -->
+      <li id="authAreaMobile"></li>
+    </ul>
+  </nav>
+
+  <!-- Overlay -->
+  <div class="menu-overlay"></div>
+</header>
+
+<!-- External Assets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<link rel="stylesheet" href="${BASE_PATH}css/header.css" />
+<script type="module" src="${BASE_PATH}js/header.js"></script>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Dashboard</title>
+        <script>
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "admin.html";
+            }
+        </script>
+        <link rel="stylesheet" href="css/admin-style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <h1>Admin Dashboard</h1>
+            <nav>
+                <button onclick="showSection('dashboard')">Dashboard</button>
+                <button onclick="showSection('products')">Products</button>
+                <!-- Add more buttons for future sections like Orders, Users -->
+            </nav>
+        </header>
+
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section">
+                <h2>Overview</h2>
+                <div id="total-orders">Total Orders: 0</div>
+                <div id="total-users">Total Users: 0</div>
+                <div id="total-products">Total Products: 0</div>
+                <canvas id="orderChart" width="400" height="200"></canvas>
+            </section>
+
+            <!-- Products Section -->
+            <section id="products" class="admin-section" style="display: none;">
+                <h2>Product Management</h2>
+
+                <form id="productForm">
+                    <h3 id="formTitle">Add Product</h3>
+                    <input type="hidden" id="productId" />
+
+                    <label>Name: <input type="text" id="productName" required /></label><br />
+                    <label>Description: <input type="text" id="productDescription" required /></label><br />
+                    <label>Price: <input type="number" id="productPrice" required /></label><br />
+                    <label>Image URL: <input type="text" id="productImageUrl" /></label><br />
+                    <label>Category: <input type="text" id="productCategory" /></label><br />
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="resetForm()">Cancel</button>
+                </form>
+
+                <table id="productTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </main>
+
+        <script>
+            document.getElementById("loginForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                const form = e.target;
+                const button = form.querySelector("button");
+                button.disabled = true;
+                button.textContent = "Logging in...";
+
+                fetch("http://localhost:8080/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: form.email.value,
+                        password: form.password.value
+                    })
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error("Invalid credentials");
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        localStorage.setItem("jwtToken", data.token);
+                        localStorage.setItem("userRole", data.role);
+
+                        if (data.role === "ADMIN") {
+                            window.location.href = "../admin/admin-dashboard.html";
+                        } else {
+                            window.location.href = "../index.html";
+                        }
+                    })
+                    .catch(err => {
+                        alert(err.message);
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                        button.textContent = "Login";
+                    });
+            });
+        </script>
+
+        <script src="js/dashboard.js"></script>
+    </body>
+
+</html>

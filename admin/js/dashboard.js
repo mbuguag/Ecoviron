@@ -1,7 +1,5 @@
-// dashboard.js
-import { API_BASE_URL } from './apiConfig.js';
+import { API_BASE_URL } from "../../js/apiConfig.js"; // adjust path as needed
 
-// ✅ Use centralized API configuration
 export const API_BASE = {
   dashboard: `${API_BASE_URL}/admin/summary`,
   products: `${API_BASE_URL}/admin/products`,
@@ -14,17 +12,12 @@ export const API_BASE = {
   blogImage: `${API_BASE_URL}/images/upload/blog`,
 };
 
-// ✅ Safe JSON parser for better error messages
-function safeJson(res) {
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
+// ✅ auth wrapper
 export function authFetch(url, options = {}) {
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Your session has expired. Please log in again.");
-    window.location.href = "/login.html";
+    window.location.href = "/frontend/login.html";
     return Promise.reject("Missing token");
   }
 
@@ -40,8 +33,14 @@ export function authFetch(url, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
-let quill;
+// 🖼️ For images (because DB stores relative paths)
+function resolveImage(path) {
+  if (!path) return "";
+  return path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
+}
 
+// === Quill Editor ===
+let quill;
 function initQuillEditor() {
   const editorContainer = document.getElementById("editor");
   if (editorContainer) {
@@ -49,6 +48,7 @@ function initQuillEditor() {
   }
 }
 
+// === Init ===
 document.addEventListener("DOMContentLoaded", () => {
   initQuillEditor();
   showSection("dashboard");
@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cancelEdit")?.addEventListener("click", resetBlogForm);
 });
 
+// === Section Router ===
 function showSection(sectionId) {
   document.querySelectorAll(".admin-section").forEach((sec) => {
     sec.style.display = sec.id === sectionId ? "block" : "none";
@@ -81,6 +82,7 @@ function showSection(sectionId) {
     case "quotes": loadQuotes(); break;
   }
 }
+window.showSection = showSection;
 
 // === Dashboard ===
 function loadDashboard() {
@@ -97,20 +99,18 @@ function loadDashboard() {
         type: "bar",
         data: {
           labels: ["Pending", "Shipped", "Delivered"],
-          datasets: [
-            {
-              label: "Order Status",
-              data: [data.orderStatus.pending, data.orderStatus.shipped, data.orderStatus.delivered],
-              backgroundColor: ["orange", "blue", "green"],
-            },
-          ],
+          datasets: [{
+            label: "Order Status",
+            data: [data.orderStatus.pending, data.orderStatus.shipped, data.orderStatus.delivered],
+            backgroundColor: ["orange", "blue", "green"],
+          }],
         },
       });
     })
     .catch((err) => alert("Failed to load dashboard: " + err.message));
 }
 
-// === Product Management ===
+// === Products ===
 function loadProducts() {
   authFetch(API_BASE.products)
     .then(safeJson)
@@ -119,26 +119,23 @@ function loadProducts() {
       tbody.innerHTML = "";
 
       products.forEach(async (p) => {
-        try {
-          const orderCount = await authFetch(`${API_BASE.products}/${p.id}/order-count`).then(safeJson);
+        const orderCountRes = await authFetch(`${API_BASE.products}/${p.id}/order-count`);
+        const orderCount = await orderCountRes.json();
 
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${p.name}</td>
-            <td>${p.description}</td>
-            <td>${p.price}</td>
-            <td>${p.category?.name || "—"}</td>
-            <td><img src="${p.imageUrl}" width="50" /></td>
-            <td>${orderCount}</td>
-            <td>
-              <button onclick="editProduct(${p.id})">Edit</button>
-              <button onclick="deleteProduct(${p.id})">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(row);
-        } catch (err) {
-          console.error("Failed to load order count for product", p.id, err);
-        }
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.description}</td>
+          <td>${p.price}</td>
+          <td>${p.category?.name || "—"}</td>
+          <td><img src="${resolveImage(p.imageUrl)}" width="50" /></td>
+          <td>${orderCount}</td>
+          <td>
+            <button onclick="editProduct(${p.id})">Edit</button>
+            <button onclick="deleteProduct(${p.id})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
       });
     })
     .catch((err) => alert("Failed to load products: " + err.message));

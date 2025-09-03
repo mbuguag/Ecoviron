@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile | Ecoviron</title>
+  <link rel="stylesheet" href="./css/profile.css" />
+  <link rel="stylesheet" href="/css/">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="profile-container">
+    <aside class="sidebar">
+      <h3>My Account</h3>
+      <ul>
+        <li><a href="#" class="sidebar-link" data-target="profile-section">Profile Info</a></li>
+        <li><a href="#" class="sidebar-link" data-target="orders-section">Order History</a></li>
+        <li><a href="#" class="sidebar-link" data-target="wishlist-section">Wishlist</a></li>
+        <li><button id="logout-btn" class="btn logout">Logout</button></li>
+      </ul>
+    </aside>
+
+    <section class="profile-content">
+      <!-- Profile Info -->
+      <div id="profile-section" class="profile-section">
+        <h2>Profile Information</h2>
+        <form id="profile-form">
+          <div class="form-group">
+            <label for="profile-name">Full Name</label>
+            <input type="text" id="profile-name" name="name" required />
+          </div>
+          <div class="form-group">
+            <label for="profile-email">Email</label>
+            <input type="email" id="profile-email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="profile-pic">Profile Picture</label>
+            <input type="file" id="profile-pic" name="profilePicture" accept="image/*" />
+            <img id="current-profile-pic" src="/images/default-profile.png" alt="Profile Picture" class="profile-preview" />
+          </div>
+          <button type="submit" class="btn primary">Update Profile</button>
+        </form>
+      </div>
+
+      <!-- Orders -->
+      <div id="orders-section" class="profile-section" style="display: none;">
+        <h2>Order History</h2>
+        <div id="orders-list">Loading orders...</div>
+      </div>
+
+      <!-- Wishlist -->
+      <div id="wishlist-section" class="profile-section" style="display: none;">
+        <h2>My Wishlist</h2>
+        <div id="wishlist-items">Loading wishlist...</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/profile.js"></script>
+</body>
+</html>

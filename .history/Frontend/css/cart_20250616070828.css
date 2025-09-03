@@ -1,0 +1,92 @@
+/* Cart Table Styles */
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.cart-table th {
+    text-align: left;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+}
+
+.cart-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.cart-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 1rem;
+}
+
+.product-cell {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-input {
+    width: 50px;
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Cart Summary */
+.total-amount {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: right;
+    margin: 1.5rem 0;
+}
+
+.cart-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+/* Empty State */
+.empty-cart {
+    text-align: center;
+    padding: 2rem;
+}
+
+.empty-cart p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    z-index: 1000;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    10%,
+    90% {
+        opacity: 1;
+    }
+}

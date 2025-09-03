@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Ecoviron</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .auth-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .auth-image {
+      flex: 1;
+      background: url('../assets/images/workplace-safety.png') center center/cover no-repeat;
+      display: none;
+    }
+
+    .auth-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+
+    .auth-form {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .auth-form .password-wrapper {
+      position: relative;
+    }
+
+    .auth-form .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .auth-form button {
+      width: 100%;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (min-width: 768px) {
+      .auth-image {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-image"></div>
+
+    <div class="auth-content">
+      <form id="loginForm" class="auth-form">
+        <h2 style="text-align:center;">Login to Ecoviron</h2>
+
+        <input type="email" name="email" placeholder="Email Address" required />
+
+        <div class="password-wrapper">
+          <input type="password" name="password" placeholder="Password" id="passwordField" required />
+          <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+
+        <div class="forgot-password" style="text-align:right; margin-bottom: 1rem;">
+          <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+
+        <p style="text-align:center; margin-top:1rem;">
+          Don't have an account? <a href="register.html">Register here</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Login successful!</div>
+
+  <script type="module" src="../js/auth.js"></script>
+  <script type="module">
+    import { handleLogin } from "../js/auth.js";
+    handleLogin("loginForm", "http://api.bionix-hse.co.ke/api/auth/login");
+  </script>
+
+  <script>
+    // Show/hide password logic
+    document.getElementById("togglePassword").addEventListener("click", () => {
+      const passwordField = document.getElementById("passwordField");
+      const type = passwordField.type === "password" ? "text" : "password";
+      passwordField.type = type;
+      event.target.classList.toggle("fa-eye-slash");
+    });
+
+    // Toast logic (optional helper)
+    window.showToast = function (msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    };
+  </script>
+</body>
+</html>

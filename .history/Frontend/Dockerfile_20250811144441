@@ -1,0 +1,19 @@
+FROM nginx:alpine
+
+# Remove default content
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy files with proper permissions
+COPY . /usr/share/nginx/html/
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
+# Add webmanifest MIME type (correct approach)
+RUN echo "types { application/manifest+json webmanifest; }" > /etc/nginx/conf.d/mime.types.additional && \
+    echo "include conf.d/mime.types.additional;" >> /etc/nginx/nginx.conf
+
+# Copy custom config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

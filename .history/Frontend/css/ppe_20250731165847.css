@@ -1,0 +1,359 @@
+/* ========= Base Reset ========= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f9f9f9;
+  padding: 0 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: #2e8b57;
+  transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+  color: #1a6b3a;
+  outline: 2px solid #1f7a52;
+  outline-offset: 2px;
+}
+
+/* ========= Layout Containers ========= */
+main.service-detail {
+  max-width: 900px;
+  margin: 2rem auto;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.banner {
+  background: linear-gradient(to right, #f9fffc, #e0f7ec);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 120, 70, 0.1);
+}
+
+.banner h1 {
+  color: #155e3d;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.banner p {
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  color: #444;
+}
+
+/* ========= Content Section ========= */
+.content-section h2 {
+  font-size: 1.5rem;
+  color: #1f7a52;
+  margin-top: 2rem;
+  border-left: 4px solid #1f7a52;
+  padding-left: 0.75rem;
+}
+
+.content-section ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1.5rem;
+}
+
+.content-section ul li {
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.content-section ul li i {
+  color: #1f7a52;
+  margin-top: 3px;
+}
+
+.products li i {
+  min-width: 20px;
+}
+
+/* ========= Updated Button Styles ========= */
+.btn-primary,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    gap: 0.5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Request Quote Button (Primary) */
+.btn-primary {
+    background-color: #1f7a52;
+    color: white;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 4px rgba(31, 122, 82, 0.2);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #155e3d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(31, 122, 82, 0.3);
+    outline: none;
+}
+
+/* Back to Home Button (Secondary) */
+.btn-secondary {
+    background-color: transparent;
+    color: #1f7a52;
+    margin: 2rem 0;
+    padding: 0.6rem 1rem;
+    border: 1px solid #1f7a52;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: #f0f4f3;
+    transform: translateY(-2px);
+    outline: none;
+}
+
+/* Button Icons */
+.btn-primary i,
+.btn-secondary i {
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-primary i {
+    margin-left: 0.5rem;
+}
+
+.btn-secondary i {
+    margin-right: 0.5rem;
+}
+
+.btn-primary:hover i {
+    transform: translateX(3px);
+}
+
+.btn-secondary:hover i {
+    transform: translateX(-3px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        padding: 0.8rem;
+    }
+    
+    .btn-secondary {
+        margin: 1.5rem auto;
+    }
+}
+
+/* ========= PPE Gallery Section ========= */
+.ppe-gallery-section {
+  padding: 2rem 1rem;
+  background: #f0f4f3;
+  text-align: center;
+  max-width: 900px;
+  margin: 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.slides-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease-in-out;
+  border-radius: 12px;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+/* ========= Slider Controls ========= */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  padding: 0.75rem;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.slider-btn:hover,
+.slider-btn:focus {
+  background-color: rgba(30, 70, 50, 1);
+  outline: none;
+}
+
+.slider-btn.prev {
+  left: 10px;
+}
+
+.slider-btn.next {
+  right: 10px;
+}
+
+/* ========= Slide Indicators (Optional) ========= */
+.slider-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.slide-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.slide-indicator.active {
+  background-color: #1f7a52;
+}
+
+.slide-indicator:hover,
+.slide-indicator:focus {
+  background-color: rgba(30, 70, 50, 0.7);
+  outline: none;
+}
+
+/* ========= Optional Pause Button ========= */
+.pause-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  z-index: 3;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pause-btn:hover,
+.pause-btn:focus {
+  background-color: rgba(30, 70, 50, 1);
+  outline: none;
+}
+
+/* ========= Accessibility + Touch Support ========= */
+:focus-visible {
+  outline: 2px solid #1f7a52;
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .slider-btn:hover,
+  .slide-indicator:hover {
+    transform: none;
+    background-color: initial;
+  }
+
+  .btn-primary:active,
+  .btn-secondary:active,
+  .slider-btn:active,
+  .slide-indicator:active {
+    transform: translateY(0);
+    background-color: #155e3d;
+  }
+}
+
+/* ========= Responsive Adjustments ========= */
+@media (max-width: 768px) {
+  .banner h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .slides-container {
+    height: 250px;
+  }
+}
+
+.cta-button {
+  margin-top: 1.5rem;
+  display: inline-block;
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  background-color: #1f7a52;
+  color: #fff;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cta-button:hover,
+.cta-button:focus {
+  background-color: #155e3d;
+  transform: translateY(-2px);
+  outline: none;
+}
+

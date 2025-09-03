@@ -1,0 +1,155 @@
+Container & Layout
+.profile-layout {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.profile-sidebar {
+  flex: 1 1 220px;
+  background-color: #f7f7f7;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.profile-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-sidebar li {
+  margin-bottom: 1rem;
+}
+
+.profile-sidebar a,
+.profile-sidebar button {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.profile-sidebar a:hover,
+.profile-sidebar button:hover,
+.profile-sidebar a.active {
+  background-color: #e0f0e0;
+  color: #0a7f40;
+}
+
+.profile-content {
+  flex: 3 1 600px;
+}
+
+.profile-section {
+  margin-bottom: 3rem;
+}
+
+/* Forms */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Profile Picture Upload */
+.profile-pic-upload {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-pic-upload img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+}
+
+/* Order & Wishlist Items */
+#order-list,
+#wishlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card,
+.wishlist-card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.order-card:hover,
+.wishlist-card:hover {
+  border-color: #0a7f40;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background-color: #0a7f40;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #095f32;
+}
+
+.btn.logout {
+  background-color: #ff4747;
+  color: white;
+}
+
+.btn.logout:hover {
+  background-color: #d63939;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .profile-sidebar {
+    order: 2;
+  }
+
+  .profile-content {
+    order: 1;in;
+  }
+
+  .profile-pic-upload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

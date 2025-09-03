@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>Admin Panel - Orders</title>
+        
+        <link rel="stylesheet" href="admin-style.css" />
+    </head>
+
+    <body>
+        <header>
+            <h1>Ecoviron Admin Panel</h1>
+            <nav>
+                <ul>
+                    <li><a href="admin-products.html" onclick="showSection('products')">Products</a></li>
+                    <li><a href="admin-orders.html" onclick="showSection('orders')">Orders</a></li>
+                    <li><a href="admin-users.html" onclick="showSection('users')">Users</a></li>
+                    <li><a href="/">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        <div class="admin-container">
+            <h2>Orders</h2>
+            <table id="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <script>
+            fetch("/api/orders", {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token")
+                }
+            })
+                .then((res) => res.json())
+                .then((orders) => {
+                    const table = document.querySelector("#orders-table tbody");
+                    orders.forEach((order) => {
+                        const row = `
+            <tr>
+              <td>${order.id}</td>
+              <td>${order.user?.email}</td>
+              <td>${new Date(order.date).toLocaleString()}</td>
+              <td>KES ${order.totalAmount.toFixed(2)}</td>
+              <td>${order.status}</td>
+            </tr>
+          `;
+                        table.innerHTML += row;
+                    });
+                });
+        </script>
+    </body>
+
+</html>
