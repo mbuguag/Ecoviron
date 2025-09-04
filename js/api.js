@@ -1,3 +1,4 @@
+// frontend/js/api.js
 import { API_BASE_URL } from "./apiConfig.js";
 
 /**

@@ -1,44 +1,50 @@
-import { loadLayoutComponents } from "./domUtils.js";
+import { loadComponents } from "../js/modules/components.js";
 import { fetchAllProducts } from "./api.js";
 import { setupCartInteractions } from "./cart-actions.js";
 import { toggleWishlist, isInWishlist } from "./wishlist.js";
-import { API_BASE_URL, STATIC_BASE_URL, formatPrice } from "./config.js";
+import { API_BASE_URL, STATIC_BASE_URL, BASE_PATH, formatPrice } from "./apiConfig.js";
 
-
-
-const BACKEND_URL = "https://api.bionix-hse.co.ke";
 let originalProducts = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadLayoutComponents();
+  await loadComponents([
+    { fileName: "header.html", containerId: "site-header" },
+    { fileName: "footer.html", containerId: "site-footer" }
+  ]);
+
   await loadAndRenderProducts();
   setupControls();
 });
 
-const API_BASE = {
-  products: `${API_BASE_URL}/products`,
-};
-
+/**
+ * Get category from query string (?category=...)
+ */
 function getCategoryFromQuery() {
   const params = new URLSearchParams(window.location.search);
   return params.get("category") || "all";
 }
 
+/**
+ * Fetch and render products
+ */
 async function loadAndRenderProducts() {
   try {
-    const products = await fetchAllProducts();
+    const products = await fetchAllProducts(API_BASE_URL);
     originalProducts = products;
     applyFiltersAndSort({});
   } catch (error) {
     document.getElementById("product-grid").innerHTML = `
       <div class="error-message">
-        <p>Failed to load products. Please try again later.</p>
+        <p>⚠️ Failed to load products. Please try again later.</p>
       </div>
     `;
     console.error("API Error:", error);
   }
 }
 
+/**
+ * Render products into grid
+ */
 function renderProductGrid(products) {
   const gridContainer = document.getElementById("product-grid");
   gridContainer.innerHTML = products
@@ -51,22 +57,17 @@ function renderProductGrid(products) {
       const rating = product.rating || 4; // Fallback rating
 
       return `
-      <div class="product-card modern-card" data-category="${
-        product.category?.name?.toLowerCase() || "uncategorized"
-      }">
-        <a href="product-details.html?id=${
-          product.id
-        }" class="product-image-link">
+      <div class="product-card modern-card" data-category="${product.category?.name?.toLowerCase() || "uncategorized"}">
+        <a href="product-details.html?id=${product.id}" class="product-image-link">
           <div class="image-wrapper">
             <img src="${STATIC_BASE_URL}${product.imageUrl}" 
-     alt="${product.name}" 
-     class="product-image"
-     loading="lazy"/>
+                 alt="${product.name}" 
+                 class="product-image"
+                 loading="lazy"/>
             ${badge ? `<span class="badge">${badge}</span>` : ""}
             <button class="wishlist-btn" data-id="${product.id}">
-  <i class="fa${isInWishlist(product.id) ? "s" : "r"} fa-heart"></i>
-</button>
-
+              <i class="fa${isInWishlist(product.id) ? "s" : "r"} fa-heart"></i>
+            </button>
           </div>
         </a>
         <div class="product-info">
@@ -88,16 +89,38 @@ function renderProductGrid(products) {
     .join("");
 
   setupCartInteractions();
+  setupWishlistListeners();
   injectSchemaForProducts(products);
-
 }
 
+/**
+ * Render rating stars
+ */
 function renderStars(rating) {
   const full = Math.floor(rating);
   const empty = 5 - full;
   return "★".repeat(full) + "☆".repeat(empty);
 }
 
+/**
+ * Wishlist toggle listeners
+ */
+function setupWishlistListeners() {
+  const buttons = document.querySelectorAll(".wishlist-btn");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const productId = parseInt(btn.dataset.id);
+      toggleWishlist(productId);
+      btn.querySelector("i").classList.toggle("fas");
+      btn.querySelector("i").classList.toggle("far");
+    });
+  });
+}
+
+/**
+ * Setup filter & sort controls
+ */
 function setupControls() {
   const buttons = document.querySelectorAll(".filter-btn");
   buttons.forEach((btn) => {
@@ -116,6 +139,9 @@ function setupControls() {
   }
 }
 
+/**
+ * Highlight active filter button
+ */
 function setActiveFilterButton(selectedCategory) {
   const buttons = document.querySelectorAll(".filter-btn");
   buttons.forEach((btn) => {
@@ -123,35 +149,21 @@ function setActiveFilterButton(selectedCategory) {
   });
 }
 
+/**
+ * Apply filters and sorting
+ */
 function applyFiltersAndSort({
   category = getCategoryFromQuery(),
   sort = document.getElementById("sort-select")?.value || "default",
 }) {
   let filtered = [...originalProducts];
 
-  
   if (category && category !== "all") {
     filtered = filtered.filter(
       (p) => p.category?.name?.toLowerCase() === category.toLowerCase()
     );
   }
 
-
-  function setupWishlistListeners() {
-    const buttons = document.querySelectorAll(".wishlist-btn");
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const productId = parseInt(btn.dataset.id);
-        toggleWishlist(productId);
-        btn.querySelector("i").classList.toggle("fas");
-        btn.querySelector("i").classList.toggle("far");
-      });
-    });
-  }
-
-
- 
   if (sort === "price-asc") {
     filtered.sort((a, b) => a.price - b.price);
   } else if (sort === "price-desc") {
@@ -162,11 +174,13 @@ function applyFiltersAndSort({
   setActiveFilterButton(category);
 }
 
-
+/**
+ * Inject schema.org JSON-LD for SEO
+ */
 function injectSchemaForProducts(products) {
   const head = document.head;
 
-  // Remove any previous injected schema
+  // Remove previous schema
   document
     .querySelectorAll('script[type="application/ld+json"]')
     .forEach((el) => {
@@ -187,7 +201,7 @@ function injectSchemaForProducts(products) {
       },
       offers: {
         "@type": "Offer",
-        url: `https://www.bionix-hse.co.ke/product-details.html?id=${product.id}`,
+        url: `${STATIC_BASE_URL}/product-details.html?id=${product.id}`,
         priceCurrency: "KES",
         price: product.price.toFixed(2),
         availability: "https://schema.org/InStock",
@@ -202,11 +216,14 @@ function injectSchemaForProducts(products) {
   });
 }
 
-function renderBreadcrumb(product) {
+/**
+ * Breadcrumb renderer (optional on details page)
+ */
+export function renderBreadcrumb(product) {
   const breadcrumb = document.getElementById("breadcrumb");
   if (!breadcrumb || !product) return;
 
-  const homeLink = `<a href="../index.html">Home</a>`;
+  const homeLink = `<a href="${BASE_PATH}index.html">Home</a>`;
   const categoryLink = `<a href="product-grid.html?category=${product.category.id}">${product.category.name}</a>`;
   const current = `<span class="current">${product.name}</span>`;
 

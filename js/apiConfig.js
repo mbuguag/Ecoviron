@@ -1,13 +1,19 @@
 // Detect environment
+// ✅ Use this everywhere
+import { loadComponent, loadComponents, loadLayoutComponents } from "./modules/components.js";
+
+
 const isLocalDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 const isPreviewEnv = window.location.hostname.includes("vercel.app");
+
+const DEBUG = isLocalDev; 
+
 
 /**
  * Detect base path for loading components (header, footer, etc.)
  */
 function detectComponentsBasePath() {
   if (isLocalDev) {
-    // Local dev can be run either at /frontend/ or directly at root
     if (window.location.pathname.includes("/frontend/")) {
       return "/frontend/components/";
     }
@@ -18,7 +24,7 @@ function detectComponentsBasePath() {
     return "https://your-preview-domain.vercel.app/components/";
   }
 
-  // ✅ Always use canonical www domain in production
+
   return "https://www.bionix-hse.co.ke/components/";
 }
 
@@ -132,118 +138,117 @@ export function getQueryParam(key, defaultValue = null) {
 /**
  * Load a single component into a container with localStorage cache
  */
-export async function loadComponent(fileName, containerId, maxRetries = 3) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Container #${containerId} not found for ${fileName}`);
-    return false;
-  }
+// export async function loadComponent(fileName, containerId, maxRetries = 3) {
+//   const container = document.getElementById(containerId);
+//   if (!container) {
+//     console.error(`Container #${containerId} not found for ${fileName}`);
+//     return false;
+//   }
 
-  const CACHE_KEY = `component_cache_${fileName}`;
-  const CACHE_EXPIRY = 1000 * 60 * 10; // 10 minutes
+//   const CACHE_KEY = `component_cache_${fileName}`;
+//   const CACHE_EXPIRY = 1000 * 60 * 10;
 
-  // 1️⃣ Try cached version first
-  try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (cached && (Date.now() - cached.timestamp < CACHE_EXPIRY)) {
-      container.innerHTML = cached.html;
-    }
-  } catch (err) {
-    console.warn(`[cache] Parse error for ${fileName}:`, err);
-  }
+  
+//   try {
+//     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+//     if (cached && (Date.now() - cached.timestamp < CACHE_EXPIRY)) {
+//       container.innerHTML = cached.html;
+//     }
+//   } catch (err) {
+//     console.warn(`[cache] Parse error for ${fileName}:`, err);
+//   }
 
-  // 2️⃣ Always attempt fresh fetch in background
-  const candidatePaths = [
-    `${config.COMPONENTS_BASE}${fileName}`,     // main path
-    `/frontend/components/${fileName}`,        // dev fallback
-    `./components/${fileName}`,                // relative fallback
-    `../components/${fileName}`,               // relative fallback
-    `${STATIC_BASE_URL}/components/${fileName}` // absolute static
-  ];
+  
+//   const candidatePaths = [
+//     `${config.COMPONENTS_BASE}${fileName}`,
+//     `/frontend/components/${fileName}`,
+//     `./components/${fileName}`,
+//     `../components/${fileName}`,
+//     `${STATIC_BASE_URL}/components/${fileName}`
+//   ];
 
-  let lastError = null;
+//   let lastError = null;
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    for (const url of candidatePaths) {
-      try {
-        console.log(`[loadComponent] Trying: ${url}`);
-        const response = await fetch(url, {
-          cache: isLocalDev ? "no-store" : "default",
-          headers: { Accept: "text/html" }
-        });
+//   for (let attempt = 0; attempt < maxRetries; attempt++) {
+//     for (const url of candidatePaths) {
+//       try {
+//         console.log(`[loadComponent] Trying: ${url}`);
+//         const response = await fetch(url, {
+//           cache: isLocalDev ? "no-store" : "default",
+//           headers: { Accept: "text/html" }
+//         });
 
-        if (!response.ok) {
-          console.warn(`[loadComponent] ${fileName} not found at ${url} (${response.status})`);
-          continue;
-        }
+//         if (!response.ok) {
+//           console.warn(`[loadComponent] ${fileName} not found at ${url} (${response.status})`);
+//           continue;
+//         }
 
-        let html = await response.text();
-        html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
-        html = html.replace(/\${STATIC_BASE_URL}/g, STATIC_BASE_URL);
+//         let html = await response.text();
+//         html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
+//         html = html.replace(/\${STATIC_BASE_URL}/g, STATIC_BASE_URL);
+        
+//         container.innerHTML = html;
 
-        // Update DOM (replaces cache if it was old)
-        container.innerHTML = html;
+        
+//         localStorage.setItem(CACHE_KEY, JSON.stringify({
+//           html,
+//           timestamp: Date.now()
+//         }));
 
-        // Save to cache
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          html,
-          timestamp: Date.now()
-        }));
+//         console.log(`✅ Loaded ${fileName} from ${url}`);
+//         return true;
+//       } catch (err) {
+//         console.warn(`[loadComponent] Fetch failed for ${url}:`, err.message);
+//         lastError = err;
+//       }
+//     }
 
-        console.log(`✅ Loaded ${fileName} from ${url}`);
-        return true;
-      } catch (err) {
-        console.warn(`[loadComponent] Fetch failed for ${url}:`, err.message);
-        lastError = err;
-      }
-    }
+    
+//     if (attempt < maxRetries - 1) {
+//       const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+//       console.log(`Retrying ${fileName} in ${delay}ms (attempt ${attempt + 2}/${maxRetries})`);
+//       await new Promise(resolve => setTimeout(resolve, delay));
+//     }
+//   }
 
-    // exponential backoff retry
-    if (attempt < maxRetries - 1) {
-      const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-      console.log(`Retrying ${fileName} in ${delay}ms (attempt ${attempt + 2}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
+//   console.error(`❌ Failed to load ${fileName} after ${maxRetries} retries. Last error:`, lastError);
 
-  console.error(`❌ Failed to load ${fileName} after ${maxRetries} retries. Last error:`, lastError);
+//   if (!isLocalDev) {
+//     container.innerHTML = `
+//       <div class="component-error">
+//         ⚠️ ${fileName.replace(".html", "")} failed to load.
+//         <button onclick="window.location.reload()">Retry</button>
+//       </div>`;
+//   }
 
-  if (!isLocalDev) {
-    container.innerHTML = `
-      <div class="component-error">
-        ⚠️ ${fileName.replace(".html", "")} failed to load.
-        <button onclick="window.location.reload()">Retry</button>
-      </div>`;
-  }
-
-  return false;
-}
+//   return false;
+// }
 
 
 /**
  * Load multiple components at once
  */
-export async function loadComponents(components) {
-  if (!Array.isArray(components) || components.length === 0) return {};
+// export async function loadComponents(components) {
+//   if (!Array.isArray(components) || components.length === 0) return {};
 
-  const results = await Promise.allSettled(
-    components.map(({ fileName, containerId }) =>
-      loadComponent(fileName, containerId).then(success => ({ fileName, success }))
-    )
-  );
+//   const results = await Promise.allSettled(
+//     components.map(({ fileName, containerId }) =>
+//       loadComponent(fileName, containerId).then(success => ({ fileName, success }))
+//     )
+//   );
 
-  const summary = {};
-  results.forEach((res, i) => {
-    const { fileName } = components[i];
-    summary[fileName] = res.status === "fulfilled" ? res.value.success : false;
-    if (res.status === "rejected") {
-      console.error(`[loadComponents] Failed for ${fileName}:`, res.reason);
-    }
-  });
+//   const summary = {};
+//   results.forEach((res, i) => {
+//     const { fileName } = components[i];
+//     summary[fileName] = res.status === "fulfilled" ? res.value.success : false;
+//     if (res.status === "rejected") {
+//       console.error(`[loadComponents] Failed for ${fileName}:`, res.reason);
+//     }
+//   });
 
-  console.log("Batch component load summary:", summary);
-  return summary;
-}
+//   console.log("Batch component load summary:", summary);
+//   return summary;
+// }
 
 // Debug environment info
 console.log("Environment:", {
