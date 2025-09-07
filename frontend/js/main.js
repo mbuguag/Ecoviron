@@ -13,7 +13,7 @@ import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
 import { BASE_PATH } from "./apiConfig.js";
-
+import { initHeader } from "./header.js";
 /**
  * Sticky Header
  */
@@ -50,6 +50,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     await loadLayoutComponents();
     console.log("Layout components loaded successfully");
 
+<<<<<<< HEAD:js/main.js
+    initHeader();
+
+=======
+>>>>>>> 06473f09890498cea412ac69df3cc614d8191ac4:frontend/js/main.js
     initAuthUI();
     
 
