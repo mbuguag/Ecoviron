@@ -375,7 +375,7 @@
 }
 
 .mobile-nav .cart-icon-link {
-    background: var(--secondary-color);
+    background: var(--primary-color);
     color: var(--text-light);
     margin: 0 1.5rem;
     border-radius: 8px;
@@ -387,7 +387,7 @@
 }
 
 .mobile-nav .cart-icon-link:hover {
-    background: var(--accent-color);
+    background: var(--primary-dark);
 }
 
 /* Mobile dropdown adjustments */
@@ -537,114 +537,6 @@
 #auth-container .header-nav-link:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
-}
-
-/* ================================
-   Auth-Specific Styles
-================================ */
-/* Desktop Auth Avatar */
-.user-avatar-desktop {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    object-fit: cover;
-    transition: var(--transition);
-}
-
-.user-auth-link:hover .user-avatar-desktop {
-    border-color: var(--accent-color);
-    transform: scale(1.1);
-}
-
-.guest-auth-link,
-.user-auth-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-light);
-    padding: 0;
-    transition: var(--transition);
-}
-
-.guest-auth-link:hover,
-.user-auth-link:hover {
-    background: var(--accent-color);
-    color: var(--text-light);
-}
-
-.guest-auth-link::after,
-.user-auth-link::after {
-    display: none;
-}
-
-/* Mobile Auth Avatar */
-.user-avatar-mobile {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    object-fit: cover;
-}
-
-.mobile-user-link,
-.mobile-guest-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 1rem;
-    background: var(--secondary-color);
-    color: var(--text-light);
-    border-radius: 8px;
-    font-weight: 600;
-    transition: var(--transition);
-    justify-content: center;
-}
-
-.mobile-user-link:hover,
-.mobile-guest-link:hover {
-    background: var(--secondary-color);
-}
-
-.mobile-user-link::after,
-.mobile-guest-link::after {
-    display: none;
-}
-
-/* Mobile dropdown show state */
-#auth-container-mobile .dropdown-content.show {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-}
-
-#auth-container-mobile .dropdown-content {
-    display: none;
-    position: relative;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    visibility: hidden;
-    transform: none;
-    margin-top: 1rem;
-    box-shadow: none;
-    border: none;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* Auth dropdown icons */
-.dropdown-content a i {
-    margin-right: 8px;
-    width: 16px;
-    text-align: center;
 }
 
 /* Smooth scroll behavior for anchor links */

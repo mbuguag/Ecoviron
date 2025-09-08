@@ -349,6 +349,7 @@ class HeaderManager {
 }
 
 
+
 export default HeaderManager;
 
 export function initHeader() {

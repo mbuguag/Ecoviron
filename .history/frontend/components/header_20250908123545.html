@@ -43,9 +43,22 @@
           </a>
         </li>
 
-        <!-- Desktop Auth Container -->
-        <li class="header-auth-item">
-          <div id="auth-container"></div>
+        <!-- Auth Area -->
+        <li class="header-auth-item dropdown">
+          <div id="auth-container">
+            <a href="#" class="header-nav-link auth-loading">
+              <i class="fas fa-user"></i>
+            </a>
+            <div class="dropdown-content">
+              <span class="dropdown-header">My Account</span>
+              <a href="${BASE_PATH}auth/login.html" class="auth-login-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+              <a href="${BASE_PATH}auth/register.html" class="auth-register-link"><i class="fas fa-user-plus"></i>
+                Register</a>
+              <a href="${BASE_PATH}profile.html" class="auth-profile-link" style="display: none;"><i
+                  class="fas fa-user"></i> Profile</a>
+              <a href="#" class="auth-logout-link" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+          </div>
         </li>
       </ul>
     </nav>
@@ -78,8 +91,23 @@
       </li>
     </ul>
 
-    <!-- Mobile Auth Container -->
-    <div id="auth-container-mobile"></div>
+    <!-- Sticky Auth Bar -->
+    <div class="mobile-auth-bar">
+      <div id="auth-container-mobile" class="user-dropdown">
+        <a href="#" class="header-nav-link auth-loading">
+          <img src="${BASE_PATH}images/default-avatar.png" alt="User" />
+          <span>Account</span>
+        </a>
+        <div class="dropdown-content">
+          <span class="dropdown-header">My Account</span>
+          <a href="${BASE_PATH}auth/login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a href="${BASE_PATH}auth/register.html"><i class="fas fa-user-plus"></i> Register</a>
+          <a href="${BASE_PATH}profile.html" class="auth-profile-link" style="display: none;"><i
+              class="fas fa-user"></i> Profile</a>
+          <a href="#" class="auth-logout-link" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
   </nav>
 </header>
 

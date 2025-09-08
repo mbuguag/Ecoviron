@@ -597,7 +597,7 @@
     align-items: center;
     gap: 12px;
     padding: 1rem;
-    background: var(--secondary-color);
+    background: var(--primary-color);
     color: var(--text-light);
     border-radius: 8px;
     font-weight: 600;
@@ -607,7 +607,7 @@
 
 .mobile-user-link:hover,
 .mobile-guest-link:hover {
-    background: var(--secondary-color);
+    background: var(--primary-dark);
 }
 
 .mobile-user-link::after,

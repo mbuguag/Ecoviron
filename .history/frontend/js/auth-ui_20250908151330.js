@@ -175,4 +175,4 @@ export function initAuthUI() {
 }
 
 // Auto-init
-document.addEventListener("DOMContentLoaded", initAuthUI);
+// document.addEventListener("DOMContentLoaded", initAuthUI);

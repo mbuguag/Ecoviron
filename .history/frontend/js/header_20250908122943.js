@@ -348,6 +348,10 @@ class HeaderManager {
   }
 }
 
+/* ==============================
+ * Init
+ * ============================== */
+
 
 export default HeaderManager;
 

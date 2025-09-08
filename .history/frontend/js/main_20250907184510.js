@@ -9,6 +9,7 @@ import { loadLayoutComponents } from "./modules/components.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
 import { initAuthUI } from "./auth-ui.js";  
+import { initAuthUI } from "./auth-ui.js";  
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
