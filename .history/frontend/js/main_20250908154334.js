@@ -8,7 +8,7 @@ import { initAboutSection } from "./modules/about.js";
 import { loadLayoutComponents } from "./modules/components.js";
 import { updateMiniCartCount } from "./cart-actions.js";
 import { loadQuoteModal } from "./modules/quote-modal.js";
-import { initAuthUI } from "./auth-ui.js";
+import { initAuthUI } from "./auth-ui.js";  
 import { initNewsletter } from "./modules/newsletter.js";
 import { initPPESlider } from "./modules/ppe-sliders.js";
 import { initBreadcrumbs } from "./modules/breadcrumbs.js";
@@ -57,6 +57,7 @@ let initialized = false;
  * Main App Initialization
  */
 window.addEventListener("DOMContentLoaded", async () => {
+  // Prevent double initialization
   if (initialized) return;
   initialized = true;
 
@@ -64,35 +65,30 @@ window.addEventListener("DOMContentLoaded", async () => {
   console.log("BASE_PATH:", BASE_PATH);
 
   try {
-    // 1. Load layout components (header + footer)
     console.log("Loading layout components...");
     await loadLayoutComponents();
+    console.log("Layout components loaded successfully");
 
-    const headerMounted =
-      document.querySelector("#header-container")?.children.length > 0;
-    const footerMounted =
-      document.querySelector("#footer-container")?.children.length > 0;
-
-    if (!headerMounted || !footerMounted) {
-      throw new Error("Header or footer failed to mount");
-    }
-
-    console.log("✅ Layout components mounted successfully");
-
-    // 2. Init header & auth UI after layout is ready
+    // Initialize header manager
     initHeader();
 
+    // Mark auth as handled by main.js to prevent double init
     window.authUIInitialized = true;
+    
+    // Initialize auth UI after layout is loaded
     const authManager = initAuthUI();
+    
+    // Store reference for global access
     window.bionixAuth = authManager;
 
-    // 3. Other initialization tasks
-    const initTasks = [
-      Promise.resolve(initStickyHeader()),
-      Promise.resolve(initBreadcrumbs()),
-      Promise.resolve(updateMiniCartCount()),
-    ];
+    const initTasks = [];
 
+    // Core UI
+    initTasks.push(Promise.resolve(initStickyHeader()));
+    initTasks.push(Promise.resolve(initBreadcrumbs()));
+    initTasks.push(Promise.resolve(updateMiniCartCount()));
+
+    // Conditional modules
     if (document.querySelector('[data-toggle="quote-modal"]')) {
       initTasks.push(loadQuoteModal());
     }
@@ -122,21 +118,23 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (typeof AOS !== "undefined") {
       AOS.init({
         duration: 800,
-        easing: "ease-in-out",
+        easing: 'ease-in-out',
         once: true,
-        mirror: false,
+        mirror: false
       });
     }
 
     console.log(`Executing ${initTasks.length} initialization tasks...`);
-    await Promise.allSettled(initTasks);
-    console.log("✅ All initialization tasks completed");
+    await Promise.all(initTasks);
+    console.log("All initialization tasks completed");
 
-    document.body.classList.add("app-loaded");
+    // Mark as fully loaded
+    document.body.classList.add('app-loaded');
+
   } catch (error) {
     console.error("Initialization error:", error);
 
-    // 4. Fallback header & footer
+    // Minimal fallback header & footer
     const header = document.getElementById("header-container");
     const footer = document.getElementById("footer-container");
 
@@ -175,6 +173,7 @@ window.addEventListener("DOMContentLoaded", async () => {
  */
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && window.bionixAuth) {
+    // Refresh auth state when tab becomes visible
     setTimeout(() => {
       window.bionixAuth.refresh();
     }, 100);
@@ -185,6 +184,7 @@ document.addEventListener("visibilitychange", () => {
  * Handle page navigation
  */
 window.addEventListener("beforeunload", () => {
+  // Clean up any pending operations
   if (window.bionixAuth) {
     window.bionixAuth.cleanup();
   }
@@ -201,16 +201,22 @@ window.initComponents = {
 };
 
 /**
- * Layout Load Check (can be imported by others if needed)
+ * Layout Load Check
  */
 export const layoutLoaded = (async () => {
   try {
     await loadLayoutComponents();
+
     const headerOk =
       document.getElementById("header-container")?.innerHTML.trim().length > 0;
     const footerOk =
       document.getElementById("footer-container")?.innerHTML.trim().length > 0;
-    return headerOk && footerOk;
+
+    if (!headerOk || !footerOk) {
+      console.warn("Header or footer not loaded correctly");
+      return false;
+    }
+    return true;
   } catch (err) {
     console.error("Layout loading failed:", err);
     return false;

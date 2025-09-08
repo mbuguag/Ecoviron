@@ -3,7 +3,6 @@
  * - Executes scripts inside injected HTML (header/footer)
  * - Dispatches lifecycle events: `component:loaded`, `header:mounted`, `footer:mounted`
  * - Plays nicely with cached components
- * - Prevents "glitch" by hiding containers until content is ready
  */
 
 import { BASE_PATH, getAssetPath } from "../apiConfig.js";
@@ -36,11 +35,12 @@ function activateScripts(container) {
   const scripts = container.querySelectorAll("script");
   scripts.forEach((oldScript) => {
     const newScript = document.createElement("script");
-    [...oldScript.attributes].forEach((a) =>
-      newScript.setAttribute(a.name, a.value)
-    );
+    // copy attributes
+    [...oldScript.attributes].forEach((a) => newScript.setAttribute(a.name, a.value));
+    // handle module scripts explicitly
     if (!newScript.type) newScript.type = oldScript.type || "text/javascript";
     if (oldScript.src) {
+      // Ensure BASE_PATH tokens already replaced in HTML step
       newScript.src = oldScript.src;
     } else {
       newScript.textContent = oldScript.textContent;
@@ -78,9 +78,6 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
       let html = cached.html;
       container.innerHTML = html;
       activateScripts(container);
-
-      container.classList.add("loaded"); // reveal
-
       emit("component:loaded", { fileName, fromCache: true, containerId });
       if (fileName === "header.html") emit("header:mounted", { fromCache: true });
       if (fileName === "footer.html") emit("footer:mounted", { fromCache: true });
@@ -91,6 +88,7 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
     console.warn(`[cache] Parse error for ${fileName}:`, err);
   }
 
+  // Try these locations in order
   const candidatePaths = [
     `${BASE_PATH}components/${fileName}`,
     `/frontend/components/${fileName}`,
@@ -102,30 +100,25 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
     for (const url of candidatePaths) {
       try {
         console.log(`[loadComponent] Trying: ${url}`);
-        const response = await fetch(url, {
-          headers: { Accept: "text/html" },
-          cache: isLocalDev ? "no-store" : "default",
-        });
+        const response = await fetch(url, { headers: { Accept: "text/html" }, cache: isLocalDev ? "no-store" : "default" });
         if (!response.ok) {
-          console.warn(
-            `[loadComponent] ${fileName} not found at ${url} (${response.status})`
-          );
+          console.warn(`[loadComponent] ${fileName} not found at ${url} (${response.status})`);
           continue;
         }
 
         let html = await response.text();
+        // token replacement
         html = html.replace(/\${BASE_PATH}/g, BASE_PATH);
 
+        // inject
         container.innerHTML = html;
         activateScripts(container);
 
-        container.classList.add("loaded"); // reveal
+        container.classList.add("loaded");
+        // cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ html, timestamp: Date.now() }));
 
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ html, timestamp: Date.now() })
-        );
-
+        // lifecycle events
         emit("component:loaded", { fileName, fromCache: false, containerId });
         if (fileName === "header.html") emit("header:mounted", { fromCache: false });
         if (fileName === "footer.html") emit("footer:mounted", { fromCache: false });
@@ -140,17 +133,12 @@ export async function loadComponent(fileName, containerId, maxRetries = 3) {
 
     if (attempt < maxRetries - 1) {
       const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-      console.log(
-        `Retrying ${fileName} in ${delay}ms (attempt ${attempt + 2}/${maxRetries})`
-      );
+      console.log(`Retrying ${fileName} in ${delay}ms (attempt ${attempt + 2}/${maxRetries})`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
-  console.error(
-    `❌ Failed to load ${fileName} after ${maxRetries} retries. Last error:`,
-    lastError
-  );
+  console.error(`❌ Failed to load ${fileName} after ${maxRetries} retries. Last error:`, lastError);
   return false;
 }
 
@@ -159,20 +147,15 @@ export async function loadComponents(components) {
 
   const results = await Promise.allSettled(
     components.map(({ fileName, containerId }) =>
-      loadComponent(fileName, containerId).then((success) => ({
-        fileName,
-        success,
-      }))
+      loadComponent(fileName, containerId).then((success) => ({ fileName, success }))
     )
   );
 
   const summary = {};
   results.forEach((res, i) => {
     const { fileName } = components[i];
-    summary[fileName] =
-      res.status === "fulfilled" ? res.value.success : false;
-    if (res.status === "rejected")
-      console.error(`[loadComponents] Failed for ${fileName}:`, res.reason);
+    summary[fileName] = res.status === "fulfilled" ? res.value.success : false;
+    if (res.status === "rejected") console.error(`[loadComponents] Failed for ${fileName}:`, res.reason);
   });
 
   return summary;
@@ -220,8 +203,8 @@ function loadFallbackHeader() {
         <a href="${BASE_PATH}ecommerce/product-grid.html">Shop</a>
       </nav>
     </header>`;
-  domCache.header.classList.add("loaded");
   emit("header:mounted", { fallback: true });
+  
 }
 
 function loadFallbackFooter() {
@@ -231,7 +214,6 @@ function loadFallbackFooter() {
     <footer class="fallback-footer">
       <p>© ${year} BIONIX-EHS. All rights reserved.</p>
     </footer>`;
-  domCache.footer.classList.add("loaded");
   emit("footer:mounted", { fallback: true });
 }
 
