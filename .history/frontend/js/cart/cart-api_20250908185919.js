@@ -1,14 +1,12 @@
-import { API_BASE_URL } from "../apiConfig.js";
-
+// cart-api.js
 export class CartAPI {
-  static BASE_URL = `${API_BASE_URL}/cart`;
-  static PRODUCTS_URL = `${API_BASE_URL}/products`;
+  static BASE_URL = "http://localhost:8080/api/cart";
+  static PRODUCTS_URL = "http://localhost:8080/api/products";
 
   static async getCart() {
     const response = await fetch(this.BASE_URL, {
       headers: getAuthHeaders(),
     });
-    if (!response.ok) throw new Error("Failed to fetch cart");
     return await response.json();
   }
 
@@ -53,7 +51,6 @@ export class CartAPI {
   static async removeItem(itemId) {
     const response = await fetch(`${this.BASE_URL}/remove/${itemId}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
     });
     return response.ok;
   }
@@ -61,7 +58,6 @@ export class CartAPI {
   static async clearCart() {
     const response = await fetch(`${this.BASE_URL}/clear`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
     });
     return response.ok;
   }
