@@ -20,59 +20,49 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private static final List<String> PUBLIC_ENDPOINTS = List.of(
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/refresh-token"
-    );
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (PUBLIC_ENDPOINTS.stream().anyMatch(path -> request.getRequestURI().startsWith(path))) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
             String header = request.getHeader("Authorization");
-            if (header == null || !header.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
 
-            String token = header.substring(7);
-            String username = jwtUtil.extractUsername(token);
+            if (header != null && header.startsWith("Bearer ")) {
+                String token = header.substring(7);
+                String username = jwtUtil.extractUsername(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (jwtUtil.validateToken(token)) {
-                    List<String> roles = jwtUtil.extractAllClaims(token).get("roles", List.class);
+                    if (jwtUtil.validateToken(token)) {
+                        List<String> roles = jwtUtil.extractAllClaims(token).get("roles", List.class);
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    roles.stream()
-                                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                                            .collect(Collectors.toList())
-                            );
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        roles.stream()
+                                                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                                                .collect(Collectors.toList())
+                                );
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
             }
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-            return;
+            // ✅ Don’t break the chain for public endpoints
+            System.out.println("JWT filter error: " + e.getMessage());
         }
 
+        // Always continue
         filterChain.doFilter(request, response);
     }
 }

@@ -29,40 +29,43 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
 
-    // Public endpoints that don't require authentication
-    private static final List<String> PUBLIC_ENDPOINTS = List.of(
+    // Public endpoints
+    private static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
             "/api/users/register",
             "/api/newsletter/**",
             "/api/payment/callback",
             "/api/about/**",
-            "/api/services",
             "/api/services/**",
             "/api/cart/**",
             "/api/contact/**",
             "/api/public-blogs/**",
             "/api/images/**",
-            "/actuator/health"
-    );
+            "/actuator/health",
+            "/api/products",        // root products endpoint
+            "/api/products/**",     // products subpaths
+            "/api/quote/**"         // quote requests
+    };
 
     // Static resources
-    private static final List<String> STATIC_RESOURCES = List.of(
+    private static final String[] STATIC_RESOURCES = {
             "/uploads/**",
             "/css/**",
             "/js/**",
             "/images/**",
             "/static/**",
             "/favicon.ico"
-    );
+    };
 
     // Admin endpoints
-    private static final List<String> ADMIN_ENDPOINTS = List.of(
+    private static final String[] ADMIN_ENDPOINTS = {
             "/api/categories/**",
             "/api/admin/**",
             "/api/contact/admin/**",
             "/api/admin/quote-requests/**",
-            "/api/admin-blogs/**"
-    );
+            "/api/admin-blogs/**",
+            "/api/services/**" // only POST restricted, GET is public
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -72,25 +75,23 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Static resources
-                        .requestMatchers(STATIC_RESOURCES.toArray(new String[0])).permitAll()
+                        .requestMatchers(STATIC_RESOURCES).permitAll()
 
                         // Public API endpoints
-                        .requestMatchers(PUBLIC_ENDPOINTS.toArray(new String[0])).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/quote/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
-                        // Authenticated endpoints
-                        .requestMatchers("/api/orders/**", "/api/payment/**").authenticated()
-
-                        // Admin endpoints
+                        // Admin endpoints (write access restricted)
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/services/**").hasRole("ADMIN")
-                        .requestMatchers(ADMIN_ENDPOINTS.toArray(new String[0])).hasRole("ADMIN")
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
 
-                        // Any other request
+                        // Authenticated endpoints
+                        .requestMatchers("/api/orders/**", "/api/payment/**").authenticated()
+
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
@@ -103,23 +104,21 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
                 "http://127.0.0.1:5500",
-                "http://127.0.0.1:5500",
+                "http://localhost:5500",
+                "http://127.0.0.1:3000",
                 "https://bionix-hse.co.ke",
                 "https://www.bionix-hse.co.ke",
-                "https://*.vercel.app",
-                "http://localhost:5500",
-                "http://127.0.0.1:3000"
+                "https://*.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

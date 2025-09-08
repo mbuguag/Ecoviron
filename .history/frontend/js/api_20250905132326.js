@@ -1,3 +1,4 @@
+// frontend/js/api.js
 import { API_BASE_URL } from "./apiConfig.js";
 
 /**
@@ -17,24 +18,24 @@ async function apiRequest(endpoint, options = {}) {
     headers,
   });
 
-  let data;
-  try {
-    // Try parsing as JSON
-    data = await res.json();
-  } catch {
-    // Fallback: plain text
-    data = await res.text();
-  }
-
   if (!res.ok) {
-    const message =
-      data && typeof data === "object"
-        ? data.message || JSON.stringify(data)
-        : data || `Request failed: ${res.status}`;
-    throw new Error(message);
+    let errorMsg = `Request failed: ${res.status}`;
+    try {
+      const error = await res.json();
+      errorMsg = error.message || JSON.stringify(error);
+    } catch (_) {
+      errorMsg = await res.text();
+    }
+    throw new Error(errorMsg);
   }
 
-  return data;
+  // Attempt to parse JSON, fallback to text
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return text;
+  }
 }
 
 /**

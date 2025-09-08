@@ -17,21 +17,19 @@ async function apiRequest(endpoint, options = {}) {
     headers,
   });
 
+  // Read body once
+  const raw = await res.text();
   let data;
   try {
-    // Try parsing as JSON
-    data = await res.json();
+    data = raw ? JSON.parse(raw) : {};
   } catch {
-    // Fallback: plain text
-    data = await res.text();
+    data = raw;
   }
 
   if (!res.ok) {
-    const message =
-      data && typeof data === "object"
-        ? data.message || JSON.stringify(data)
-        : data || `Request failed: ${res.status}`;
-    throw new Error(message);
+    const errorMsg =
+      (data && data.message) || (typeof data === "string" ? data : res.statusText);
+    throw new Error(errorMsg || `Request failed: ${res.status}`);
   }
 
   return data;
