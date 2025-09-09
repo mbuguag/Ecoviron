@@ -1,0 +1,7 @@
+# robots.txt for bionix-hse.co.ke
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.bionix-hse.co.ke/sitemap.xml
