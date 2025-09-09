@@ -5,10 +5,7 @@
       "src": "/*.html",
       "use": "@vercel/static"
     },
-     {
-      "src": "/*.xml",
-      "use": "@vercel/static"
-    },
+    
      {
       "src": "/components/*.html",
       "use": "@vercel/static"
