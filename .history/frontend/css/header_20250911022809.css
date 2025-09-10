@@ -366,7 +366,7 @@
 
 .mobile-nav .header-nav-link:hover {
     background: var(--bg-light);
-    color: var(--primary-color);
+    color: var(--s);
     padding-left: 2rem;
 }
 
@@ -398,7 +398,7 @@
     transform: none;
     box-shadow: none;
     border: none;
-    background: var(--bg-light); 
+    background: var(--bg-light);
     margin: 0;
     padding: 0;
 }

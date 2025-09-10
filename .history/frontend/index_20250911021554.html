@@ -219,10 +219,10 @@
 
   <div id="footer-container"></div>
   <script type="module" src="js/main.js"></script>
-  <!-- <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>
     AOS.init({ duration: 1000, once: true });
-  </script> -->
+  </script>
   
   <script>
     const titlePhrases = [
@@ -237,36 +237,35 @@
       "Empowering Change Through Sustainability."
     ];
 
-    function startTyping(el, phrases, speed = 100, pause = 2000, deleteSpeed = 50) {
-        let phraseIndex = 0, letterIndex = 0, isDeleting = false;
+    function startTyping(el, phrases, speed = 50, pause = 1000, deleteSpeed = 35) {
+      let phraseIndex = 0, letterIndex = 0, isDeleting = false;
 
-        function type() {
-          const currentPhrase = phrases[phraseIndex];
-          el.textContent = isDeleting
-            ? currentPhrase.substring(0, letterIndex--)
-            : currentPhrase.substring(0, letterIndex++);
+      function type() {
+        const currentPhrase = phrases[phraseIndex];
+        el.textContent = isDeleting
+          ? currentPhrase.substring(0, letterIndex--)
+          : currentPhrase.substring(0, letterIndex++);
 
-          if (!isDeleting && letterIndex === currentPhrase.length + 1) {
-            isDeleting = true;
-            return setTimeout(type, pause);
-          }
-          if (isDeleting && letterIndex === 0) {
-            isDeleting = false;
-            phraseIndex = (phraseIndex + 1) % phrases.length;
-            return setTimeout(type, 250);
-          }
-          setTimeout(type, isDeleting ? deleteSpeed : speed);
+        if (!isDeleting && letterIndex === currentPhrase.length + 1) {
+          isDeleting = true;
+          return setTimeout(type, pause);
         }
-        type();
+        if (isDeleting && letterIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          return setTimeout(type, 200);
+        }
+        setTimeout(type, isDeleting ? deleteSpeed : speed);
       }
+      type();
+    }
 
-      document.addEventListener("DOMContentLoaded", () => {
-        startTyping(document.getElementById("typewriter-title"), titlePhrases, 80, 1500, 50);
-        setTimeout(() => {
-          startTyping(document.getElementById("typewriter-subtitle"), subtitlePhrases, 100, 2000, 50);
-        }, 700);
-      });
-
+    document.addEventListener("DOMContentLoaded", () => {
+      startTyping(document.getElementById("typewriter-title"), titlePhrases, 50, 1000, 35);
+      setTimeout(() => {
+        startTyping(document.getElementById("typewriter-subtitle"), subtitlePhrases, 45, 1200, 30);
+      }, 500);
+    });
   </script>
   </body>
   

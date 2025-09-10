@@ -254,7 +254,7 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(209, 48, 48, 0.2);
     color: var(--text-light);
     padding: 0;
     transition: var(--transition);
@@ -398,7 +398,7 @@
     transform: none;
     box-shadow: none;
     border: none;
-    background: var(--bg-light); 
+    background: var(--bg-light);
     margin: 0;
     padding: 0;
 }

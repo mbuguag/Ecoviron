@@ -237,7 +237,7 @@
       "Empowering Change Through Sustainability."
     ];
 
-    function startTyping(el, phrases, speed = 100, pause = 2000, deleteSpeed = 50) {
+    function startTyping(el, phrases, speed = 100, pause = 2000, deleteSpeed = 100) {
         let phraseIndex = 0, letterIndex = 0, isDeleting = false;
 
         function type() {
@@ -263,7 +263,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         startTyping(document.getElementById("typewriter-title"), titlePhrases, 80, 1500, 50);
         setTimeout(() => {
-          startTyping(document.getElementById("typewriter-subtitle"), subtitlePhrases, 100, 2000, 50);
+          startTyping(document.getElementById("typewriter-subtitle"), subtitlePhrases, 80, 1500, 50);
         }, 700);
       });
 

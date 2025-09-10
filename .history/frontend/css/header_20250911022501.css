@@ -288,7 +288,7 @@
     align-items: center;
     gap: 12px;
     padding: 1rem;
-    background: var(--secondary-color);
+    background: var(--primary-color);
     color: var(--text-light);
     border-radius: 8px;
     font-weight: 600;
@@ -398,7 +398,7 @@
     transform: none;
     box-shadow: none;
     border: none;
-    background: var(--bg-light); 
+    background: var(--bg-light);
     margin: 0;
     padding: 0;
 }

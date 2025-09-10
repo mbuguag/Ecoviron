@@ -398,7 +398,7 @@
     transform: none;
     box-shadow: none;
     border: none;
-    background: var(--bg-light); 
+    background: var(--bg-light);
     margin: 0;
     padding: 0;
 }
