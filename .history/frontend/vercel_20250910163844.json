@@ -1,3 +1,4 @@
+my original vercel.json was working perfetly
 { 
   "version": 2,
   "builds": [

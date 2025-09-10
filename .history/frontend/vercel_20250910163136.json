@@ -1,19 +1,19 @@
-{ 
+{
   "version": 2,
   "builds": [
-     {
-      "src": "*.xml",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.txt", 
-      "use": "@vercel/static"
-    },
     {
       "src": "/*.html",
       "use": "@vercel/static"
     },
+     {
+      "src": "/*.xml",
+      "use": "@vercel/static"
+    },
     {
+  "src": "/*.txt",
+  "use": "@vercel/static"
+},
+     {
       "src": "/components/*.html",
       "use": "@vercel/static"
     },
@@ -51,20 +51,6 @@
     }
   ],
   "routes": [
-     {
-      "src": "/sitemap.xml",
-      "headers": {
-        "Cache-Control": "public, max-age=3600",
-        "Content-Type": "application/xml"
-      }
-    },
-    {
-      "src": "/robots.txt",
-      "headers": {
-        "Cache-Control": "public, max-age=3600",
-        "Content-Type": "text/plain"
-      }
-    },
     {
       "src": "/components/(.*)",
       "dest": "/components/$1"
@@ -89,7 +75,7 @@
       }
     }
   ],
-  "rewrites": [
+   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" }
   ]
