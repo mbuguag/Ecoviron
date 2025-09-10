@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "outputDirectory": "frontend",
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" },
+        { "key": "Content-Type", "value": "application/xml" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        { "key": "Content-Type", "value": "text/plain" }
+      ]
+    },
+    {
+      "source": "/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=3600" }
+      ]
+    }
+  ]
+}
