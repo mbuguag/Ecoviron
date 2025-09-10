@@ -1,3 +1,4 @@
+
 {
   "version": 2,
   "builds": [
@@ -66,5 +67,4 @@
         "Cache-Control": "s-maxage=3600"
       }
     }
-    ]
 }

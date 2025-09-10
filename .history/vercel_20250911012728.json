@@ -42,7 +42,7 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "routes": 
     {
       "src": "/components/(.*)",
       "dest": "/components/$1"
@@ -66,5 +66,4 @@
         "Cache-Control": "s-maxage=3600"
       }
     }
-    ]
 }

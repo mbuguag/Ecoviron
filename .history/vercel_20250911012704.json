@@ -1,3 +1,5 @@
+let modify a previous version of vercel.json 
+
 {
   "version": 2,
   "builds": [
@@ -66,5 +68,5 @@
         "Cache-Control": "s-maxage=3600"
       }
     }
-    ]
+  
 }
