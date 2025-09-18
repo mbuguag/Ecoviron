@@ -2,27 +2,21 @@ package com.example.ecoviron.controller;
 
 import com.example.ecoviron.dto.AddToCartRequest;
 import com.example.ecoviron.dto.CartResponseDto;
-import com.example.ecoviron.entity.Cart;
-import com.example.ecoviron.entity.User;
-import com.example.ecoviron.mapper.CartMapper;
 import com.example.ecoviron.service.CartService;
 import com.example.ecoviron.service.UserService;
+import com.example.ecoviron.entity.User;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
-
+@RequiredArgsConstructor
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private UserService userService;
-
+    private final CartService cartService;
+    private final UserService userService;
 
     private User getCurrentUser() {
         return userService.getCurrentUser();
@@ -30,51 +24,38 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartResponseDto> getCart() {
-        User user = getCurrentUser();
-        Cart cart = cartService.getCartByUser(user);
-        CartResponseDto dto = CartMapper.toDto(cart);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(cartService.getCartByUser(getCurrentUser()));
     }
-
-
 
     @PostMapping("/add")
     public ResponseEntity<CartResponseDto> addToCart(@Valid @RequestBody AddToCartRequest request) {
         if (request.productId == null || request.quantity <= 0) {
             return ResponseEntity.badRequest().build();
         }
-
-        User user = getCurrentUser();
-        Cart updatedCart = cartService.addItemToCart(user, request.productId, request.quantity);
-
-        CartResponseDto dto = CartMapper.toDto(updatedCart);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(
+                cartService.addItemToCart(getCurrentUser(), request.productId, request.quantity)
+        );
     }
-
-
 
     @PutMapping("/update")
-    public ResponseEntity<CartResponseDto> updateQuantity(@RequestParam Long itemId, @RequestParam int quantity) {
-        User user = getCurrentUser();
-        Cart updatedCart = cartService.updateItemQuantity(user, itemId, quantity);
-        CartResponseDto dto = CartMapper.toDto(updatedCart);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<CartResponseDto> updateQuantity(
+            @RequestParam Long itemId,
+            @RequestParam int quantity
+    ) {
+        return ResponseEntity.ok(
+                cartService.updateItemQuantity(getCurrentUser(), itemId, quantity)
+        );
     }
-
-
 
     @DeleteMapping("/remove/{itemId}")
     public ResponseEntity<Void> removeItem(@PathVariable Long itemId) {
-        User user = getCurrentUser();
-        cartService.removeItemFromCart(user, itemId);
+        cartService.removeItemFromCart(getCurrentUser(), itemId);
         return ResponseEntity.ok().build();
     }
 
-
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearCart() {
-        User user = getCurrentUser();
-        cartService.clearCart(user);
+        cartService.clearCart(getCurrentUser());
         return ResponseEntity.ok().build();
     }
 }

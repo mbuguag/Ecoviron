@@ -11,13 +11,9 @@ import com.example.ecoviron.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
-
-import static com.example.ecoviron.util.UserUtil.userRepository;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -32,21 +28,21 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
-
     public record OrderResponse(Long id, String orderReference) {}
 
-
+    // ✅ Checkout from cart
     @PostMapping("/checkout")
-    public Order checkout(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<OrderDto> checkout(@RequestHeader("Authorization") String token) {
         User user = UserUtil.getUserFromToken(token);
-        return orderService.placeOrder(user);
+        Order savedOrder = orderService.placeOrder(user);
+        return ResponseEntity.ok(new OrderDto(savedOrder));
     }
 
+    // ✅ Get all orders (admin) or only current user's orders
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    public List<OrderResponseDto> getOrders(Authentication authentication) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElseThrow();
+    public List<OrderResponseDto> getOrders() {
+        User user = userService.getCurrentUser();
 
         List<Order> orders = user.getRoles().stream()
                 .anyMatch(role -> role.name().equals("ADMIN"))
@@ -56,20 +52,18 @@ public class OrderController {
         return orders.stream().map(OrderResponseDto::new).toList();
     }
 
-
-
+    // ✅ Save manual order
     @PostMapping("/save")
-    public ResponseEntity<OrderResponse> saveOrder(
+    public ResponseEntity<OrderDto> saveOrder(
             @RequestBody OrderRequestDto orderDto,
             @RequestHeader("Authorization") String token) {
 
         User user = UserUtil.getUserFromToken(token);
         Order savedOrder = orderService.save(orderDto, user);
-
-        return ResponseEntity.ok(new OrderResponse(savedOrder.getId(), savedOrder.getOrderReference()));
+        return ResponseEntity.ok(new OrderDto(savedOrder));
     }
 
-
+    // ✅ Order summary for dashboard
     @GetMapping("/summary")
     public OrderSummaryDTO getOrderSummary() {
         long pending = orderRepository.countByStatus(OrderStatus.PENDING);
@@ -77,6 +71,7 @@ public class OrderController {
         return new OrderSummaryDTO(pending, delivered);
     }
 
+    // ✅ Update order status (Admin only)
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateOrderStatus(
@@ -87,6 +82,7 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    // ✅ Get order by reference (any user)
     @GetMapping("/{orderReference}")
     public ResponseEntity<OrderDetailsDTO> getOrderByReference(@PathVariable String orderReference) {
         return orderRepository.findByOrderReference(orderReference)
@@ -103,15 +99,15 @@ public class OrderController {
         dto.setTotalAmount(order.getTotalAmount());
         dto.setCustomerName(order.getUser().getFullName());
 
-        List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> {
-            OrderItemDTO i = new OrderItemDTO(item);
-            return i;
-        }).toList();
+        List<OrderItemDTO> itemDTOs = order.getItems().stream()
+                .map(OrderItemDTO::new)
+                .toList();
 
         dto.setItems(itemDTOs);
         return dto;
     }
 
+    // ✅ Current user's orders
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<OrderDto>> getMyOrders() {
@@ -119,8 +115,4 @@ public class OrderController {
         List<OrderDto> orders = orderService.getOrdersForUser(user);
         return ResponseEntity.ok(orders);
     }
-
-
 }
-
-

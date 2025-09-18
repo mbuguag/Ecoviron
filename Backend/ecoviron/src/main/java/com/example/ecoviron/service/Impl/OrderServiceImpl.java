@@ -1,7 +1,6 @@
 package com.example.ecoviron.service.Impl;
 
-import com.example.ecoviron.dto.OrderDto;
-import com.example.ecoviron.dto.OrderRequestDto;
+import com.example.ecoviron.dto.*;
 import com.example.ecoviron.entity.*;
 import com.example.ecoviron.repository.OrderRepository;
 import com.example.ecoviron.repository.ProductRepository;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     public Order placeOrder(User user) {
         log.info("Placing order from cart for user: {}", user.getEmail());
 
-        Cart cart = cartService.getCartByUser(user);
+        Cart cart = cartService.getCartEntityByUser(user);
 
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> OrderItem.builder()
@@ -56,19 +56,16 @@ public class OrderServiceImpl implements OrderService {
 
         orderItems.forEach(item -> item.setOrder(order));
 
-        log.info("Saving cart-based order to DB...");
+        log.info("Saving cart-based order...");
         Order savedOrder = orderRepository.save(order);
-        log.info("Order placed successfully. ID={}, Reference={}", savedOrder.getId(), savedOrder.getOrderReference());
 
         cartService.clearCart(user);
-        log.info("Cart cleared after placing order.");
 
         try {
-            emailService.sendOrderNotification(savedOrder, user); // to admin
-            emailService.sendCustomerOrderReceiptHtml(savedOrder, user); // to customer
-            log.info("Admin and customer notified via email.");
+            emailService.sendOrderNotification(savedOrder, user);
+            emailService.sendCustomerOrderReceiptHtml(savedOrder, user);
         } catch (Exception e) {
-            log.warn("Failed to send email notifications: {}", e.getMessage());
+            log.warn("Email notifications failed: {}", e.getMessage());
         }
 
         return savedOrder;
@@ -77,20 +74,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Order save(OrderRequestDto orderDto, User user) {
-        log.info("Starting manual order save for user: {}", user.getEmail());
+        log.info("Saving manual order for user: {}", user.getEmail());
 
         List<OrderItem> items = orderDto.getItems().stream().map(dto -> {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found: " + dto.getProductId()));
-
             return OrderItem.builder()
                     .product(product)
                     .quantity(dto.getQuantity())
                     .price(dto.getPrice())
                     .build();
         }).collect(Collectors.toList());
-
-        String reference = generateOrderReference();
 
         Order order = Order.builder()
                 .user(user)
@@ -99,24 +93,20 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.PENDING)
                 .shippingAddress(orderDto.getCustomerDetails().getShippingAddress())
                 .orderDate(LocalDateTime.now())
-                .orderReference(reference)
+                .orderReference(generateOrderReference())
                 .build();
 
         items.forEach(item -> item.setOrder(order));
 
-        log.info("Saving manual order to DB...");
         Order savedOrder = orderRepository.save(order);
-        log.info("Order saved successfully. ID={}, Reference={}", savedOrder.getId(), savedOrder.getOrderReference());
 
         cartService.clearCart(user);
-        log.info("Cart cleared successfully.");
 
         try {
-            emailService.sendOrderNotification(savedOrder, user); // to admin
-            emailService.sendCustomerOrderReceiptHtml(savedOrder, user); // to customer
-            log.info("Admin and customer notified via email.");
+            emailService.sendOrderNotification(savedOrder, user);
+            emailService.sendCustomerOrderReceiptHtml(savedOrder, user);
         } catch (Exception e) {
-            log.warn("Failed to send email notifications: {}", e.getMessage());
+            log.warn("Email notifications failed: {}", e.getMessage());
         }
 
         return savedOrder;
@@ -152,6 +142,36 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
+    }
+
+    @Override
+    public OrderSummaryDTO getOrderSummary() {
+        long pending = orderRepository.countByStatus(OrderStatus.PENDING);
+        long delivered = orderRepository.countByStatus(OrderStatus.DELIVERED);
+        return new OrderSummaryDTO(pending, delivered);
+    }
+
+    @Override
+    public Optional<OrderDetailsDTO> getOrderByReference(String orderReference) {
+        return orderRepository.findByOrderReference(orderReference)
+                .map(this::mapToOrderDetailsDTO);
+    }
+
+    private OrderDetailsDTO mapToOrderDetailsDTO(Order order) {
+        OrderDetailsDTO dto = new OrderDetailsDTO();
+        dto.setOrderReference(order.getOrderReference());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setStatus(order.getStatus().name());
+        dto.setShippingAddress(order.getShippingAddress());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setCustomerName(order.getUser().getFullName());
+
+        List<OrderItemDTO> itemDTOs = order.getItems().stream()
+                .map(OrderItemDTO::new)
+                .toList();
+
+        dto.setItems(itemDTOs);
+        return dto;
     }
 
     private String generateOrderReference() {

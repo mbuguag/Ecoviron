@@ -1,60 +1,62 @@
 package com.example.ecoviron.service.Impl;
 
-import com.example.ecoviron.dto.CartDto;
-import com.example.ecoviron.dto.CartItemDto;
-import com.example.ecoviron.dto.ProductDto;
+import com.example.ecoviron.dto.CartResponseDto;
 import com.example.ecoviron.entity.Cart;
 import com.example.ecoviron.entity.CartItem;
 import com.example.ecoviron.entity.Product;
 import com.example.ecoviron.entity.User;
-import com.example.ecoviron.repository.CartItemRepository;
+import com.example.ecoviron.mapper.CartMapper;
 import com.example.ecoviron.repository.CartRepository;
 import com.example.ecoviron.repository.ProductRepository;
 import com.example.ecoviron.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
-    @Autowired
-    private CartRepository cartRepository;
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
-
+    /**
+     * Internal entity getter (ensures cart exists for user).
+     */
     @Override
-    public Cart getCartByUser(User user) {
-        return cartRepository.findByUser(user).orElseGet(() -> {
-            Cart cart = new Cart();
-            cart.setUser(user);
-            cart.setItems(new ArrayList<>());
-            return cartRepository.save(cart);
-        });
+    @Transactional(readOnly = true)
+    public Cart getCartEntityByUser(User user) {
+        return cartRepository.findByUser(user)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
+    }
+
+    /**
+     * DTO getter for API responses.
+     */
+    @Override
+    public CartResponseDto getCartByUser(User user) {
+        Cart cart = getCartEntityByUser(user);
+        return CartMapper.toDto(cart);
     }
 
     @Override
-    public Cart addItemToCart(User user, Long productId, int quantity) {
-        Cart cart = getCartByUser(user);
+    public CartResponseDto addItemToCart(User user, Long productId, int quantity) {
+        Cart cart = getCartEntityByUser(user);
 
-        // Check if item already exists in cart
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(i -> i.getProduct().getId().equals(productId))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            // If item exists, update quantity
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // Else, create and add new CartItem
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -62,71 +64,38 @@ public class CartServiceImpl implements CartService {
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
-
             cart.getItems().add(newItem);
         }
 
-        return cartRepository.save(cart); // Save updated cart and items
+        Cart savedCart = cartRepository.save(cart);
+        return CartMapper.toDto(savedCart);
     }
 
-
     @Override
-    public Cart updateItemQuantity(User user, Long itemId, int quantity) {
-        Cart cart = getCartByUser(user);
-        for (CartItem item : cart.getItems()) {
+    public CartResponseDto updateItemQuantity(User user, Long itemId, int quantity) {
+        Cart cart = getCartEntityByUser(user);
+
+        cart.getItems().forEach(item -> {
             if (item.getId().equals(itemId)) {
                 item.setQuantity(quantity);
-                break;
             }
-        }
-        return cartRepository.save(cart);
+        });
+
+        Cart savedCart = cartRepository.save(cart);
+        return CartMapper.toDto(savedCart);
     }
 
     @Override
     public void removeItemFromCart(User user, Long itemId) {
-        Cart cart = getCartByUser(user);
+        Cart cart = getCartEntityByUser(user);
         cart.getItems().removeIf(item -> item.getId().equals(itemId));
-        cartRepository.save(cart);
+        cartRepository.save(cart); // orphanRemoval=true handles DB deletion
     }
 
     @Override
     public void clearCart(User user) {
-        Cart cart = getCartByUser(user);
-        cartItemRepository.deleteByCart(cart);
-        cart.getItems().clear();
+        Cart cart = getCartEntityByUser(user);
+        cart.getItems().clear(); // orphanRemoval=true handles DB deletion
         cartRepository.save(cart);
     }
-
-    public CartDto convertToDto(Cart cart) {
-        CartDto cartDto = new CartDto();
-
-        double totalPrice = 0;
-        int totalQuantity = 0;
-        List<CartItemDto> itemDtos = new ArrayList<>();
-
-        for (CartItem item : cart.getItems()) {
-            CartItemDto itemDto = new CartItemDto();
-            itemDto.setId(item.getId());
-            itemDto.setQuantity(item.getQuantity());
-
-            Product product = item.getProduct();
-            ProductDto productDto = new ProductDto();
-            productDto.setId(product.getId());
-            productDto.setName(product.getName());
-            productDto.setPrice(product.getPrice());
-            productDto.setImageUrl(product.getImageUrl());
-
-            itemDto.setProduct(productDto);
-            itemDtos.add(itemDto);
-
-            totalPrice += product.getPrice() * item.getQuantity();
-            totalQuantity += item.getQuantity();
-        }
-
-        cartDto.setItems(itemDtos);
-        cartDto.setTotalPrice(totalPrice);
-        cartDto.setTotalQuantity(totalQuantity);
-        return cartDto;
-    }
-
 }
