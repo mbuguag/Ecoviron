@@ -9,10 +9,9 @@ export async function initCheckout() {
   await loadCheckoutSummary();
   await prefillUserInfo();
 
-  const form = document.getElementById("checkout-form");
-  if (form) {
-    form.addEventListener("submit", submitOrder);
-  }
+  document
+    .getElementById("checkout-form")
+    .addEventListener("submit", submitOrder);
 }
 
 /**
@@ -91,7 +90,7 @@ async function prefillUserInfo() {
 }
 
 /**
- * Submit Order + Trigger Payment (Single endpoint)
+ * Submit Order + Trigger Payment
  */
 async function submitOrder(e) {
   e.preventDefault();
@@ -109,16 +108,17 @@ async function submitOrder(e) {
 
   const paymentMethod = document.getElementById("payment").value || "mpesa";
 
-  const orderData = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
-    address: document.getElementById("address").value,
-    paymentMethod,
-    phone:
-      paymentMethod === "mpesa"
-        ? document.getElementById("mpesa-phone").value
-        : null,
-  };
+const orderData = {
+  name: document.getElementById("name").value,
+  email: document.getElementById("email").value,
+  address: document.getElementById("address").value,
+  paymentMethod,
+  phone:
+    paymentMethod === "mpesa"
+      ? document.getElementById("mpesa-phone").value
+      : null,
+};
+
 
   try {
     const res = await fetch(`${API_BASE_URL}/orders/checkout`, {
@@ -132,20 +132,12 @@ async function submitOrder(e) {
 
     if (!res.ok) throw new Error("Failed to place order");
 
-    const response = await res.json();
-
-    // Response structure: { order: {...}, payment: {...} }
-    const order = response.order;
-    const payment = response.payment;
+    const order = await res.json();
 
     await clearCart();
     await updateMiniCartCount();
 
-    if (paymentMethod === "mpesa") {
-      showToast("✅ Order placed. Please confirm payment on your phone.", "success");
-    } else {
-      showToast("✅ Order placed successfully!", "success");
-    }
+    showToast("✅ Order placed, awaiting payment...", "success");
 
     // Redirect to pending page
     setTimeout(() => {

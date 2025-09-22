@@ -1,5 +1,6 @@
 package com.example.ecoviron.service.Impl;
 
+import com.example.ecoviron.dto.MpesaPaymentResponseDto;
 import com.example.ecoviron.service.MpesaAuthService;
 import com.example.ecoviron.service.MpesaPaymentService;
 import lombok.RequiredArgsConstructor;
@@ -33,26 +34,23 @@ public class MpesaPaymentServiceImpl implements MpesaPaymentService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public String initiateStkPush(String phone, String amount, String orderReference) {
+    public MpesaPaymentResponseDto initiateStkPush(String phone, double amount, String orderReference) {
         try {
-            //  Validate input
+            // ✅ Validate phone number
             if (phone == null || phone.isEmpty() || !phone.matches("^254[17]\\d{8}$")) {
                 throw new IllegalArgumentException("Invalid phone number: " + phone);
             }
-            if (amount == null || !amount.matches("\\d+")) {
-                throw new IllegalArgumentException("Invalid amount: " + amount);
-            }
 
-            // Step 1: Get Access Token
+            // ✅ Step 1: Get Access Token
             String token = mpesaAuthService.getAccessToken();
 
-            // Step 2: Generate Timestamp & Password
+            // ✅ Step 2: Generate Timestamp & Password
             String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
             String password = Base64.getEncoder().encodeToString(
                     (shortCode + passkey + timestamp).getBytes(StandardCharsets.UTF_8)
             );
 
-            // Step 3: Construct Payload
+            // ✅ Step 3: Construct Payload
             Map<String, Object> payload = new HashMap<>();
             payload.put("BusinessShortCode", shortCode);
             payload.put("Password", password);
@@ -66,7 +64,7 @@ public class MpesaPaymentServiceImpl implements MpesaPaymentService {
             payload.put("AccountReference", orderReference);
             payload.put("TransactionDesc", "Order Payment");
 
-            // Step 4: Prepare headers
+            // ✅ Step 4: Prepare headers
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(token);
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -74,19 +72,17 @@ public class MpesaPaymentServiceImpl implements MpesaPaymentService {
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
             String stkPushUrl = baseUrl + "/mpesa/stkpush/v1/processrequest";
-            System.out.println(" Sending STK Push to: " + stkPushUrl);
-            System.out.println(" Payload: " + payload);
 
-            // Step 5: Execute POST request
-            ResponseEntity<String> response = restTemplate.postForEntity(stkPushUrl, request, String.class);
+            // ✅ Step 5: Execute POST request and map response
+            ResponseEntity<MpesaPaymentResponseDto> response = restTemplate.postForEntity(
+                    stkPushUrl, request, MpesaPaymentResponseDto.class
+            );
 
-            System.out.println(" STK Push Response: " + response.getBody());
             return response.getBody();
 
         } catch (Exception e) {
-            System.err.println(" STK Push Error: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to initiate STK Push: " + e.getMessage());
+            throw new RuntimeException("Failed to initiate STK Push: " + e.getMessage(), e);
         }
     }
+
 }

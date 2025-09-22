@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class MpesaPaymentRequest {
     private String phone;
-    private String amount;
+    private double amount;
     private String orderReference;
 }

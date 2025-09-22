@@ -9,14 +9,17 @@ export async function initCheckout() {
   await loadCheckoutSummary();
   await prefillUserInfo();
 
-  const form = document.getElementById("checkout-form");
-  if (form) {
-    form.addEventListener("submit", submitOrder);
-  }
+  document
+    .getElementById("checkout-form")
+    .addEventListener("submit", submitOrder);
 }
 
 /**
  * Load cart summary (products, subtotal, total)
+ */
+/**
+ * Load cart summary (products, subtotal, total)
+ * Works with cart items from localStorage or API (nested product object).
  */
 async function loadCheckoutSummary() {
   const cart = await getCartItems();
@@ -31,19 +34,19 @@ async function loadCheckoutSummary() {
   }
 
   cart.forEach((item) => {
+    // ✅ Support both flat + nested product structure
     const product = item.product || item;
+
     const unitPrice = Number(item.price ?? product?.price ?? 0);
     const quantity = Number(item.quantity ?? 0);
     const lineTotal = unitPrice * quantity;
     subtotal += lineTotal;
 
     const name = product?.name ?? "Unnamed product";
-    const imageUrl =
-      product?.imageUrl ?? item.imageUrl ?? "/assets/images/placeholder.png";
+    const imageUrl = product?.imageUrl ?? item.imageUrl ?? "/assets/images/placeholder.png";
 
     const productDiv = document.createElement("div");
-    productDiv.className =
-      "checkout-item flex items-center justify-between py-2 border-b";
+    productDiv.className = "checkout-item flex items-center justify-between py-2 border-b";
 
     productDiv.innerHTML = `
       <div class="flex items-center gap-3">
@@ -56,7 +59,7 @@ async function loadCheckoutSummary() {
     container.appendChild(productDiv);
   });
 
-  // Totals
+  // ✅ Totals block
   const totalsDiv = document.createElement("div");
   totalsDiv.className = "checkout-totals mt-4 p-4 bg-gray-50 rounded-md";
   totalsDiv.innerHTML = `
@@ -69,6 +72,7 @@ async function loadCheckoutSummary() {
   container.appendChild(totalsDiv);
 }
 
+
 /**
  * Prefill user info if logged in
  */
@@ -80,9 +84,10 @@ async function prefillUserInfo() {
     const res = await fetch(`${API_BASE_URL}/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) return;
 
+    if (!res.ok) return;
     const user = await res.json();
+
     document.getElementById("name").value = user.name || "";
     document.getElementById("email").value = user.email || "";
   } catch (err) {
@@ -91,7 +96,7 @@ async function prefillUserInfo() {
 }
 
 /**
- * Submit Order + Trigger Payment (Single endpoint)
+ * Submit Order
  */
 async function submitOrder(e) {
   e.preventDefault();
@@ -107,17 +112,11 @@ async function submitOrder(e) {
   btn.disabled = true;
   btn.textContent = "Placing order...";
 
-  const paymentMethod = document.getElementById("payment").value || "mpesa";
-
   const orderData = {
     name: document.getElementById("name").value,
     email: document.getElementById("email").value,
     address: document.getElementById("address").value,
-    paymentMethod,
-    phone:
-      paymentMethod === "mpesa"
-        ? document.getElementById("mpesa-phone").value
-        : null,
+    paymentMethod: document.getElementById("payment").value || "cod",
   };
 
   try {
@@ -132,25 +131,17 @@ async function submitOrder(e) {
 
     if (!res.ok) throw new Error("Failed to place order");
 
-    const response = await res.json();
-
-    // Response structure: { order: {...}, payment: {...} }
-    const order = response.order;
-    const payment = response.payment;
+    const order = await res.json();
 
     await clearCart();
     await updateMiniCartCount();
 
-    if (paymentMethod === "mpesa") {
-      showToast("✅ Order placed. Please confirm payment on your phone.", "success");
-    } else {
-      showToast("✅ Order placed successfully!", "success");
-    }
+    showToast("✅ Order placed successfully!", "success");
 
-    // Redirect to pending page
+    // ✅ Pass orderReference in the redirect
     setTimeout(() => {
-      window.location.href = `${BASE_PATH}ecommerce/order-pending.html?orderRef=${encodeURIComponent(order.orderReference)}`;
-    }, 1000);
+      window.location.href = `${BASE_PATH}ecommerce/order-success.html?orderRef=${encodeURIComponent(order.orderReference)}`;
+    }, 1500);
   } catch (err) {
     console.error("Order error:", err);
     showToast("❌ Failed to place order. Please try again.", "error");
@@ -159,3 +150,24 @@ async function submitOrder(e) {
     btn.textContent = "Place Order";
   }
 }
+
+
+showToast("Item added to cart!", "success");
+showToast("Failed to load checkout data", "error");
+
+/**
+ * Global Toast Helper
+ */
+// function showToast(message, type = "success") {
+//   const toast = document.createElement("div");
+//   toast.className = `toast toast-${type}`;
+//   toast.textContent = message;
+//   document.body.appendChild(toast);
+
+//   requestAnimationFrame(() => toast.classList.add("visible"));
+
+//   setTimeout(() => {
+//     toast.classList.remove("visible");
+//     setTimeout(() => toast.remove(), 300);
+//   }, 3000);
+// }

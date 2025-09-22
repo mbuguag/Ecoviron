@@ -2,97 +2,74 @@ package com.example.ecoviron.service.Impl;
 
 import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.OrderStatus;
-import com.example.ecoviron.entity.Payment;
+import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.OrderRepository;
-import com.example.ecoviron.repository.PaymentRepository;
+import com.example.ecoviron.service.EmailService;
 import com.example.ecoviron.service.PaymentService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final EmailService emailService; // ✅ inject EmailService
 
-    @Transactional
     @Override
-    public void processMpesaCallback(Map<String, Object> callbackPayload) {
-        Map<String, Object> body = (Map<String, Object>) callbackPayload.get("Body");
-        if (body == null) return;
+    @Transactional
+    public void processMpesaCallback(Map<String, Object> callbackData) {
+        try {
+            JSONObject json = new JSONObject(callbackData);
+            JSONObject body = json.getJSONObject("Body").getJSONObject("stkCallback");
 
-        Map<String, Object> stkCallback = (Map<String, Object>) body.get("stkCallback");
-        if (stkCallback == null) return;
+            int resultCode = body.getInt("ResultCode");
+            String checkoutRequestId = body.getString("CheckoutRequestID");
+            String resultDesc = body.getString("ResultDesc");
 
-        int resultCode = (int) stkCallback.get("ResultCode");
-        if (resultCode != 0) return; // Payment failed or cancelled
+            log.info("📩 Mpesa Callback received: resultCode={}, resultDesc={}, checkoutRequestId={}",
+                    resultCode, resultDesc, checkoutRequestId);
 
-        Map<String, Object> callbackMetadata = (Map<String, Object>) stkCallback.get("CallbackMetadata");
-        if (callbackMetadata == null) return;
+            Optional<Order> optionalOrder = orderRepository.findByPaymentReference(checkoutRequestId);
 
-        // Extract all needed variables before the lambda
-        final String orderReference = (String) stkCallback.get("CheckoutRequestID");
-        final PaymentDetails paymentDetails = extractPaymentDetails(callbackMetadata);
-
-        if (orderReference != null && paymentDetails.mpesaReceipt() != null) {
-            orderRepository.findByOrderReference(orderReference).ifPresent(order -> {
-                // Update order
-                order.setStatus(OrderStatus.PAID);
-                order.setPaymentReference(paymentDetails.mpesaReceipt());
-                order.setPaymentDate(LocalDateTime.now());
-                orderRepository.save(order);
-
-                // Save payment
-                Payment payment = Payment.builder()
-                        .mpesaReceiptNumber(paymentDetails.mpesaReceipt())
-                        .amount(paymentDetails.amount() != null ?
-                                paymentDetails.amount() : order.getTotalAmount())
-                        .phoneNumber(paymentDetails.phoneNumber())
-                        .transactionDate(paymentDetails.transactionDate())
-                        .status("SUCCESS")
-                        .transactionType("STK_PUSH")
-                        .orderReference(orderReference)
-                        .order(order)
-                        .build();
-
-                paymentRepository.save(payment);
-            });
-        }
-    }
-
-    // Helper record to hold payment details
-    private record PaymentDetails(
-            String mpesaReceipt,
-            Double amount,
-            String phoneNumber,
-            Date transactionDate
-    ) {}
-
-    private PaymentDetails extractPaymentDetails(Map<String, Object> callbackMetadata) {
-        String mpesaReceipt = null;
-        Double amount = null;
-        String phoneNumber = null;
-        Date transactionDate = new Date();
-
-        for (Map<String, Object> item : (List<Map<String, Object>>) callbackMetadata.get("Item")) {
-            String name = (String) item.get("Name");
-            if ("MpesaReceiptNumber".equals(name)) {
-                mpesaReceipt = (String) item.get("Value");
-            } else if ("Amount".equals(name)) {
-                amount = Double.valueOf(String.valueOf(item.get("Value")));
-            } else if ("PhoneNumber".equals(name)) {
-                phoneNumber = String.valueOf(item.get("Value"));
-            } else if ("TransactionDate".equals(name)) {
+            if (optionalOrder.isEmpty()) {
+                log.error("No order found for CheckoutRequestID: {}", checkoutRequestId);
+                return;
             }
+
+            Order order = optionalOrder.get();
+            User user = order.getUser();
+
+            if (resultCode == 0) {
+                order.setStatus(OrderStatus.PAID);
+                log.info("✅ Order {} marked as PAID", order.getOrderReference());
+
+                // 🔔 Send email notifications
+                emailService.sendCustomerOrderReceiptHtml(order, user);
+                emailService.sendOrderNotification(order, user);
+
+            } else {
+                order.setStatus(OrderStatus.CANCELLED);
+                log.warn("⚠️ Order {} marked as CANCELLED (ResultCode={}, Desc={})",
+                        order.getOrderReference(), resultCode, resultDesc);
+
+                // 🔔 Notify customer about failed/cancelled payment
+                emailService.sendPaymentFailedEmail(order, user, resultDesc); // ✅ call via emailService
+            }
+
+            orderRepository.save(order);
+
+        } catch (Exception e) {
+            log.error("💥 Error processing Mpesa callback", e);
+            throw new RuntimeException("Failed to process Mpesa callback", e);
         }
-        return new PaymentDetails(mpesaReceipt, amount, phoneNumber, transactionDate);
     }
 
 }

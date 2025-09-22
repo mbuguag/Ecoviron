@@ -5,10 +5,11 @@ import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.OrderStatus;
 import com.example.ecoviron.entity.User;
 import com.example.ecoviron.repository.OrderRepository;
+import com.example.ecoviron.service.MpesaPaymentService;
 import com.example.ecoviron.service.OrderService;
 import com.example.ecoviron.service.UserService;
 import com.example.ecoviron.util.UserUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,26 +18,43 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private UserService userService;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
+    private final UserService userService;
+    private final MpesaPaymentService mpesaPaymentService;
 
     public record OrderResponse(Long id, String orderReference) {}
 
-    // ✅ Checkout from cart
+    // Checkout from cart + auto initiate Mpesa payment
     @PostMapping("/checkout")
-    public ResponseEntity<OrderDto> checkout(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<MpesaPaymentResponseDto> checkout(
+            @RequestHeader("Authorization") String token,
+            @RequestBody MpesaPaymentRequest paymentRequest // include phone number
+    ) {
         User user = UserUtil.getUserFromToken(token);
+
+        // 1. Place the order
         Order savedOrder = orderService.placeOrder(user);
-        return ResponseEntity.ok(new OrderDto(savedOrder));
+
+        // 2. Trigger Mpesa STK push → returns structured response
+        MpesaPaymentResponseDto stkResponse = mpesaPaymentService.initiateStkPush(
+                paymentRequest.getPhone(),
+                savedOrder.getTotalAmount(),
+                savedOrder.getOrderReference()
+        );
+
+        // 3. Save payment reference in order
+        savedOrder.setPaymentReference(stkResponse.getCheckoutRequestId());
+        savedOrder.setStatus(OrderStatus.PENDING);
+        orderRepository.save(savedOrder);
+
+        // 4. Return full Mpesa response to frontend (same as /payment/pay)
+        return ResponseEntity.ok(stkResponse);
     }
+
 
     // ✅ Get all orders (admin) or only current user's orders
     @GetMapping
@@ -115,4 +133,7 @@ public class OrderController {
         List<OrderDto> orders = orderService.getOrdersForUser(user);
         return ResponseEntity.ok(orders);
     }
+
+    // --- Extra DTO for response ---
+    public record OrderCheckoutResponse(OrderDto order, String checkoutRequestId) {}
 }

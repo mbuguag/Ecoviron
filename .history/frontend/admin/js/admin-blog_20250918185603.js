@@ -337,46 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderPagination(totalPages, currentPage) {
-  pagination.innerHTML = "";
-
-  if (totalPages <= 1) return;
-
-  // Previous button
-  if (currentPage > 1) {
-    pagination.appendChild(
-      createPaginationButton("« Prev", () => {
-        currentPage--;
-        loadPosts();
-      })
-    );
-  }
-
-  // Page number buttons
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = createPaginationButton(i, () => {
-      currentPage = i;
-      loadPosts();
-    });
-
-    if (i === currentPage) {
-      btn.classList.add("active");
-    }
-
-    pagination.appendChild(btn);
-  }
-
-  // Next button
-  if (currentPage < totalPages) {
-    pagination.appendChild(
-      createPaginationButton("Next »", () => {
-        currentPage++;
-        loadPosts();
-      })
-    );
-  }
-}
-
+  
   function createPaginationButton(text, onClick) {
     const btn = document.createElement("button");
     btn.textContent = text;

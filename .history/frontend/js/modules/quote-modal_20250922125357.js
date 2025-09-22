@@ -7,7 +7,7 @@ export async function loadQuoteModal() {
     const modalContainer = document.createElement("div");
     modalContainer.id = "quote-modal-wrapper";
 
-const response = await fetch("/services/quote-modal.html");
+const response = await fetch("services/quote-modal.html");
     const html = await response.text();
     modalContainer.innerHTML = html;
     document.body.appendChild(modalContainer);

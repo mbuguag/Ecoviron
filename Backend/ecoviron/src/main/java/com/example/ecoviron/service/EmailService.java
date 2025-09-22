@@ -230,4 +230,32 @@ public class EmailService {
         mailSender.send(confirmation);
     }
 
+    public void sendPaymentFailedEmail(Order order, User user, String reason) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(user.getEmail());
+            helper.setFrom(sender);
+            helper.setSubject("⚠️ Payment Failed - Order " + order.getOrderReference());
+
+            StringBuilder html = new StringBuilder();
+            html.append("<!DOCTYPE html><html><body style='font-family: Arial, sans-serif;'>")
+                    .append("<h2 style='color:#e74c3c;'>Payment Failed</h2>")
+                    .append("<p>Dear ").append(user.getFullName()).append(",</p>")
+                    .append("<p>Unfortunately, your payment for order <strong>")
+                    .append(order.getOrderReference()).append("</strong> was not successful.</p>")
+                    .append("<p><strong>Reason:</strong> ").append(reason).append("</p>")
+                    .append("<p>If this was an error, please try again from your account or contact support.</p>")
+                    .append("<br/><p>Best regards,<br/><strong>Ecoviron Team 🌱</strong></p>")
+                    .append("</body></html>");
+
+            helper.setText(html.toString(), true);
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send payment failure email", e);
+        }
+    }
+
 }

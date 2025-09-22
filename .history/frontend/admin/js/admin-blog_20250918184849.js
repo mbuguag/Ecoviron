@@ -17,9 +17,62 @@ document.addEventListener("DOMContentLoaded", () => {
   initEditor();
   setupEventListeners();
 
-  // =============================
-  // Load posts with pagination
-  // =============================
+  // ========= Helpers =========
+  function stripHtml(html) {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  }
+
+  function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    let errorEl = field.closest(".form-group")?.querySelector(".error-message");
+
+    if (!errorEl) {
+      errorEl = document.createElement("div");
+      errorEl.className = "error-message";
+      field.closest(".form-group").appendChild(errorEl);
+    }
+    errorEl.textContent = message;
+  }
+
+  function clearErrors() {
+    document.querySelectorAll(".error-message").forEach((el) => el.remove());
+  }
+
+  function validatePost(postData) {
+    clearErrors();
+    let valid = true;
+
+    // Title
+    if (!postData.title || postData.title.trim().length < 5) {
+      showFieldError("post-title", "Title must be at least 5 characters.");
+      valid = false;
+    } else if (postData.title.length > 100) {
+      showFieldError("post-title", "Title cannot exceed 100 characters.");
+      valid = false;
+    }
+
+    // Snippet
+    if (!postData.snippet || postData.snippet.trim().length === 0) {
+      showFieldError("post-snippet", "Snippet cannot be empty.");
+      valid = false;
+    } else if (postData.snippet.length > 500) {
+      showFieldError("post-snippet", "Snippet cannot exceed 500 characters.");
+      valid = false;
+    }
+
+    // Content
+    const plainContent = stripHtml(postData.content).trim();
+    if (plainContent.length < 100) {
+      showFieldError("post-content", "Content must be at least 100 characters.");
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  // ========= CRUD =========
   async function loadPosts() {
     try {
       showLoading();
@@ -35,7 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(`HTTP error ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+      const data = responseText ? JSON.parse(responseText) : null;
+      if (!data) throw new Error("Server returned empty response");
+
       posts = data.content || data;
       const totalPages = data.totalPages || 1;
 
@@ -47,9 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Render posts in table
-  // =============================
   function renderPosts() {
     postsList.innerHTML = "";
 
@@ -66,9 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
       row.innerHTML = `
         <td>${post.title || "Untitled"}</td>
         <td>${post.author?.fullName || "Unknown"}</td>
-        <td>
-          <span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span>
-        </td>
+        <td><span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span></td>
         <td>${post.publishedAt ? formatDate(post.publishedAt) : "Not published"}</td>
         <td>${post.viewCount || 0}</td>
         <td class="actions">
@@ -79,9 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <i class="fas fa-trash"></i>
           </button>
           <button class="btn-icon status-toggle-btn" data-id="${postId}" data-status="${currentStatus}">
-            <i class="fas fa-toggle-on"></i> ${
-              currentStatus === "DRAFT" ? "Publish" : "Unpublish"
-            }
+            <i class="fas fa-toggle-on"></i> ${currentStatus === "DRAFT" ? "Publish" : "Unpublish"}
           </button>
         </td>
       `;
@@ -89,23 +138,19 @@ document.addEventListener("DOMContentLoaded", () => {
       postsList.appendChild(row);
     });
 
-    // Bind actions
-    document.querySelectorAll(".edit-btn").forEach((btn) =>
-      btn.addEventListener("click", () => openEditor(btn.dataset.id))
-    );
-    document.querySelectorAll(".delete-btn").forEach((btn) =>
-      btn.addEventListener("click", () => confirmDelete(btn.dataset.id))
-    );
-    document.querySelectorAll(".status-toggle-btn").forEach((btn) =>
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openEditor(btn.dataset.id));
+    });
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", () => confirmDelete(btn.dataset.id));
+    });
+    document.querySelectorAll(".status-toggle-btn").forEach((btn) => {
       btn.addEventListener("click", () =>
         togglePostStatus(btn.dataset.id, btn.dataset.status)
-      )
-    );
+      );
+    });
   }
 
-  // =============================
-  // Toggle post status
-  // =============================
   async function togglePostStatus(postId, currentStatus) {
     const newStatus = currentStatus === "DRAFT" ? "PUBLISHED" : "DRAFT";
     try {
@@ -126,9 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Editor modal open/close
-  // =============================
   function openEditor(postId = null) {
     const isEdit = postId !== null;
     document.getElementById("editor-title").textContent = isEdit
@@ -159,7 +201,8 @@ document.addEventListener("DOMContentLoaded", () => {
         editor.root.innerHTML = post.content || "";
 
         if (post.imageUrl) {
-          document.getElementById("image-preview").src = post.imageUrl;
+          const fullImageUrl = `${API_BASE.BACKEND_URL}${post.imageUrl}`;
+          document.getElementById("image-preview").src = fullImageUrl;
           document.getElementById("image-preview").style.display = "block";
         }
       }
@@ -178,58 +221,33 @@ document.addEventListener("DOMContentLoaded", () => {
     editorModal.style.display = "none";
   }
 
-  // =============================
-  // Save post (with validation)
-  // =============================
   async function savePost(event) {
     event.preventDefault();
 
-    clearValidationErrors();
-
-    const postId = document.getElementById("post-id").value;
-    const isEdit = postId !== "";
-    const title = document.getElementById("post-title").value.trim();
-    const snippet = document.getElementById("post-snippet").value.trim();
-    const contentHtml = editor.root.innerHTML.trim();
-    const plainContent = editor.getText().trim();
-
-    let errors = [];
-
-    // === VALIDATION ===
-    if (title.length < 5 || title.length > 100) {
-      errors.push({ field: "post-title", msg: "Title must be 5–100 characters." });
-    }
-    if (!snippet || snippet.length > 500) {
-      errors.push({ field: "post-snippet", msg: "Snippet must be 1–500 characters." });
-    }
-    if (plainContent.length < 100) {
-      errors.push({ field: "post-content", msg: "Content must be at least 100 characters." });
-    }
-
-    if (errors.length > 0) {
-      showValidationErrors(errors);
-      return;
-    }
-
     try {
+      const postId = document.getElementById("post-id").value;
+      const isEdit = postId !== "";
       const formData = new FormData();
 
       const postData = {
-        title,
+        title: document.getElementById("post-title").value,
         slug: document.getElementById("post-slug").value,
         status: document.getElementById("post-status").value,
-        snippet,
-        content: contentHtml,
+        snippet: document.getElementById("post-snippet").value,
+        content: editor.root.innerHTML,
         metaDescription: document.getElementById("meta-description").value,
         tags: document
           .getElementById("post-tags")
           .value.split(",")
           .map((tag) => tag.trim())
-          .filter(Boolean),
+          .filter((tag) => tag.length > 0),
         publishedAt: document.getElementById("publish-date").value
           ? new Date(document.getElementById("publish-date").value).toISOString()
           : null,
       };
+
+      // ✅ Run validation before submitting
+      if (!validatePost(postData)) return;
 
       formData.append(
         "post",
@@ -258,9 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Delete post
-  // =============================
   async function confirmDelete(postId) {
     if (confirm("Are you sure you want to delete this post?")) {
       try {
@@ -281,9 +296,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Helpers
-  // =============================
   function initEditor() {
     editor = new Quill("#post-content-editor", {
       modules: {
@@ -312,19 +324,20 @@ document.addEventListener("DOMContentLoaded", () => {
       loadPosts();
     });
 
-    document.getElementById("image-upload").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          document.getElementById("image-preview").src = event.target.result;
-          document.getElementById("image-preview").style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    document
+      .getElementById("image-upload")
+      .addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById("image-preview").src = event.target.result;
+            document.getElementById("image-preview").style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
 
-    // Auto-generate slug
     document.getElementById("post-title").addEventListener("blur", function () {
       if (!document.getElementById("post-slug").value) {
         const slug = this.value
@@ -337,45 +350,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderPagination(totalPages, currentPage) {
-  pagination.innerHTML = "";
+  // ========= UI Helpers =========
+  function renderPagination(totalPages, current) {
+    pagination.innerHTML = "";
+    if (totalPages <= 1) return;
 
-  if (totalPages <= 1) return;
-
-  // Previous button
-  if (currentPage > 1) {
-    pagination.appendChild(
-      createPaginationButton("« Prev", () => {
-        currentPage--;
-        loadPosts();
-      })
-    );
-  }
-
-  // Page number buttons
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = createPaginationButton(i, () => {
-      currentPage = i;
-      loadPosts();
-    });
-
-    if (i === currentPage) {
-      btn.classList.add("active");
+    if (current > 1) {
+      pagination.appendChild(
+        createPaginationButton("Previous", () => {
+          currentPage = current - 1;
+          loadPosts();
+        })
+      );
     }
 
-    pagination.appendChild(btn);
-  }
-
-  // Next button
-  if (currentPage < totalPages) {
-    pagination.appendChild(
-      createPaginationButton("Next »", () => {
-        currentPage++;
+    for (
+      let i = Math.max(1, current - 2);
+      i <= Math.min(totalPages, current + 2);
+      i++
+    ) {
+      const btn = createPaginationButton(i, () => {
+        currentPage = i;
         loadPosts();
-      })
-    );
+      });
+      if (i === current) btn.classList.add("active");
+      pagination.appendChild(btn);
+    }
+
+    if (current < totalPages) {
+      pagination.appendChild(
+        createPaginationButton("Next", () => {
+          currentPage = current + 1;
+          loadPosts();
+        })
+      );
+    }
   }
-}
 
   function createPaginationButton(text, onClick) {
     const btn = document.createElement("button");
@@ -404,26 +414,5 @@ document.addEventListener("DOMContentLoaded", () => {
       <tr><td colspan="6" class="error">
         <i class="fas fa-exclamation-triangle"></i> ${msg}
       </td></tr>`;
-  }
-
-  // =============================
-  // Validation error helpers
-  // =============================
-  function clearValidationErrors() {
-    document.querySelectorAll(".error-msg").forEach((el) => el.remove());
-  }
-
-  function showValidationErrors(errors) {
-    errors.forEach(({ field, msg }) => {
-      const input = document.getElementById(field);
-      if (input) {
-        const errorEl = document.createElement("div");
-        errorEl.className = "error-msg";
-        errorEl.style.color = "red";
-        errorEl.style.fontSize = "0.9em";
-        errorEl.textContent = msg;
-        input.parentNode.appendChild(errorEl);
-      }
-    });
   }
 });

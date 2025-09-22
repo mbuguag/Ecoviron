@@ -17,9 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initEditor();
   setupEventListeners();
 
-  // =============================
-  // Load posts with pagination
-  // =============================
   async function loadPosts() {
     try {
       showLoading();
@@ -28,14 +25,28 @@ document.addEventListener("DOMContentLoaded", () => {
         status ? `&status=${status}` : ""
       }`;
 
-      const response = await authFetch(url, { method: "GET" });
+      console.log("Fetching from URL:", url);
+
+      const response = await authFetch(url, {
+        method: "GET",
+      });
+
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("Server error:", errorText);
         throw new Error(`HTTP error ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log("Raw response:", responseText);
+
+      const data = responseText ? JSON.parse(responseText) : null;
+      if (!data) {
+        throw new Error("Server returned empty response");
+      }
+
       posts = data.content || data;
       const totalPages = data.totalPages || 1;
 
@@ -47,9 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Render posts in table
-  // =============================
   function renderPosts() {
     postsList.innerHTML = "";
 
@@ -64,54 +72,57 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentStatus = post.status || "DRAFT";
 
       row.innerHTML = `
-        <td>${post.title || "Untitled"}</td>
-        <td>${post.author?.fullName || "Unknown"}</td>
-        <td>
-          <span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span>
-        </td>
-        <td>${post.publishedAt ? formatDate(post.publishedAt) : "Not published"}</td>
-        <td>${post.viewCount || 0}</td>
-        <td class="actions">
-          <button class="btn-icon edit-btn" data-id="${postId}">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn-icon delete-btn" data-id="${postId}">
-            <i class="fas fa-trash"></i>
-          </button>
-          <button class="btn-icon status-toggle-btn" data-id="${postId}" data-status="${currentStatus}">
-            <i class="fas fa-toggle-on"></i> ${
-              currentStatus === "DRAFT" ? "Publish" : "Unpublish"
-            }
-          </button>
-        </td>
-      `;
+      <td>${post.title || "Untitled"}</td>
+      <td>${post.author?.fullName || "Unknown"}</td>
+      <td>
+        <span class="status-badge ${currentStatus.toLowerCase()}">${currentStatus}</span>
+      </td>
+      <td>${
+        post.publishedAt ? formatDate(post.publishedAt) : "Not published"
+      }</td>
+      <td>${post.viewCount || 0}</td>
+      <td class="actions">
+        <button class="btn-icon edit-btn" data-id="${postId}">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon delete-btn" data-id="${postId}">
+          <i class="fas fa-trash"></i>
+        </button>
+        <button class="btn-icon status-toggle-btn" data-id="${postId}" data-status="${currentStatus}">
+          <i class="fas fa-toggle-on"></i> ${
+            currentStatus === "DRAFT" ? "Publish" : "Unpublish"
+          }
+        </button>
+      </td>
+    `;
 
       postsList.appendChild(row);
     });
 
-    // Bind actions
-    document.querySelectorAll(".edit-btn").forEach((btn) =>
-      btn.addEventListener("click", () => openEditor(btn.dataset.id))
-    );
-    document.querySelectorAll(".delete-btn").forEach((btn) =>
-      btn.addEventListener("click", () => confirmDelete(btn.dataset.id))
-    );
-    document.querySelectorAll(".status-toggle-btn").forEach((btn) =>
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openEditor(btn.dataset.id));
+    });
+
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", () => confirmDelete(btn.dataset.id));
+    });
+
+    document.querySelectorAll(".status-toggle-btn").forEach((btn) => {
       btn.addEventListener("click", () =>
         togglePostStatus(btn.dataset.id, btn.dataset.status)
-      )
-    );
+      );
+    });
   }
 
-  // =============================
-  // Toggle post status
-  // =============================
+
   async function togglePostStatus(postId, currentStatus) {
     const newStatus = currentStatus === "DRAFT" ? "PUBLISHED" : "DRAFT";
     try {
       const response = await authFetch(
         `${API_BASE.blogs}/${postId}/status?status=${newStatus}`,
-        { method: "PUT" }
+        {
+          method: "PUT",
+        }
       );
 
       if (!response.ok) {
@@ -126,9 +137,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Editor modal open/close
-  // =============================
+
+  function renderPagination(totalPages, current) {
+    pagination.innerHTML = "";
+
+    if (totalPages <= 1) return;
+
+    if (current > 1) {
+      pagination.appendChild(
+        createPaginationButton("Previous", () => {
+          currentPage = current - 1;
+          loadPosts();
+        })
+      );
+    }
+
+    for (
+      let i = Math.max(1, current - 2);
+      i <= Math.min(totalPages, current + 2);
+      i++
+    ) {
+      const btn = createPaginationButton(i, () => {
+        currentPage = i;
+        loadPosts();
+      });
+      if (i === current) btn.classList.add("active");
+      pagination.appendChild(btn);
+    }
+
+    if (current < totalPages) {
+      pagination.appendChild(
+        createPaginationButton("Next", () => {
+          currentPage = current + 1;
+          loadPosts();
+        })
+      );
+    }
+  }
+
   function openEditor(postId = null) {
     const isEdit = postId !== null;
     document.getElementById("editor-title").textContent = isEdit
@@ -159,7 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
         editor.root.innerHTML = post.content || "";
 
         if (post.imageUrl) {
-          document.getElementById("image-preview").src = post.imageUrl;
+          const fullImageUrl = `${API_BASE.BACKEND_URL}${post.imageUrl}`;
+          document.getElementById("image-preview").src = fullImageUrl;
           document.getElementById("image-preview").style.display = "block";
         }
       }
@@ -178,89 +225,65 @@ document.addEventListener("DOMContentLoaded", () => {
     editorModal.style.display = "none";
   }
 
-  // =============================
-  // Save post (with validation)
-  // =============================
-  async function savePost(event) {
-    event.preventDefault();
+async function savePost(event) {
+  event.preventDefault();
 
-    clearValidationErrors();
-
+  try {
     const postId = document.getElementById("post-id").value;
     const isEdit = postId !== "";
-    const title = document.getElementById("post-title").value.trim();
-    const snippet = document.getElementById("post-snippet").value.trim();
-    const contentHtml = editor.root.innerHTML.trim();
-    const plainContent = editor.getText().trim();
+    const formData = new FormData();
 
-    let errors = [];
+    const postData = {
+      title: document.getElementById("post-title").value,
+      slug: document.getElementById("post-slug").value,
+      status: document.getElementById("post-status").value,
+      snippet: document.getElementById("post-snippet").value,
+      content: editor.root.innerHTML,
+      metaDescription: document.getElementById("meta-description").value,
+      tags: document
+        .getElementById("post-tags")
+        .value.split(",")
+        .map((tag) => tag.trim()),
+      publishedAt: document.getElementById("publish-date").value
+        ? new Date(document.getElementById("publish-date").value).toISOString()
+        : null,
+    };
 
-    // === VALIDATION ===
-    if (title.length < 5 || title.length > 100) {
-      errors.push({ field: "post-title", msg: "Title must be 5–100 characters." });
+    // ✅ Append the JSON payload as a Blob (correct MIME type)
+    formData.append(
+      "post",
+      new Blob([JSON.stringify(postData)], { type: "application/json" }),
+      "post.json"
+    );
+
+    const imageFile = document.getElementById("image-upload").files[0];
+    if (imageFile) {
+      formData.append("image", imageFile);
     }
-    if (!snippet || snippet.length > 500) {
-      errors.push({ field: "post-snippet", msg: "Snippet must be 1–500 characters." });
+
+    const url = isEdit ? `${API_BASE.blogs}/${postId}` : API_BASE.blogs;
+    const method = isEdit ? "PUT" : "POST";
+
+    const response = await authFetch(url, {
+      method,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Server error: ${response.status} - ${errorText}`);
     }
-    if (plainContent.length < 100) {
-      errors.push({ field: "post-content", msg: "Content must be at least 100 characters." });
-    }
 
-    if (errors.length > 0) {
-      showValidationErrors(errors);
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-
-      const postData = {
-        title,
-        slug: document.getElementById("post-slug").value,
-        status: document.getElementById("post-status").value,
-        snippet,
-        content: contentHtml,
-        metaDescription: document.getElementById("meta-description").value,
-        tags: document
-          .getElementById("post-tags")
-          .value.split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-        publishedAt: document.getElementById("publish-date").value
-          ? new Date(document.getElementById("publish-date").value).toISOString()
-          : null,
-      };
-
-      formData.append(
-        "post",
-        new Blob([JSON.stringify(postData)], { type: "application/json" }),
-        "post.json"
-      );
-
-      const imageFile = document.getElementById("image-upload").files[0];
-      if (imageFile) formData.append("image", imageFile);
-
-      const url = isEdit ? `${API_BASE.blogs}/${postId}` : API_BASE.blogs;
-      const method = isEdit ? "PUT" : "POST";
-
-      const response = await authFetch(url, { method, body: formData });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
-      }
-
-      closeEditor();
-      loadPosts();
-    } catch (error) {
-      console.error("Error saving post:", error);
-      showError(`Save failed: ${error.message}`);
-    }
+    closeEditor();
+    loadPosts();
+  } catch (error) {
+    console.error("Error saving post:", error);
+    showError(`Save failed: ${error.message}`);
   }
+}
 
-  // =============================
-  // Delete post
-  // =============================
+
+
   async function confirmDelete(postId) {
     if (confirm("Are you sure you want to delete this post?")) {
       try {
@@ -281,9 +304,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // =============================
-  // Helpers
-  // =============================
   function initEditor() {
     editor = new Quill("#post-content-editor", {
       modules: {
@@ -305,26 +325,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function setupEventListeners() {
     newPostBtn.addEventListener("click", () => openEditor());
     document.querySelector(".close-btn").addEventListener("click", closeEditor);
-    document.getElementById("cancel-btn").addEventListener("click", closeEditor);
+    document
+      .getElementById("cancel-btn")
+      .addEventListener("click", closeEditor);
     postForm.addEventListener("submit", savePost);
     statusFilter.addEventListener("change", () => {
       currentPage = 1;
       loadPosts();
     });
 
-    document.getElementById("image-upload").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          document.getElementById("image-preview").src = event.target.result;
-          document.getElementById("image-preview").style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    document
+      .getElementById("image-upload")
+      .addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById("image-preview").src = event.target.result;
+            document.getElementById("image-preview").style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
 
-    // Auto-generate slug
     document.getElementById("post-title").addEventListener("blur", function () {
       if (!document.getElementById("post-slug").value) {
         const slug = this.value
@@ -336,46 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  function renderPagination(totalPages, currentPage) {
-  pagination.innerHTML = "";
-
-  if (totalPages <= 1) return;
-
-  // Previous button
-  if (currentPage > 1) {
-    pagination.appendChild(
-      createPaginationButton("« Prev", () => {
-        currentPage--;
-        loadPosts();
-      })
-    );
-  }
-
-  // Page number buttons
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = createPaginationButton(i, () => {
-      currentPage = i;
-      loadPosts();
-    });
-
-    if (i === currentPage) {
-      btn.classList.add("active");
-    }
-
-    pagination.appendChild(btn);
-  }
-
-  // Next button
-  if (currentPage < totalPages) {
-    pagination.appendChild(
-      createPaginationButton("Next »", () => {
-        currentPage++;
-        loadPosts();
-      })
-    );
-  }
-}
 
   function createPaginationButton(text, onClick) {
     const btn = document.createElement("button");
@@ -404,26 +387,5 @@ document.addEventListener("DOMContentLoaded", () => {
       <tr><td colspan="6" class="error">
         <i class="fas fa-exclamation-triangle"></i> ${msg}
       </td></tr>`;
-  }
-
-  // =============================
-  // Validation error helpers
-  // =============================
-  function clearValidationErrors() {
-    document.querySelectorAll(".error-msg").forEach((el) => el.remove());
-  }
-
-  function showValidationErrors(errors) {
-    errors.forEach(({ field, msg }) => {
-      const input = document.getElementById(field);
-      if (input) {
-        const errorEl = document.createElement("div");
-        errorEl.className = "error-msg";
-        errorEl.style.color = "red";
-        errorEl.style.fontSize = "0.9em";
-        errorEl.textContent = msg;
-        input.parentNode.appendChild(errorEl);
-      }
-    });
   }
 });
