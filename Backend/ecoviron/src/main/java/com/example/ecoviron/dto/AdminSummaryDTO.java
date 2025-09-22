@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,5 +15,7 @@ public class AdminSummaryDTO {
     private long totalOrders;
     private long totalUsers;
     private long totalProducts;
+    private double totalRevenue;
     private Map<String, Long> orderStatus;
+    private List<String> recentActivities;
 }

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - BionixAdmin</title>
+    <script>
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "../admin/admin-login.html";
+      }
+    </script>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.quilljs.com/latest/quill.snow.css" rel="stylesheet">
+
+
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h2>EcoAdmin</h2>
+      <a
+        href="#"
+        onclick="showSection('dashboard'); setActive(this)"
+        class="active"
+        >Dashboard</a
+      >
+      <a href="#" onclick="showSection('products'); setActive(this)"
+        >Products</a
+      >
+      <a href="#" onclick="showSection('orders'); setActive(this)">Orders</a>
+      <a href="#" onclick="showSection('users'); setActive(this)">Users</a>
+      <a href="../admin/admin-blog.html" onclick="showSection('blogs'); setActive(this)">Blogs</a>
+      <a href="#" onclick="showSection('contacts'); setActive(this)">
+        Messages</a
+      >
+      <a href="#" onclick="showSection('quotes'); setActive(this)">Quotes</a>
+
+
+      <a href="logout.html">Logout</a>
+    </div>
+
+    <main>
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="admin-section">
+        <h2>Overview</h2>
+      
+        <div class="stats-cards">
+          <div class="card">
+            <h3>Total Orders</h3>
+            <p id="total-orders">0</p>
+          </div>
+          <div class="card">
+            <h3>Total Users</h3>
+            <p id="total-users">0</p>
+          </div>
+          <div class="card">
+            <h3>Total Products</h3>
+            <p id="total-products">0</p>
+          </div>
+          <div class="card">
+            <h3>Total Revenue</h3>
+            <p id="total-revenue">KES 0.00</p>
+          </div>
+        </div>
+      
+        <div class="charts-container">
+          <canvas id="orderChart"></canvas>
+          <canvas id="userChart"></canvas>
+        </div>
+      
+        <div class="recent-activities">
+          <h3>Recent Activities</h3>
+          <ul id="recentActivities">
+            <!-- Filled dynamically by JS -->
+          </ul>
+        </div>
+      </section>
+
+
+    </main>
+
+    <script src="https://cdn.quilljs.com/latest/quill.min.js"></script>
+
+
+    <script type="module" src="../admin/js/dashboard.js"></script>
+    <script>
+      function setActive(el) {
+        document
+          .querySelectorAll(".sidebar a")
+          .forEach((a) => a.classList.remove("active"));
+        el.classList.add("active");
+      }
+    </script>
+  </body>
+</html>

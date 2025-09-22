@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Dashboard · BionixEHS</title>
+
+    <!-- your admin css -->
+    <link rel="stylesheet" href="css/admin-style.css" />
+
+    <!-- Chart.js used for summary chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Quill (only for blog editor area, loaded globally to keep module simple) -->
+    <link href="https://cdn.quilljs.com/latest/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.quilljs.com/latest/quill.min.js"></script>
+
+    <style>
+      /* Minimal inline layout to make the scaffold look okay out of the box */
+      :root {
+        --accent: #2ecc71;
+        --muted: #6b7280
+      }
+
+      body {
+        font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        background: #f7faf9;
+        color: #111
+      }
+
+      .app {
+        display: flex;
+        min-height: 100vh
+      }
+
+      .sidebar {
+        width: 220px;
+        background: #05202b;
+        color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.08)
+      }
+
+      .sidebar h2 {
+        margin: 0 0 20px;
+        font-size: 1.2rem
+      }
+
+      .sidebar a {
+        display: block;
+        color: #a8d5c6;
+        text-decoration: none;
+        padding: 8px 0;
+        border-left: 4px solid transparent
+      }
+
+      .sidebar a.active {
+        background: rgba(0, 0, 0, 0.05);
+        border-left-color: var(--accent);
+        color: #fff
+      }
+
+      main {
+        flex: 1;
+        padding: 24px
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-bottom: 12px
+      }
+
+      .cards {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap
+      }
+
+      .card {
+        background: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        min-width: 180px;
+        flex: 1
+      }
+
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+        color: var(--muted)
+      }
+
+      .card p {
+        font-size: 1.3rem;
+        margin: 0
+      }
+
+      section.admin-section {
+        background: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03)
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse
+      }
+
+      table th,
+      table td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        text-align: left
+      }
+
+      .hidden {
+        display: none
+      }
+
+      .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        background: #111;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all .24s
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: none
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <nav class="sidebar" aria-label="Admin navigation">
+        <h2>Bionix Admin</h2>
+        <a href="#" class="active" data-section="dashboard"
+          onclick="showSection('dashboard'); setActive(this)">Dashboard</a>
+        <a href="#" data-section="products" onclick="showSection('products'); setActive(this)">Products</a>
+        <a href="#" data-section="orders" onclick="showSection('orders'); setActive(this)">Orders</a>
+        <a href="#" data-section="users" onclick="showSection('users'); setActive(this)">Users</a>
+        <a href="#" data-section="blogs" onclick="showSection('blogs'); setActive(this)">Blogs</a>
+        <a href="#" data-section="contacts" onclick="showSection('contacts'); setActive(this)">Messages</a>
+        <a href="#" data-section="quotes" onclick="showSection('quotes'); setActive(this)">Quotes</a>
+        <hr style="border:0;height:1px;background:#0a3740;margin:12px 0">
+        <a href="logout.html" style="color:#f4b6b6">Logout</a>
+      </nav>
+
+      <main>
+        <div class="topbar">
+          <div id="adminWelcome">Loading...</div>
+        </div>
+
+        <!-- summary cards + quick chart -->
+        <div id="dashboard" class="admin-section">
+          <div class="cards" aria-hidden="false">
+            <div class="card">
+              <h3>Total Orders</h3>
+              <p id="total-orders">—</p>
+            </div>
+            <div class="card">
+              <h3>Total Users</h3>
+              <p id="total-users">—</p>
+            </div>
+            <div class="card">
+              <h3>Total Products</h3>
+              <p id="total-products">—</p>
+            </div>
+          </div>
+
+          <section style="margin-top:12px">
+            <h3>Order Status</h3>
+            <canvas id="orderChart" width="600" height="240"></canvas>
+          </section>
+        </div>
+
+        <!-- Products (lazy-loaded) -->
+        <section id="products" class="admin-section hidden">
+          <h2>Products</h2>
+          <div id="products-root">Loading products module…</div>
+        </section>
+
+        <!-- Orders -->
+        <section id="orders" class="admin-section hidden">
+          <h2>Orders</h2>
+          <div id="orders-root">Loading orders module…</div>
+        </section>
+
+        <!-- Users -->
+        <section id="users" class="admin-section hidden">
+          <h2>Users</h2>
+          <div id="users-root">Loading users module…</div>
+        </section>
+
+        <!-- Blogs -->
+        <section id="blogs" class="admin-section hidden">
+          <h2>Blogs</h2>
+          <div id="blogs-root">Loading blogs module…</div>
+        </section>
+
+        <!-- Contacts -->
+        <section id="contacts" class="admin-section hidden">
+          <h2>Messages</h2>
+          <div id="contacts-root">Loading messages module…</div>
+        </section>
+
+        <!-- Quotes -->
+        <section id="quotes" class="admin-section hidden">
+          <h2>Quote Requests</h2>
+          <div id="quotes-root">Loading quotes module…</div>
+        </section>
+
+        <div id="toast" class="toast" aria-live="polite"></div>
+      </main>
+    </div>
+
+    <!-- CENTRAL DASHBOARD JS (module) -->
+    <script type="module" src="js/dashboard.js"></script>
+
+    <script>
+      // small helper for the inline onclick setActive
+      function setActive(el) {
+        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+        el.classList.add('active');
+      }
+      // expose global (dashboard.js also sets window.showSection)
+      window.setActive = setActive;
+    </script>
+  </body>
+
+</html>
