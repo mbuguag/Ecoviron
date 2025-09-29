@@ -22,9 +22,6 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
-    /**
-     * Internal entity getter (ensures cart exists for user).
-     */
     @Override
     @Transactional(readOnly = true)
     public Cart getCartEntityByUser(User user) {
@@ -36,16 +33,15 @@ public class CartServiceImpl implements CartService {
                 });
     }
 
-    /**
-     * DTO getter for API responses.
-     */
     @Override
+    @Transactional(readOnly = true)
     public CartResponseDto getCartByUser(User user) {
         Cart cart = getCartEntityByUser(user);
-        return CartMapper.toDto(cart);
+        return CartMapper.toDto(cart); // ✅ maps safely
     }
 
     @Override
+    @Transactional
     public CartResponseDto addItemToCart(User user, Long productId, int quantity) {
         Cart cart = getCartEntityByUser(user);
 
@@ -62,16 +58,17 @@ public class CartServiceImpl implements CartService {
 
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
-            newItem.setProduct(product);
+            newItem.setProduct(product); // ✅ attached entity
             newItem.setQuantity(quantity);
             cart.getItems().add(newItem);
         }
 
         Cart savedCart = cartRepository.save(cart);
-        return CartMapper.toDto(savedCart);
+        return CartMapper.toDto(savedCart); // ✅ DTO mapping
     }
 
     @Override
+    @Transactional
     public CartResponseDto updateItemQuantity(User user, Long itemId, int quantity) {
         Cart cart = getCartEntityByUser(user);
 
@@ -86,16 +83,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public void removeItemFromCart(User user, Long itemId) {
         Cart cart = getCartEntityByUser(user);
         cart.getItems().removeIf(item -> item.getId().equals(itemId));
-        cartRepository.save(cart); // orphanRemoval=true handles DB deletion
+        cartRepository.save(cart);
     }
 
     @Override
+    @Transactional
     public void clearCart(User user) {
         Cart cart = getCartEntityByUser(user);
-        cart.getItems().clear(); // orphanRemoval=true handles DB deletion
+        cart.getItems().clear();
         cartRepository.save(cart);
     }
 }
+

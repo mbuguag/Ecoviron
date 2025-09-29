@@ -27,4 +27,6 @@ public class NewsletterSubscriber {
     private String confirmationToken;
 
     private LocalDateTime subscribedAt = LocalDateTime.now();
+
+    private LocalDateTime confirmedAt;
 }

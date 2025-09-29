@@ -12,12 +12,18 @@ import java.util.stream.Collectors;
 
 public class CartMapper {
 
+    private CartMapper() {
+        // Utility class -> prevent instantiation
+    }
+
     public static CartResponseDto toDto(Cart cart) {
         if (cart == null) {
             return null;
         }
 
-        List<CartItemDto> itemDtos = cart.getItems().stream().map(CartMapper::mapCartItem).collect(Collectors.toList());
+        List<CartItemDto> itemDtos = cart.getItems().stream()
+                .map(CartMapper::mapCartItem)
+                .collect(Collectors.toList());
 
         double totalPrice = itemDtos.stream()
                 .mapToDouble(i -> i.getProduct().getPrice() * i.getQuantity())
@@ -31,23 +37,32 @@ public class CartMapper {
         dto.setItems(itemDtos);
         dto.setTotalPrice(totalPrice);
         dto.setTotalQuantity(totalQuantity);
-
         return dto;
     }
 
     private static CartItemDto mapCartItem(CartItem item) {
+        if (item == null) {
+            return null;
+        }
+
         CartItemDto itemDto = new CartItemDto();
         itemDto.setId(item.getId());
         itemDto.setQuantity(item.getQuantity());
 
-        Product product = item.getProduct();
-        ProductDto productDto = new ProductDto();
-        productDto.setId(product.getId());
-        productDto.setName(product.getName());
-        productDto.setPrice(product.getPrice());
-        productDto.setImageUrl(product.getImageUrl());
-
-        itemDto.setProduct(productDto);
+        itemDto.setProduct(mapProduct(item.getProduct()));
         return itemDto;
+    }
+
+    private static ProductDto mapProduct(Product product) {
+        if (product == null) {
+            return null;
+        }
+
+        ProductDto dto = new ProductDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setPrice(product.getPrice());
+        dto.setImageUrl(product.getImageUrl());
+        return dto;
     }
 }

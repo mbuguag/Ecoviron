@@ -1,14 +1,12 @@
 package com.example.ecoviron.service.Impl;
 
+import com.example.ecoviron.config.AppProperties;
 import com.example.ecoviron.entity.NewsletterSubscriber;
 import com.example.ecoviron.repository.NewsletterSubscriberRepository;
 import com.example.ecoviron.service.NewsletterService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.example.ecoviron.service.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,42 +18,29 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NewsletterServiceImpl implements NewsletterService {
 
-    private final NewsletterSubscriberRepository repository;
-    private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
-    @Value("${newsletter.confirmation-url}")
-    private String confirmationBaseUrl;
-
-    @Value("${newsletter.unsubscribe-url}")
-    private String unsubscribeBaseUrl;
+    private final NewsletterSubscriberRepository subscriberRepository;
+    private final EmailService emailService;
+    private final AppProperties appProperties;
 
     @Override
+    @Transactional
     public void subscribe(String email) {
-        Optional<NewsletterSubscriber> existingOpt = repository.findByEmail(email);
+        Optional<NewsletterSubscriber> existing = subscriberRepository.findByEmail(email);
 
-        if (existingOpt.isPresent()) {
-            NewsletterSubscriber existing = existingOpt.get();
-
-            if (existing.isConfirmed() && !existing.isUnsubscribed()) {
-                // Already confirmed and active
+        if (existing.isPresent()) {
+            NewsletterSubscriber subscriber = existing.get();
+            if (subscriber.isConfirmed() && !subscriber.isUnsubscribed()) {
+                throw new IllegalArgumentException("Email is already subscribed to the newsletter.");
+            } else {
+                // Reset unsubscribe flag and resend confirmation
+                subscriber.setUnsubscribed(false);
+                subscriber.setConfirmationToken(UUID.randomUUID().toString());
+                subscriberRepository.save(subscriber);
+                sendConfirmationEmail(subscriber);
                 return;
             }
-
-            // Re-subscribe logic
-            existing.setUnsubscribed(false);
-            existing.setConfirmed(false);
-            existing.setConfirmationToken(UUID.randomUUID().toString());
-            existing.setSubscribedAt(LocalDateTime.now());
-
-            repository.save(existing);
-            sendConfirmationEmail(existing);
-            return;
         }
 
-        // New subscriber
         NewsletterSubscriber subscriber = NewsletterSubscriber.builder()
                 .email(email)
                 .confirmed(false)
@@ -64,92 +49,76 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .subscribedAt(LocalDateTime.now())
                 .build();
 
-        repository.save(subscriber);
+        subscriberRepository.save(subscriber);
         sendConfirmationEmail(subscriber);
     }
 
     @Override
+    @Transactional
     public void confirmSubscription(String token) {
-        NewsletterSubscriber subscriber = repository.findByConfirmationToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid confirmation token"));
+        NewsletterSubscriber subscriber = subscriberRepository.findByConfirmationToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired confirmation token."));
 
         subscriber.setConfirmed(true);
-        subscriber.setConfirmationToken(null); // Invalidate token
-        repository.save(subscriber);
-    }
+        subscriber.setConfirmedAt(LocalDateTime.now());
+        subscriber.setConfirmationToken(null); // clear token after use
+        subscriberRepository.save(subscriber);
 
-    @Override
-    public void unsubscribe(String token) {
-        NewsletterSubscriber subscriber = repository.findByConfirmationToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid unsubscribe token"));
-
-        subscriber.setUnsubscribed(true);
-        subscriber.setConfirmed(false);
-        repository.save(subscriber);
-    }
-
-    @Override
-    public List<NewsletterSubscriber> getAllSubscribers() {
-        return repository.findAllByConfirmedTrueAndUnsubscribedFalse();
+        emailService.sendNewsletter(
+                "🎉 Welcome to Ecoviron Newsletter!",
+                "Hi " + subscriber.getEmail() + ",\n\n" +
+                        "Thank you for confirming your subscription! 🎉\n" +
+                        "You’ll now receive updates from us.\n\n" +
+                        "Regards,\nBionix-HSE Team"
+        );
     }
 
     @Override
     public void sendNewsletter(String subject, String content) {
-        List<NewsletterSubscriber> recipients = getAllSubscribers();
+        List<NewsletterSubscriber> subscribers = subscriberRepository.findAllByConfirmedTrueAndUnsubscribedFalse();
 
-        for (NewsletterSubscriber subscriber : recipients) {
-            try {
-                sendNewsletterEmail(subscriber.getEmail(), subject, content, subscriber.getId());
-            } catch (Exception e) {
-                e.printStackTrace(); // Log failure
-            }
+        for (NewsletterSubscriber subscriber : subscribers) {
+            String unsubscribeUrl = appProperties.getNewsletter().getUnsubscribeUrl()
+                    + "?email=" + subscriber.getEmail();
+
+            String finalContent = content + "\n\n---\n" +
+                    "To unsubscribe, click here: " + unsubscribeUrl;
+
+            emailService.sendNewsletter(subject, finalContent);
         }
     }
 
-    // ======= EMAILS =======
+    @Override
+    @Transactional
+    public void unsubscribe(String email) {
+        NewsletterSubscriber subscriber = subscriberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Subscriber not found."));
 
+        subscriber.setUnsubscribed(true);
+        subscriberRepository.save(subscriber);
+    }
+
+    @Override
+    public List<NewsletterSubscriber> getAllSubscribers() {
+        return subscriberRepository.findAll();
+    }
+
+    // ======================
+    // Private helpers
+    // ======================
     private void sendConfirmationEmail(NewsletterSubscriber subscriber) {
-        String confirmUrl = confirmationBaseUrl + "?token=" + subscriber.getConfirmationToken();
-        String unsubscribeUrl = unsubscribeBaseUrl + "?token=" + subscriber.getConfirmationToken();
+        String confirmationUrl = appProperties.getNewsletter().getConfirmationUrl()
+                + "?token=" + subscriber.getConfirmationToken();
 
-        String html = """
-            <h2>Welcome to Ecoviron Newsletter!</h2>
-            <p>Click the button below to confirm your subscription:</p>
-            <p><a href="%s" style="background-color: #4CAF50; padding: 10px 20px; color: white; text-decoration: none;">Confirm Subscription</a></p>
-            <hr/>
-            <p>If you did not request this, you can ignore it or <a href="%s">unsubscribe</a>.</p>
-        """.formatted(confirmUrl, unsubscribeUrl);
+        String subject = "📩 Confirm your Ecoviron Newsletter Subscription";
+        String body = String.format(
+                "Hi,\n\nThank you for subscribing to Ecoviron's newsletter! 🎉\n\n" +
+                        "Please confirm your subscription by clicking the link below:\n%s\n\n" +
+                        "If you didn’t request this, just ignore this email.\n\n" +
+                        "Best regards,\nEcoviron Team",
+                confirmationUrl
+        );
 
-        sendHtmlEmail(subscriber.getEmail(), "Confirm your subscription to Ecoviron", html);
-    }
-
-    private void sendNewsletterEmail(String to, String subject, String content, Long subscriberId) {
-        String unsubscribeUrl = unsubscribeBaseUrl + "?id=" + subscriberId;
-
-        String html = """
-            <div style="font-family: Arial, sans-serif;">
-                <p>%s</p>
-                <hr/>
-                <p style="font-size: 12px;">Don't want these emails? <a href="%s">Unsubscribe</a></p>
-            </div>
-        """.formatted(content, unsubscribeUrl);
-
-        sendHtmlEmail(to, subject, html);
-    }
-
-    private void sendHtmlEmail(String to, String subject, String htmlContent) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email to " + to, e);
-        }
+        emailService.sendNewsletter(subject, body);
     }
 }

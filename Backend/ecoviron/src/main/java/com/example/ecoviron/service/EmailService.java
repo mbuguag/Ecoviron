@@ -1,5 +1,6 @@
 package com.example.ecoviron.service;
 
+import com.example.ecoviron.config.AppProperties;
 import com.example.ecoviron.entity.ContactMessage;
 import com.example.ecoviron.entity.Order;
 import com.example.ecoviron.entity.OrderItem;
@@ -7,7 +8,6 @@ import com.example.ecoviron.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,134 +15,158 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * EmailService uses AppProperties for all env-driven values (URLs, admin email, sender).
+ */
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final AppProperties appProperties;
 
-    @Value("${spring.mail.username}")
-    private String sender;
+    private String getSender() {
+        // Prefer app.mail.from; if not set, fallback to spring.mail.username (configured in spring).
+        String from = appProperties.getMail().getFrom();
+        return (from == null || from.isBlank()) ? "" : from;
+    }
 
-    @Value("${app.reset-password.base-url:http://localhost:5500/frontend/auth/reset-password.html}")
-    private String resetPasswordBaseUrl;
+    // ---------------- Admin notifications ----------------
 
-    @Value("${admin.email}")
-    private String adminEmail;
-
-
-    /**
-     * Sends admin a notification when a contact form is submitted
-     */
     public void sendAdminNotification(ContactMessage message) {
+        String sender = getSender();
         SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo("mbuguajoseph481@gmail.com");
-        mail.setFrom(sender);
+        mail.setTo(appProperties.getAdmin().getEmail());
+        if (!sender.isBlank()) mail.setFrom(sender);
+        if (appProperties.getMail().getReplyTo() != null) mail.setReplyTo(appProperties.getMail().getReplyTo());
+
         mail.setSubject("New Contact Message from " + message.getName());
-        mail.setText(
-                "Name: " + message.getName() + "\n" +
-                        "Email: " + message.getEmail() + "\n" +
-                        "Phone: " + message.getPhone() + "\n\n" +
-                        "Message:\n" + message.getMessage()
+        mail.setText("""
+                Name: %s
+                Email: %s
+                Phone: %s
+
+                Message:
+                %s
+                """.formatted(message.getName(), message.getEmail(), message.getPhone(), message.getMessage())
         );
 
         mailSender.send(mail);
     }
 
-    /**
-     * Sends password reset instructions to the user's email
-     */
-    public void sendPasswordResetEmail(String toEmail, String resetToken) {
-        String resetLink = resetPasswordBaseUrl + "?token=" + resetToken;
+    // ---------------- Password reset ----------------
 
-        String subject = "Reset Your Password - Ecoviron";
-        String body = "Hi,\n\n" +
-                "We received a request to reset your password. Click the link below to proceed:\n" +
-                resetLink + "\n\n" +
-                "If you did not request this, please ignore this email.\n\n" +
-                "Best regards,\nEcoviron Team";
+    public void sendPasswordResetEmail(String toEmail, String resetToken) {
+        String resetBase = appProperties.getReset().getPasswordUrl();
+        if (resetBase == null || resetBase.isBlank()) {
+            // fallback to app.baseUrl + default path
+            resetBase = appProperties.getBaseUrl() + "/auth/reset-password";
+        }
+        String resetLink = resetBase + (resetBase.contains("?") ? "&" : "?") + "token=" + resetToken;
+
+        String subject = "Reset Your Password - BIONIX-HSE";
+        String body = """
+                Hi,
+
+                We received a request to reset your password. Click the link below to proceed:
+                %s
+
+                If you did not request this, please ignore this email.
+
+                Best regards,
+                BIONIX-HSE Team
+                """.formatted(resetLink);
 
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(toEmail);
-        mail.setFrom(sender);
+        if (!getSender().isBlank()) mail.setFrom(getSender());
         mail.setSubject(subject);
         mail.setText(body);
 
         mailSender.send(mail);
     }
 
+    // ---------------- Order notifications (admin) ----------------
+
     public void sendOrderNotification(Order order, User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            String adminEmail = appProperties.getAdmin().getEmail();
+            if (adminEmail == null || adminEmail.isBlank()) {
+                throw new IllegalStateException("Admin email not configured (app.admin.email)");
+            }
 
             helper.setTo(adminEmail);
-            helper.setFrom(sender);
+            if (!getSender().isBlank()) helper.setFrom(getSender());
+            if (appProperties.getMail().getReplyTo() != null) helper.setReplyTo(appProperties.getMail().getReplyTo());
             helper.setSubject("🛒 New Order Received – " + order.getOrderReference());
 
             StringBuilder html = new StringBuilder();
-
             html.append("""
-        <html>
-          <body style="font-family: Arial, sans-serif; background-color: #f6f9fc; padding: 20px;">
-            <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-              <h2 style="color: #2e8b57;">🌿 Bionix-EHS  – New Order Notification</h2>
-              <p><strong>Customer:</strong> %s (%s)</p>
-              <p><strong>Order Reference:</strong> %s</p>
-              <p><strong>Date:</strong> %s</p>
-              <p><strong>Total:</strong> <strong>KES %.2f</strong></p>
-              <p><strong>Status:</strong> %s</p>
-              <p><strong>Shipping Address:</strong> %s</p>
+                    <html>
+                      <body style="font-family: Arial, sans-serif; background-color: #f6f9fc; padding: 20px;">
+                        <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                          <h2 style="color: #2e8b57;">🌿 BIONIX_HSE – New Order Notification</h2>
+                          <p><strong>Customer:</strong> %s (%s)</p>
+                          <p><strong>Order Reference:</strong> %s</p>
+                          <p><strong>Date:</strong> %s</p>
+                          <p><strong>Total:</strong> <strong>KES %.2f</strong></p>
+                          <p><strong>Status:</strong> %s</p>
+                          <p><strong>Shipping Address:</strong> %s</p>
 
-              <h3 style="margin-top: 30px;">🛍 Order Items</h3>
-              <table width="100%%" cellpadding="8" cellspacing="0" style="border-collapse: collapse;">
-                <thead>
-                  <tr style="background-color: #f0f0f0;">
-                    <th align="left">Product</th>
-                    <th align="center">Qty</th>
-                    <th align="right">Price (KES)</th>
-                  </tr>
-                </thead>
-                <tbody>
-        """.formatted(
+                          <h3 style="margin-top: 30px;">🛍 Order Items</h3>
+                          <table width="100%%" cellpadding="8" cellspacing="0" style="border-collapse: collapse;">
+                            <thead>
+                              <tr style="background-color: #f0f0f0;">
+                                <th align="left">Product</th>
+                                <th align="center">Qty</th>
+                                <th align="right">Price (KES)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                    """.formatted(
                     user.getFullName(), user.getEmail(),
                     order.getOrderReference(),
-                    order.getOrderDate().toString(),
+                    order.getOrderDate(),
                     order.getTotalAmount(),
                     order.getStatus(),
                     order.getShippingAddress() == null ? "N/A" : order.getShippingAddress()
             ));
 
-            // Items
             for (OrderItem item : order.getItems()) {
                 html.append(String.format("""
-              <tr>
-                <td>%s</td>
-                <td align="center">%d</td>
-                <td align="right">%.2f</td>
-              </tr>
-            """, item.getProduct().getName(), item.getQuantity(), item.getPrice()));
+                          <tr>
+                            <td>%s</td>
+                            <td align="center">%d</td>
+                            <td align="right">%.2f</td>
+                          </tr>
+                        """, item.getProduct().getName(), item.getQuantity(), item.getPrice()));
             }
 
+            String dashboard = appProperties.getAdmin().getDashboardUrl();
+            if (dashboard == null || dashboard.isBlank()) {
+                dashboard = appProperties.getBaseUrl() + "/admin";
+            }
             html.append("""
-                </tbody>
-              </table>
+                            </tbody>
+                          </table>
+                          <p style="margin-top: 40px; font-size: 14px; color: #555;">
+                            Please log in to the admin dashboard to manage this order.<br>
+                            <a href="%s" style="color: #2e8b57;">View in Dashboard</a>
+                          </p>
 
-              <p style="margin-top: 40px; font-size: 14px; color: #555;">
-                Please log in to the admin dashboard to manage this order.<br>
-                <a href="http://localhost:5500/frontend/admin/admin-dashboard.html" style="color: #2e8b57;">View in Dashboard</a>
-              </p>
+                          <hr style="margin: 30px 0;">
+                          <p style="font-size: 12px; color: #888888; text-align: center;">
+                            © %d BIONIX-HSE. All rights reserved.
+                          </p>
+                        </div>
+                      </body>
+                    </html>
+                    """.formatted(dashboard, LocalDateTime.now().getYear()));
 
-              <hr style="margin: 30px 0;">
-              <p style="font-size: 12px; color: #888888; text-align: center;">
-                © %d Bionix-EHS. All rights reserved.
-              </p>
-            </div>
-          </body>
-        </html>
-        """.formatted(LocalDateTime.now().getYear()));
-
-            helper.setText(html.toString(), true); // HTML email
+            helper.setText(html.toString(), true);
             mailSender.send(message);
 
         } catch (MessagingException e) {
@@ -150,111 +174,110 @@ public class EmailService {
         }
     }
 
+    // ---------------- Customer receipt ----------------
 
     public void sendCustomerOrderReceiptHtml(Order order, User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(user.getEmail());
-            helper.setFrom(sender);
-            helper.setSubject("🧾 Your Bionix Order Receipt - " + order.getOrderReference());
+            if (!getSender().isBlank()) helper.setFrom(getSender());
+            helper.setSubject("🧾 Order Receipt - " + order.getOrderReference());
 
-            StringBuilder html = new StringBuilder();
-            html.append("<!DOCTYPE html><html><body style='font-family: Arial, sans-serif;'>");
-            html.append("<h2 style='color: #2c3e50;'>Thanks for your order, ").append(user.getFullName()).append("!</h2>");
-            html.append("<p>Here are your order details:</p>");
+            String orderUrlBase = appProperties.getBaseUrl();
+            if (orderUrlBase == null || orderUrlBase.isBlank()) orderUrlBase = "";
 
-            html.append("<table style='border-collapse: collapse; width: 100%; margin-top: 10px;'>");
-            html.append("<tr><td><strong>Order Reference:</strong></td><td>").append(order.getOrderReference()).append("</td></tr>");
-            html.append("<tr><td><strong>Order Date:</strong></td><td>").append(order.getOrderDate()).append("</td></tr>");
-            html.append("<tr><td><strong>Status:</strong></td><td>").append(order.getStatus()).append("</td></tr>");
-            html.append("<tr><td><strong>Shipping Address:</strong></td><td>").append(order.getShippingAddress()).append("</td></tr>");
-            html.append("</table>");
+            String html = """
+                    <html>
+                      <body style="font-family: Arial, sans-serif;">
+                        <h2>Thank you for your order, %s!</h2>
+                        <p>Your order reference is: <strong>%s</strong></p>
+                        <p>Total amount: KES %.2f</p>
+                        <p>Status: %s</p>
+                        <p>You can view your order details here: <a href="%s/orders/%s">%s/orders/%s</a></p>
+                        <p>Best regards,<br/><strong>BIONIX-HSE Team 🌱</strong></p>
+                      </body>
+                    </html>
+                    """.formatted(
+                    user.getFullName(),
+                    order.getOrderReference(),
+                    order.getTotalAmount(),
+                    order.getStatus(),
+                    orderUrlBase, order.getOrderReference(),
+                    orderUrlBase, order.getOrderReference()
+            );
 
-            html.append("<h3 style='margin-top: 20px;'>Items</h3>");
-            html.append("<table style='width:100%; border: 1px solid #ddd;'>");
-            html.append("<tr style='background-color:#f2f2f2;'>")
-                    .append("<th style='padding:8px;border:1px solid #ddd;'>Product</th>")
-                    .append("<th style='padding:8px;border:1px solid #ddd;'>Qty</th>")
-                    .append("<th style='padding:8px;border:1px solid #ddd;'>Price</th>")
-                    .append("</tr>");
-
-            for (OrderItem item : order.getItems()) {
-                html.append("<tr>")
-                        .append("<td style='padding:8px;border:1px solid #ddd;'>").append(item.getProduct().getName()).append("</td>")
-                        .append("<td style='padding:8px;border:1px solid #ddd;'>").append(item.getQuantity()).append("</td>")
-                        .append("<td style='padding:8px;border:1px solid #ddd;'>KES ").append(item.getPrice()).append("</td>")
-                        .append("</tr>");
-            }
-
-            html.append("</table>");
-            html.append("<p style='margin-top:10px;'><strong>Total Amount:</strong> KES ").append(order.getTotalAmount()).append("</p>");
-
-            html.append("<p>We'll notify you once your order is shipped.</p>");
-            html.append("<p>Best regards,<br/><strong>Ecoviron Team 🌱</strong></p>");
-            html.append("</body></html>");
-
-            helper.setText(html.toString(), true);
+            helper.setText(html, true);
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send HTML order receipt", e);
+            throw new RuntimeException("Failed to send order receipt email to customer", e);
         }
     }
 
-    /**
-     * Sends a confirmation email to the user who submitted the contact form.
-     */
-    public void sendContactConfirmation(ContactMessage message) {
-        SimpleMailMessage confirmation = new SimpleMailMessage();
-        confirmation.setTo(message.getEmail());
-        confirmation.setFrom(sender);
-        confirmation.setSubject("We’ve received your message - Bionix-HSE");
-        confirmation.setText("""
-            Dear %s,
+    // ---------------- Contact confirmation ----------------
 
-            Thank you for reaching out to Bionix-HSE Environmental Consultancy.
-            We have received your message and our team will get back to you shortly.
+    public void sendContactConfirmation(ContactMessage contactMessage) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(contactMessage.getEmail());
+        if (!getSender().isBlank()) mail.setFrom(getSender());
+        mail.setSubject("📩 We’ve received your message – BIONIX-HSE");
+        mail.setText("""
+                Hi %s,
 
-            Your Message:
-            "%s"
+                Thank you for reaching out to us. We’ve received your message and our team will get back to you soon.
 
-            If this was sent in error, feel free to ignore this email.
+                Best,
+                BIONIX-HSE Support Team
+                """.formatted(contactMessage.getName()));
 
-
-            Best regards,
-            Bionix-HSE Team 🌱
-            """.formatted(message.getName(), message.getMessage()));
-
-        mailSender.send(confirmation);
+        mailSender.send(mail);
     }
 
+    // ---------------- Payment failure ----------------
+
     public void sendPaymentFailedEmail(Order order, User user, String reason) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(user.getEmail());
+        if (!getSender().isBlank()) mail.setFrom(getSender());
+        mail.setSubject("⚠ Payment Failed - " + order.getOrderReference());
+        mail.setText("""
+                Hi %s,
+
+                Unfortunately, your payment for order %s failed.
+                Reason: %s
+
+                Please try again or contact support.
+
+                Regards,
+                Bionix-HSE Team
+                """.formatted(user.getFullName(), order.getOrderReference(), reason));
+
+        mailSender.send(mail);
+    }
+
+    // ---------------- Newsletter ----------------
+
+    public void sendNewsletter(String subject, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setTo(user.getEmail());
-            helper.setFrom(sender);
-            helper.setSubject("⚠️ Payment Failed - Order " + order.getOrderReference());
+            String sender = getSender();
+            if (!sender.isBlank()) helper.setFrom(sender);
 
-            StringBuilder html = new StringBuilder();
-            html.append("<!DOCTYPE html><html><body style='font-family: Arial, sans-serif;'>")
-                    .append("<h2 style='color:#e74c3c;'>Payment Failed</h2>")
-                    .append("<p>Dear ").append(user.getFullName()).append(",</p>")
-                    .append("<p>Unfortunately, your payment for order <strong>")
-                    .append(order.getOrderReference()).append("</strong> was not successful.</p>")
-                    .append("<p><strong>Reason:</strong> ").append(reason).append("</p>")
-                    .append("<p>If this was an error, please try again from your account or contact support.</p>")
-                    .append("<br/><p>Best regards,<br/><strong>Ecoviron Team 🌱</strong></p>")
-                    .append("</body></html>");
+            helper.setSubject(subject);
+            helper.setText(body, false); // plain text
 
-            helper.setText(html.toString(), true);
-            mailSender.send(message);
+            // NOTE: Recipient must be set by the caller,
+            // so this is intended for single-subscriber use.
+            // If you want multi-subscriber broadcast, wrap this in NewsletterServiceImpl.
+
+            throw new UnsupportedOperationException("Recipient email must be set by caller");
 
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send payment failure email", e);
+            throw new RuntimeException("Failed to send newsletter", e);
         }
     }
 
